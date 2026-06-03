@@ -1,0 +1,7 @@
+
+> expense-tracker-backend@1.0.0 start
+> node server.js
+
+◇ injected env (3) from .env // tip: ⌘ suppress logs { quiet: true }
+Server running on Port 8000
+MongoDB connected
