@@ -26,6 +26,7 @@ const Income = () => {
 
   // get all Income Details
   const fetchIncomeDetails = useCallback(async () => {
+    if (loading) return
     setLoading(true);
     setError("");
 
