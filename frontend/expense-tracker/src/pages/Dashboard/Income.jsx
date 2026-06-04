@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import Dashboardlayout from "../../components/layouts/Dashboardlayout";
 import IncomeOverview from "../../components/Income/IncomeOverview";
 import { useUserAuth } from "../../hooks/useUserAuth";
@@ -15,8 +15,6 @@ const Income = () => {
 
   const [incomeData, setIncomeData] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [submitting, setSubmitting] = useState(false);
-  const [downloading, setDownloading] = useState(false);
   const [error, setError] = useState("");
   const [openDeleteAlert, setOpenDeleteAlert] = useState({
     show: false,
@@ -25,20 +23,26 @@ const Income = () => {
   const [openAddIncomeModal, setOpenAddIncomeModal] = useState(false);
 
   // get all Income Details
-  const fetchIncomeDetails = useCallback(async () => {
-    if (loading) return
+
+  const fetchIncomeDetails = async () => {
+    if (loading) return;
     setLoading(true);
-    setError("");
 
     try {
       const response = await axiosInstance.get(API_PATHS.INCOME.GET_ALL_INCOME);
-      setIncomeData(Array.isArray(response.data) ? response.data : []);
-    } catch (err) {
-      setError(err.response?.data?.message || "Failed to load income details.");
+
+      if (response.data) {
+        setIncomeData(response.data);
+      }
+    } catch (error) {
+      console.error(
+        "Failed to load Expense details.",
+        error.response?.data?.message || error.message,
+      );
     } finally {
       setLoading(false);
     }
-  }, []);
+  };
 
   // handle Add Income
   const handleAddIncome = async (income) => {
@@ -60,9 +64,6 @@ const Income = () => {
       return;
     }
 
-    setSubmitting(true);
-    setError("");
-
     try {
       await axiosInstance.post(API_PATHS.INCOME.ADD_INCOME, {
         source,
@@ -76,8 +77,6 @@ const Income = () => {
       await fetchIncomeDetails();
     } catch (error) {
       setError(error.response?.data?.message || "Failed to add income.");
-    } finally {
-      setSubmitting(false); // Now this works perfectly
     }
   };
 
@@ -102,8 +101,7 @@ const Income = () => {
 
   // handle download income details
   const handleDownloadIncomeDetails = async () => {
-    setDownloading(true);
-    setError("");
+   
 
     try {
       const response = await axiosInstance.get(
@@ -126,8 +124,7 @@ const Income = () => {
         err.response?.data?.message ||
           "Failed to download income details. Please try again.",
       );
-    } finally {
-      setDownloading(false);
+      toast.error("Failed to download expense data. Please try again");
     }
   };
 

@@ -84,7 +84,7 @@ const Home = () => {
           />
           <InfoCard
             icon={<GiTakeMyMoney />}
-            label="Monthly Expense Total"
+            label="Past 30 Days Expense"
             value={addThousandsSeparator(
               dashboardData?.last30DaysExpense?.total,
             )}

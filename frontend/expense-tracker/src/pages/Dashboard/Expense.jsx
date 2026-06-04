@@ -105,7 +105,7 @@ const Expense = () => {
 
   // handle download Expense details
   const handleDownloadExpenseDetails = async () => {
-    if (loading) true;
+    
 
     try {
       const response = await axiosInstance.get(
