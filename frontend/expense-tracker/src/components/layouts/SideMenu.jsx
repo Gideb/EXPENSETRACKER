@@ -2,11 +2,11 @@ import { useContext } from "react";
 import { SIDE_MENU_DATA } from "../../utils/data";
 import { UserContext } from "../../context/UserContext";
 import { useNavigate } from "react-router-dom";
+import { BASE_URL } from "../../utils/apiPaths";
 import CharAvatar from "../Cards/CharAvatar";
 
 const SideMenu = ({ activeMenu }) => {
   const { user, clearUser } = useContext(UserContext);
-
   const navigate = useNavigate();
 
   const handleClick = (route) => {
@@ -24,14 +24,24 @@ const SideMenu = ({ activeMenu }) => {
     navigate("/login");
   };
 
+  // ✅ MOVE LOGIC HERE (outside JSX)
+  const hasImage = user?.profileImageUrl && user.profileImageUrl !== "";
+
+  // ✅ Convert relative URL to absolute URL for backend access
+  const imageUrl =
+    hasImage && user.profileImageUrl.startsWith("/")
+      ? `${BASE_URL}${user.profileImageUrl}`
+      : user.profileImageUrl;
+
   return (
     <div className="w-64 h-[calc(100vh-61px)] bg-white border-r border-gray-200/50 z-20 p-5 sticky top-15.25">
       <div className="flex flex-col items-center justify-center gap-3 mt-3 mb-7">
-        {user?.profileImageUrl ? (
+        {/* ✅ FIXED RENDER LOGIC */}
+        {hasImage ? (
           <img
-            src={user?.profileImageUrl || ""}
+            src={imageUrl}
             alt="Profile Image"
-            className="w-20 h-20 bg-slate-400 rounded-full"
+            className="w-20 h-20 bg-slate-400 rounded-full object-cover"
           />
         ) : (
           <CharAvatar
@@ -42,13 +52,14 @@ const SideMenu = ({ activeMenu }) => {
           />
         )}
 
-        <h5 className="text-gray-950 font-medium leading-6 ">
+        <h5 className="text-gray-950 font-medium leading-6">
           {user?.fullName || ""}
         </h5>
       </div>
 
       {SIDE_MENU_DATA.map((item, index) => {
         const isActive = activeMenu === item.label;
+
         return (
           <button
             key={`menu_${index}`}
