@@ -11,6 +11,7 @@ import Home from "../pages/Dashboard/Home";
 import Expense from "../pages/Dashboard/Expense";
 import Income from "../pages/Dashboard/Income";
 import AuthLayout from "../components/layouts/AuthLayout";
+import Transactions from "../pages/Dashboard/Transactions";
 
 const AppRoutes = () => {
   return (
@@ -26,6 +27,7 @@ const AppRoutes = () => {
         <Route path="/dashboard" element={<Home />} />
         <Route path="/expense" element={<Expense />} />
         <Route path="/income" element={<Income />} />
+        <Route path="/transactions" element={<Transactions />} />
       </Routes>
     </Router>
   );

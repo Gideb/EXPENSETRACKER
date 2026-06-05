@@ -96,7 +96,7 @@ const Home = () => {
           {/* list for 5 most recent transactions */}
           <RecentTransactions
             transactions={dashboardData?.recentTransactions}
-            onSeeMore={() => navigate("/expense")}
+            onSeeMore={() => navigate("/transactions")}
           />
 
           {/* pie chart for 5 most recent transactions */}

@@ -1,3 +1,4 @@
+import { LiaExchangeAltSolid } from "react-icons/lia";
 import {
   LuHandCoins,
   LuLayoutDashboard,
@@ -11,19 +12,25 @@ export const  SIDE_MENU_DATA = [
     label: "Dashboard",
     icon: LuLayoutDashboard,
     path: "/dashboard",
+  },{
+    id: "02",
+    label: "Transactions",
+    icon: LiaExchangeAltSolid,
+    path: "/transactions",
   },
   {
-    id: "02",
+    id: "03",
     label: "Income",
     icon: LuWalletMinimal,
     path: "/income",
   },
   {
-    id: "03",
+    id: "04",
     label: "Expense",
     icon: LuHandCoins,
     path: "/expense",
   },
+  
   {
     id: "06",
     label: "Logout",
