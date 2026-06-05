@@ -22,7 +22,7 @@ const CustomBarChart = ({ data, type }) => {
         : "#90FA73"
       : index % 2 === 0
         ? "#D90202"
-        : "#FC3D3D";
+        : "#f58282";
   };
 
   const renderBar = (props) => {
