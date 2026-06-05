@@ -2,87 +2,108 @@ const Income = require("../models/Income");
 const Expense = require("../models/Expense");
 const { Types } = require("mongoose");
 
-// Dashboard data
 exports.getDashboardData = async (req, res) => {
   try {
-    const userId = req.user.id;
-    const userObjectId = new Types.ObjectId(String(userId));
+    const userObjectId = req.user.id;
 
-    //Fetch total income
-    const totalIncomeResult = await Income.aggregate([
-      { $match: { userId: userObjectId } },
-      { $group: { _id: null, total: { $sum: "$amount" } } },
+    // Run income and expense aggregations in parallel to reduce wall time
+    const [incomeData, expenseData] = await Promise.all([
+      Income.aggregate([
+        { $match: { userId: new Types.ObjectId(userObjectId) } },
+
+        {
+          $facet: {
+            totalIncome: [
+              { $group: { _id: null, total: { $sum: "$amount" } } },
+            ],
+
+            recentIncome: [{ $sort: { createdAt: -1 } }, { $limit: 5 }],
+
+            last60DaysIncome: [
+              {
+                $match: {
+                  createdAt: {
+                    $gte: new Date(Date.now() - 60 * 24 * 60 * 60 * 1000),
+                  },
+                },
+              },
+              {
+                $group: {
+                  _id: null,
+                  total: { $sum: "$amount" },
+                  transactions: { $push: "$$ROOT" },
+                },
+              },
+            ],
+          },
+        },
+      ]),
+
+      Expense.aggregate([
+        { $match: { userId: new Types.ObjectId(userObjectId) } },
+
+        {
+          $facet: {
+            totalExpense: [
+              { $group: { _id: null, total: { $sum: "$amount" } } },
+            ],
+
+            recentExpense: [{ $sort: { createdAt: -1 } }, { $limit: 5 }],
+
+            last30DaysExpense: [
+              {
+                $match: {
+                  createdAt: {
+                    $gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
+                  },
+                },
+              },
+              {
+                $group: {
+                  _id: null,
+                  total: { $sum: "$amount" },
+                  transactions: { $push: "$$ROOT" },
+                },
+              },
+            ],
+          },
+        },
+      ]),
     ]);
 
-    //Fetch total expenses
-    const totalExpenseResult = await Expense.aggregate([
-      { $match: { userId: userObjectId } },
-      { $group: { _id: null, total: { $sum: "$amount" } } },
-    ]);
+    //  3. EXTRACT DATA
+    const totalIncome = incomeData[0]?.totalIncome[0]?.total || 0;
+    const totalExpense = expenseData[0]?.totalExpense[0]?.total || 0;
 
-    //get income transaction for the last 60 days
-    const last60DaysIncomeTransactions = await Income.find({
-      userId: userObjectId,
-      date: { $gte: new Date(Date.now() - 60 * 24 * 60 * 60 * 1000) },
-    }).sort({ date: -1 });
+    const last60DaysIncome = incomeData[0]?.last60DaysIncome[0] || {
+      total: 0,
+      transactions: [],
+    };
 
-    //get total income for the last 60 days
-    const last60DaysIncome = last60DaysIncomeTransactions.reduce(
-      (sum, transaction) => sum + transaction.amount,
-      0,
-    );
+    const last30DaysExpense = expenseData[0]?.last30DaysExpense[0] || {
+      total: 0,
+      transactions: [],
+    };
 
-    //get expense transaction for the last 30 days
-    const last30DaysExpenseTransactions = await Expense.find({
-      userId: userObjectId,
-      date: { $gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000) },
-    }).sort({ date: -1 });
+    const recentIncome = incomeData[0]?.recentIncome || [];
+    const recentExpense = expenseData[0]?.recentExpense || [];
 
-    //get total expenses for the last 30 days
-    const last30DaysExpense = last30DaysExpenseTransactions.reduce(
-      (sum, transaction) => sum + transaction.amount,
-      0,
-    );
-
-    //Fetch last five transactions
-    const recentIncome = await Income.find({ userId: userObjectId })
-      .sort({ date: -1 })
-      .limit(5);
-    const recentExpense = await Expense.find({ userId: userObjectId })
-      .sort({ date: -1 })
-      .limit(5);
-
-    const last5Transactions = [
-      ...recentIncome.map((transaction) => ({
-        ...transaction.toObject(),
-        type: "income",
-      })),
-      ...recentExpense.map((transaction) => ({
-        ...transaction.toObject(),
-        type: "expense",
-      })),
-    ]
-      .sort((a, b) => b.date - a.date)  //sort latest first 
-      .slice(0, 5);
-
-    res.status(200).json({
-      totalBalance:
-        (totalIncomeResult[0]?.total || 0) -
-        (totalExpenseResult[0]?.total || 0),
-      totalIncome: totalIncomeResult[0]?.total || 0,
-      totalExpense: totalExpenseResult[0]?.total || 0,
-      last30DaysExpense: {
-        total: last30DaysExpense,
-        transactions: last30DaysExpenseTransactions,
-      },
-      last60DaysIncome: {
-        total: last60DaysIncome,
-        transactions: last60DaysIncomeTransactions,
-      },
-      recentTransactions: last5Transactions,
+    //  4. FINAL RESPONSE
+    res.json({
+      totalBalance: totalIncome - totalExpense,
+      totalIncome,
+      totalExpense,
+      last60DaysIncome,
+      last30DaysExpense,
+      recentTransactions: [
+        ...recentIncome.map((t) => ({ ...t, type: "income" })),
+        ...recentExpense.map((t) => ({ ...t, type: "expense" })),
+      ]
+        .sort((a, b) => b.createdAt - a.createdAt)
+        .slice(0, 5),
     });
-  } catch (error) {
-    console.error("Error fetching dashboard data:", error);
-    res.status(500).json({ message: "Server Error", error: error.message });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Server Error" });
   }
 };

@@ -1,2 +1,5 @@
+
+# Ignore local environment files
+*.env
 uploads/*
 !uploads/.gitkeep

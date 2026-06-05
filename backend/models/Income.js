@@ -6,13 +6,16 @@ const IncomeSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       required: true,
+      index: true,
     },
     icon: { type: String },
     source: { type: String, required: true },
     amount: { type: Number, required: true },
-    date: { type: Date, default: Date.now },
+    /* date: { type: Date, default: Date.now }, */
   },
   { timestamps: true },
 );
+
+IncomeSchema.index({ userId: 1, createdAt: -1 });
 
 module.exports = mongoose.model("Income", IncomeSchema);
