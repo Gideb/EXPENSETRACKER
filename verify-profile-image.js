@@ -26,12 +26,12 @@ const authRoutesCode = fs.readFileSync(authRoutesPath, "utf-8");
 
 if (authRoutesCode.includes('/uploads/')) {
   if (!authRoutesCode.includes('http://') && !authRoutesCode.includes('https://')) {
-    console.log("   ✅ Auth routes return RELATIVE URLs (/uploads/...)");
+    console.log("    Auth routes return RELATIVE URLs (/uploads/...)");
   } else {
-    console.log("   ❌ Auth routes return ABSOLUTE URLs (needs fixing)");
+    console.log("    Auth routes return ABSOLUTE URLs (needs fixing)");
   }
 } else {
-  console.log("   ❌ Auth routes do NOT handle image uploads");
+  console.log("    Auth routes do NOT handle image uploads");
 }
 
 // 3. Check upload directory

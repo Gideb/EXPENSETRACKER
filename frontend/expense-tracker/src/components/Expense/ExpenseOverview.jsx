@@ -11,7 +11,7 @@ const ExpenseOverview = ({ transactions, onAddExpense }) => {
 
   return (
     <div className="card">
-      <div className="flex items-center justify-between">
+      <div className="inline md:flex items-center justify-between">
         <div className="">
           <h5 className="text-lg">Expense Overview</h5>
           <p className="text-xs text-gray-400 mt-1">
@@ -20,7 +20,7 @@ const ExpenseOverview = ({ transactions, onAddExpense }) => {
           </p>
         </div>
 
-        <button className=" add-btn" onClick={onAddExpense}>
+        <button className=" add-btn mt-4 md:mt-0" onClick={onAddExpense}>
           <LuPlus className="text-lg" />
           Add Expense
         </button>

@@ -24,7 +24,7 @@ const SignUp = () => {
   const handleSignUp = async (e) => {
     e.preventDefault();
 
-    let profileImageUrl = "";
+    let profileImageUrl = null;
 
     if (!fullName) {
       setError("Please enter your name.");
@@ -46,7 +46,7 @@ const SignUp = () => {
     try {
       if (profilePic) {
         const uploadResponse = await uploadImage(profilePic);
-        profileImageUrl = uploadResponse.imageUrl || "";
+        profileImageUrl = uploadResponse.imageUrl ;
       }
 
       //signup api

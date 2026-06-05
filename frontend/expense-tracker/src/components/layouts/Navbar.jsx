@@ -21,8 +21,8 @@ const Navbar = ({ activeMenu }) => {
         )}
       </button>
 
-      <h2 className="text-lg font-medium flex items-center gap-3">
-        Expense Tracker <ImCalculator className="text-amber-800" />
+      <h2 className="text-lg font-semibold flex items-center gap-3 text-amber-700">
+        Expense Tracker <ImCalculator className="text-md text-slate-600 " />
       </h2>
 
       {openSideMenu && (
