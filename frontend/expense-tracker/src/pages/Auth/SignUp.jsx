@@ -66,7 +66,8 @@ const SignUp = () => {
       }
     } catch (error) {
       setError(
-        error.response?.data?.message || "Something went wrong. Please try again.",
+        error.response?.data?.message ||
+          "Something went wrong. Please try again.",
       );
     }
   };
@@ -82,14 +83,15 @@ const SignUp = () => {
         <ProfilePhotoSelector image={profilePic} setImage={setProfilePic} />
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <Input
-            label="Full Name"
-            onChange={({ target }) => setFullName(target.value)}
-            placeholder="Kwame Jane"
-            type="text"
-            value={fullName}
-          />
-
+          <div className="col-span-2 md:col-span-1">
+            <Input
+              label="Full Name"
+              onChange={({ target }) => setFullName(target.value)}
+              placeholder="Kwame Jane"
+              type="text"
+              value={fullName}
+            />
+          </div>
           <Input
             value={email}
             onChange={({ target }) => setEmail(target.value)}

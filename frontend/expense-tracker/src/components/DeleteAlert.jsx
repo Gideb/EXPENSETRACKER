@@ -7,7 +7,7 @@ const DeleteAlert = ({ onDelete, content, onCancel }) => {
 
       <div className="flex justify-end mt-6 gap-2">
         <button
-          className="add-btn"
+          className="add-btn add-btn-fill "
          onClick={onCancel}
         >
           Cancel

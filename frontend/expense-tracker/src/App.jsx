@@ -11,7 +11,16 @@ const App = () => {
         <Analytics />
         <SpeedInsights />
 
-        <Toaster toastOptions={{ className: "", style: { fontSize: "13" } }} />
+        <Toaster
+          position="top-right"
+          containerStyle={{
+            top: 12,
+            right: 20 ,
+          }}
+          toastOptions={{
+            className: "text-[11px] font-normal",
+          }}
+        />
       </UserProvider>
     </>
   );

@@ -18,7 +18,7 @@ const EmojiPickerPopup = ({ icon, onSelect }) => {
             <LuImage />
           )}
         </div>
-        <p className="">{icon ? "Change icon" : "Pick icon"}</p>
+        <p className="dark:text-white text-sm hover:underline">{icon ? "Change icon" : "Pick icon"}</p>
       </div>
       {isOpen && (
         <div className="relative">
