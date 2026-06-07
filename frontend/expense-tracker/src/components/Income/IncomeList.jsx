@@ -1,16 +1,20 @@
-
 import { LuDownload } from "react-icons/lu";
 import TransactionInfoCard from "../Cards/TransactionInfoCard";
 import moment from "moment";
 import { addThousandsSeparator } from "../../utils/helper";
 
-const IncomeList = ({ transactions, onDelete, onDownload }) => {
+const IncomeList = ({
+  transactions,
+  onDelete,
+  handleEditIncome,
+  onDownload,
+}) => {
   return (
     <div className="card">
-      <div className="flex items-center justify-between">
+      <div className="inline md:flex items-center justify-between">
         <h5 className="text-lg">Income Sources</h5>
 
-        <button className="card-btn" onClick={onDownload}>
+        <button className="card-btn my-4 md:my-0" onClick={onDownload}>
           <LuDownload className="text-base" /> Download Data
         </button>
       </div>
@@ -19,11 +23,13 @@ const IncomeList = ({ transactions, onDelete, onDownload }) => {
         {transactions?.map((income) => (
           <TransactionInfoCard
             key={income._id}
+            transaction={income}
             title={income.source}
             amount={addThousandsSeparator(income.amount)}
             date={moment(income.date).format("DD MMM YYYY")}
             icon={income.icon}
             type="income"
+            onEdit={handleEditIncome}
             onDelete={() => onDelete(income)}
           />
         ))}

@@ -42,6 +42,29 @@ exports.getAllExpense = async (req, res) => {
   }
 };
 
+//update expense source
+exports.updateExpense = async (req, res) => {
+  try {
+    const updatedExpense = await Expense.findOneAndUpdate(
+      {
+        _id: req.params.id,
+        userId: req.user.id,
+      },
+      req.body,
+      { returnDocument: "after" },
+    );
+
+    if (!updatedExpense) {
+      return res.status(404).json({ message: "Expense not found" });
+    }
+
+    res.status(200).json(updatedExpense);
+  } catch (error) {
+    console.error("Error updating expense:", error);
+    res.status(500).json({ message: "Server Error", error: error.message });
+  }
+};
+
 //delete expense source
 exports.deleteExpense = async (req, res) => {
   try {
@@ -60,7 +83,7 @@ exports.deleteExpense = async (req, res) => {
 };
 
 //download excel
-exports.donwloadExpenseExcel = async (req, res) => {
+exports.downloadExpenseExcel = async (req, res) => {
   const userId = req.user.id;
 
   try {

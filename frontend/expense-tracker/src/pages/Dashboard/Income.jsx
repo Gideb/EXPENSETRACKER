@@ -21,6 +21,7 @@ const Income = () => {
     data: null,
   });
   const [openAddIncomeModal, setOpenAddIncomeModal] = useState(false);
+  const [editingIncome, setEditingIncome] = useState(null);
 
   // get all Income Details
 
@@ -80,6 +81,61 @@ const Income = () => {
     }
   };
 
+  //handle edit income
+  const handleEditIncome = (income) => {
+    setEditingIncome(income);
+    setOpenAddIncomeModal(true);
+  };
+
+  //handle Update income
+ /*  const handleUpdateIncome = async (income) => {
+    try {
+      await axiosInstance.put(
+        API_PATHS.INCOME.UPDATE_INCOME(editingIncome._id),
+        income,
+      );
+
+     toast.success("Income updated successfully");
+
+     setEditingIncome(null);
+     setOpenAddIncomeModal(false);
+
+     await fetchIncomeDetails();
+   } catch (error) {
+     toast.error(error.response?.data?.message || "Failed to update income");
+   }
+ }; */
+
+const handleUpdateIncome = async (income) => {
+  try {
+    console.log("Editing Income:", editingIncome);
+    console.log("Payload:", income);
+
+    const response = await axiosInstance.put(
+      API_PATHS.INCOME.UPDATE_INCOME(editingIncome._id),
+      income,
+    );
+
+    console.log("Success:", response.data);
+
+    toast.success("Income updated successfully");
+
+    setEditingIncome(null);
+    setOpenAddIncomeModal(false);
+
+    await fetchIncomeDetails();
+  } catch (error) {
+    console.error("UPDATE ERROR:", error);
+    console.error("RESPONSE:", error.response);
+    console.error("DATA:", error.response?.data);
+
+    toast.error(error.response?.data?.message || "Failed to update income");
+  }
+};
+
+
+
+
   // delete Income
   const deleteIncome = async (income) => {
     if (!income?._id) return;
@@ -101,8 +157,6 @@ const Income = () => {
 
   // handle download income details
   const handleDownloadIncomeDetails = async () => {
-   
-
     try {
       const response = await axiosInstance.get(
         API_PATHS.INCOME.DOWNLOAD_INCOME,
@@ -148,6 +202,7 @@ const Income = () => {
 
           <IncomeList
             transactions={incomeData}
+            handleEditIncome={handleEditIncome}
             onDelete={(income) => {
               setOpenDeleteAlert({ show: true, data: income });
             }}
@@ -157,10 +212,17 @@ const Income = () => {
 
         <Modal
           isOpen={openAddIncomeModal}
-          onClose={() => setOpenAddIncomeModal(false)}
-          title="Add Income"
+          onClose={() => {
+            setOpenAddIncomeModal(false);
+            setEditingIncome(null);
+          }}
+          title={editingIncome ? "Edit Income" : "Add Income"}
         >
-          <AddIncomeForm onAddIncome={handleAddIncome} />
+          <AddIncomeForm
+            onAddIncome={handleAddIncome}
+            onUpdateIncome={handleUpdateIncome}
+            editData={editingIncome}
+          />
         </Modal>
 
         <Modal

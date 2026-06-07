@@ -3,13 +3,13 @@ import TransactionInfoCard from "../Cards/TransactionInfoCard";
 import moment from "moment";
 import { addThousandsSeparator } from "../../utils/helper";
 
-const ExpenseList = ({ transactions, onDelete, onDownload }) => {
+const ExpenseList = ({ transactions, onDelete,handleEdit, onDownload }) => {
   return (
     <div className="card">
-      <div className="flex items-center justify-between">
+      <div className="inline md:flex items-center justify-between">
         <h5 className="text-lg">All Expenses</h5>
 
-        <button className="card-btn" onClick={onDownload}>
+        <button className="card-btn my-4 md:my-0" onClick={onDownload}>
           <LuDownload className="text-base" /> Download Data
         </button>
       </div>
@@ -23,6 +23,7 @@ const ExpenseList = ({ transactions, onDelete, onDownload }) => {
             date={moment(expense.date).format("DD MMM YYYY")}
             icon={expense.icon}
             type="expense"
+            onEdit={() => handleEdit(expense)}
             onDelete={() => onDelete(expense)}
           />
         ))}

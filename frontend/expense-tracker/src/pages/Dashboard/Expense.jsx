@@ -20,6 +20,7 @@ const Expense = () => {
     data: null,
   });
   const [openAddExpenseModal, setOpenAddExpenseModal] = useState(false);
+  
 
   // get all Expense Details
   const fetchExpenseDetails = async () => {
@@ -82,6 +83,8 @@ const Expense = () => {
       );
     }
   };
+
+
 
   // delete Expense
   const deleteExpense = async (expense) => {

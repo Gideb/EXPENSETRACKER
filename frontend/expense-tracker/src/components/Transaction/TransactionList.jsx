@@ -3,10 +3,15 @@ import moment from "moment";
 import TransactionInfoCard from "../Cards/TransactionInfoCard";
 import { addThousandsSeparator } from "../../utils/helper";
 
-const TransactionList = ({ transactions, onDownload, onDelete }) => {
+const TransactionList = ({
+  transactions,
+  onDownload,
+  handleEdit,
+  onDelete,
+}) => {
   return (
     <div className="card">
-      <div className="flex items-center justify-between">
+      <div className="inline md:flex items-center justify-between">
         <div>
           <h5 className="text-lg">Transaction History</h5>
 
@@ -15,7 +20,7 @@ const TransactionList = ({ transactions, onDownload, onDelete }) => {
           </p>
         </div>
 
-        <button className="card-btn" onClick={onDownload}>
+        <button className="card-btn my-4 md:my-0" onClick={onDownload}>
           <LuDownload className="text-base" /> Download Data
         </button>
       </div>
@@ -29,6 +34,7 @@ const TransactionList = ({ transactions, onDownload, onDelete }) => {
             date={moment(item.date).format("DD MM YYYY")}
             amount={addThousandsSeparator(item.amount)}
             type={item.type}
+            onEdit={() => handleEdit(item)}
             onDelete={() => onDelete(item)}
           />
         ))}

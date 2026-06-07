@@ -29,7 +29,31 @@ exports.addIncome = async (req, res) => {
   }
 };
 
+//update income
+exports.updateIncome = async (req, res) => {
+  try {
+    const updatedIncome = await Income.findOneAndUpdate(
+      {
+        _id: req.params.id,
+        userId: req.user.id,
+      },
+      req.body,
+      { returnDocument: "after" },
+    );
 
+    if (!updatedIncome) {
+      return res.status(404).json({
+        message: "Income not found",
+      });
+    }
+
+    res.status(200).json(updatedIncome);
+  } catch (error) {
+    res.status(500).json({
+      message: error.message,
+    });
+  }
+};
 
 //get income source
 exports.getAllIncome = async (req, res) => {
@@ -43,8 +67,6 @@ exports.getAllIncome = async (req, res) => {
     res.status(500).json({ message: "Server Error", error: error.message });
   }
 };
-
-
 
 //delete income source
 exports.deleteIncome = async (req, res) => {
@@ -63,15 +85,12 @@ exports.deleteIncome = async (req, res) => {
   }
 };
 
-
-
-
 //download excel
-exports.donwloadIncomeExcel = async (req, res) => {
-    const userId = req.user.id;
+exports.downloadIncomeExcel = async (req, res) => {
+  const userId = req.user.id;
 
   try {
-    const incomes = await Income.find({ userId }).sort({date: -1}).lean();
+    const incomes = await Income.find({ userId }).sort({ date: -1 }).lean();
 
     if (incomes.length === 0) {
       return res.status(400).json({ message: "No incomes to download" });
@@ -80,7 +99,9 @@ exports.donwloadIncomeExcel = async (req, res) => {
     const data = incomes.map((income) => ({
       Source: income.source,
       Amount: income.amount,
-      Date: income.date ? new Date(income.date).toISOString().split("T")[0] : "",
+      Date: income.date
+        ? new Date(income.date).toISOString().split("T")[0]
+        : "",
       Icon: income.icon || "",
     }));
 
@@ -93,7 +114,7 @@ exports.donwloadIncomeExcel = async (req, res) => {
     res.setHeader("Content-Disposition", "attachment; filename=income.xlsx");
     res.setHeader(
       "Content-Type",
-      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
     );
     res.status(200).send(buffer);
   } catch (error) {

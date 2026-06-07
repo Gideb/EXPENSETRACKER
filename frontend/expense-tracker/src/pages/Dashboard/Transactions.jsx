@@ -18,6 +18,7 @@ const Transactions = () => {
     show: false,
     data: null,
   });
+  
 
   //get all transactions
   const fetchTransactions = useCallback(async () => {

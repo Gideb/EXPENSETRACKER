@@ -17,9 +17,7 @@ const connectDB = async () => {
       console.log("MongoDB connected");
       return;
     } catch (err) {
-      console.error(
-        `Error connecting to MongoDB (attempt ${attempt}/${maxRetries}): ${err.message}`,
-      );
+      console.error( err );
 
       if (attempt === maxRetries) {
         process.exit(1);

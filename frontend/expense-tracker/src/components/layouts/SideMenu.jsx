@@ -24,10 +24,10 @@ const SideMenu = ({ activeMenu }) => {
     navigate("/login");
   };
 
-  // ✅ MOVE LOGIC HERE (outside JSX)
+  //  MOVE LOGIC HERE (outside JSX)
   const hasImage = user?.profileImageUrl && user.profileImageUrl !== "";
 
-  // ✅ Convert relative URL to absolute URL for backend access
+  //  Convert relative URL to absolute URL for backend access
   const imageUrl =
     hasImage && user.profileImageUrl.startsWith("/")
       ? `${BASE_URL}${user.profileImageUrl}`
