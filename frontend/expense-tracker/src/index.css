@@ -33,7 +33,7 @@ body {
 }
 
 .card-btn{
-    @apply flex items-center gap-3 text-[12px] font-medium text-gray-700 hover:text-amber-700 bg-gray-50 hover:bg-amber-100/60 px-4 py-1.5 rounded-lg border border-gray-200 hover:border-amber-700 cursor-pointer;
+    @apply flex items-center gap-3 text-[12px] font-medium md:text-gray-700 hover:text-amber-700 text-amber-700 md:bg-gray-50 hover:bg-amber-100/60 bg-amber-100/60 px-4 py-1.5 rounded-lg border  md:border-gray-200 hover:border-amber-700 border-amber-700 cursor-pointer;
 }
 
 .add-btn {

@@ -1,12 +1,11 @@
 import { LuDownload } from "react-icons/lu";
 import moment from "moment";
-import TransactionInfoCard from "../Cards/TransactionInfoCard";
+import TransactionCard from "../Cards/TransactionCard";
 import { addThousandsSeparator } from "../../utils/helper";
 
 const TransactionList = ({
   transactions,
   onDownload,
-  handleEdit,
   onDelete,
 }) => {
   return (
@@ -27,14 +26,13 @@ const TransactionList = ({
 
       <div className="mt-6 grid grid-cols-1 md:grid-cols-2">
         {transactions?.map((item) => (
-          <TransactionInfoCard
+          <TransactionCard
             key={item._id}
             title={item.type === "expense" ? item.category : item.source}
             icon={item.icon}
             date={moment(item.date).format("DD MM YYYY")}
             amount={addThousandsSeparator(item.amount)}
             type={item.type}
-            onEdit={() => handleEdit(item)}
             onDelete={() => onDelete(item)}
           />
         ))}
