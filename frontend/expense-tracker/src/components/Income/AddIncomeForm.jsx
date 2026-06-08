@@ -11,15 +11,26 @@ const AddIncomeForm = ({ onAddIncome, onUpdateIncome, editData }) => {
   });
 
   useEffect(() => {
-    if (editData) {
-      setIncome({
+    if (!editData) return;
+
+    setIncome((prev) => {
+      const d = editData.date ? new Date(editData.date) : null;
+      const normalizedDate =
+        d && !Number.isNaN(d.getTime()) ? d.toISOString().split("T")[0] : "";
+
+      return {
+        ...prev,
         source: editData.source || "",
-        amount: editData.amount || "",
-        date: editData.date ? editData.date.split("T")[0] : "",
+        amount:
+          editData.amount !== undefined && editData.amount !== null
+            ? editData.amount
+            : "",
+        date: normalizedDate,
         icon: editData.icon || "",
-      });
-    }
-  }, [editData]);   
+      };
+    });
+  }, [editData]);
+
 
   const handleChange = (key, value) => setIncome({ ...income, [key]: value });
 
