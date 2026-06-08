@@ -10,7 +10,7 @@ const AddIncomeForm = ({ onAddIncome, onUpdateIncome, editData }) => {
     icon: "",
   });
 
-  useEffect(() => {
+  useEffect(() => { 
     if (!editData) return;
 
     setIncome((prev) => {

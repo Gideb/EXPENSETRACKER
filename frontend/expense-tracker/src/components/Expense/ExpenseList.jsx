@@ -3,7 +3,7 @@ import TransactionInfoCard from "../Cards/TransactionInfoCard";
 import moment from "moment";
 import { addThousandsSeparator } from "../../utils/helper";
 
-const ExpenseList = ({ transactions, onDelete,handleEdit, onDownload }) => {
+const ExpenseList = ({ transactions, onDelete,handleEditExpense, onDownload }) => {
   return (
     <div className="card">
       <div className="inline md:flex items-center justify-between">
@@ -23,7 +23,7 @@ const ExpenseList = ({ transactions, onDelete,handleEdit, onDownload }) => {
             date={moment(expense.date).format("DD MMM YYYY")}
             icon={expense.icon}
             type="expense"
-            onEdit={() => handleEdit(expense)}
+            onEdit={() => handleEditExpense(expense)}
             onDelete={() => onDelete(expense)}
           />
         ))}
