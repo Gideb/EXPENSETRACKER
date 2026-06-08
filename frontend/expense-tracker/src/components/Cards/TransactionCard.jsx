@@ -1,12 +1,8 @@
-import { useState, useRef, useEffect } from "react";
-
 import {
   LuTrendingDown,
   LuTrendingUp,
   LuUtensils,
-  LuEllipsisVertical,
   LuTrash2,
-  LuPencil,
 } from "react-icons/lu";
 
 const TransactionCard = ({
@@ -17,8 +13,6 @@ const TransactionCard = ({
   type,
   hideDeleteBtn,
   onDelete,
-
-  transaction,
 }) => {
   const getAmountStyles = () =>
     type === "income" ? "bg-green-50 text-green-500" : "bg-red-50 text-red-500";
