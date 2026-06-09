@@ -13,6 +13,9 @@ exports.addExpense = async (req, res) => {
       return res.status(400).json({ message: "All fields are required" });
     }
 
+
+   
+
     const newExpense = new Expense({
       userId,
       icon,

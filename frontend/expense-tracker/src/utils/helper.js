@@ -5,6 +5,15 @@ export const validateEmail = (email) => {
   return regex.test(email);
 };
 
+
+
+export const isFutureDate = (date) => {
+  return new Date(date) > new Date();
+};
+
+
+
+
 export const getInitials = (name) => {
   if (!name) return "";
 

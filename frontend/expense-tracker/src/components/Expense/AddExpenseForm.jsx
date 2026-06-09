@@ -60,6 +60,7 @@ const AddExpenseForm = ({ onAddExpense, onUpdateExpense, editData }) => {
         label="Date"
         placeholder="Select date"
         type="date"
+       
         value={income.date}
         onChange={({ target }) => handleChange("date", target.value)}
       />
