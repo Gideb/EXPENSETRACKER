@@ -60,7 +60,8 @@ const AddExpenseForm = ({ onAddExpense, onUpdateExpense, editData }) => {
         label="Date"
         placeholder="Select date"
         type="date"
-       
+        max={new Date().toISOString().split("T")[0]}
+  
         value={income.date}
         onChange={({ target }) => handleChange("date", target.value)}
       />

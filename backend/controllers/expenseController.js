@@ -8,13 +8,17 @@ exports.addExpense = async (req, res) => {
   try {
     const { icon, category, amount, date } = req.body;
 
+    // Prevent future dates
+    if (new Date(date) > new Date()) {
+      return res.status(400).json({
+        message: "Future dates are not allowed",
+      });
+    }
+
     //validation: check for missing fields
     if (!category || !amount || !date) {
       return res.status(400).json({ message: "All fields are required" });
     }
-
-
-   
 
     const newExpense = new Expense({
       userId,

@@ -8,14 +8,17 @@ exports.addIncome = async (req, res) => {
   try {
     const { icon, source, amount, date } = req.body;
 
+    // Prevent future dates
+    if (new Date(date) > new Date()) {
+      return res.status(400).json({
+        message: "Future dates are not allowed",
+      });
+    }
+
     //validation: check for missing fields
     if (!source || !amount || !date) {
       return res.status(400).json({ message: "All fields are required" });
     }
-
-
-
-
 
     const newIncome = new Income({
       userId,
