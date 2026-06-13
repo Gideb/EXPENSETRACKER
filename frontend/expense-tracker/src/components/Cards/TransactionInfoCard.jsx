@@ -38,7 +38,11 @@ const TransactionInfoCard = ({
   }, []);
 
   const getAmountStyles = () =>
-    type === "income" ? "bg-green-50 text-green-500" : "bg-red-50 text-red-500";
+    type === "budget"
+      ? "bg-amber-50 text-amber-600"
+      : type === "income"
+        ? "bg-green-50 text-green-500"
+        : "bg-red-50 text-red-500";
 
   const handleEdit = () => {
     setShowMenu(false);
@@ -107,10 +111,17 @@ const TransactionInfoCard = ({
             className={`flex items-center gap-2 px-3 py-1.5 rounded-md ${getAmountStyles()}`}
           >
             <h6 className="text-xs font-medium">
-              {type === "income" ? "+" : "-"} GH₵{amount}
+              {type === "budget" ? "" : type === "income" ? "+" : "-"} GH₵
+              {amount}
             </h6>
 
-            {type === "income" ? <LuTrendingUp /> : <LuTrendingDown />}
+            {type === "budget" ? (
+              ""
+            ) : type === "income" ? (
+              <LuTrendingUp />
+            ) : (
+              <LuTrendingDown />
+            )}
           </div>
         </div>
       </div>

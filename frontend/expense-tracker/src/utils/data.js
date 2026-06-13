@@ -1,5 +1,6 @@
 import { LiaExchangeAltSolid } from "react-icons/lia";
 import {
+    LuChartPie,
   LuHandCoins,
   LuLayoutDashboard,
   LuLogOut,
@@ -29,6 +30,12 @@ export const  SIDE_MENU_DATA = [
     label: "Expense",
     icon: LuHandCoins,
     path: "/expense",
+  },
+  { 
+    id: "05",
+    label: "Budget",
+    icon: LuChartPie,
+    path: "/budget",
   },
   
   {

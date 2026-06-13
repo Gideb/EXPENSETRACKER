@@ -1,6 +1,8 @@
 import Dashboardlayout from "../../components/layouts/Dashboardlayout";
+import { useUserAuth } from "../../hooks/useUserAuth";
 
-const Settings = ({handleProfileUpdate, handlePasswordChange}) => {
+const Settings = ({ handleProfileUpdate, handlePasswordChange }) => {
+  useUserAuth();
   return (
     <Dashboardlayout activeMenu="Settings">
       <div className="max-w-2xl mx-auto mt-5">
@@ -23,7 +25,7 @@ const Settings = ({handleProfileUpdate, handlePasswordChange}) => {
             />
           </div>
 
-        {/*   <button
+          {/*   <button
             onClick={handleProfileUpdate}
             className="bg-primary text-white px-5 py-2 rounded-lg"
           >
@@ -53,7 +55,7 @@ const Settings = ({handleProfileUpdate, handlePasswordChange}) => {
               className="w-full border rounded-lg p-3"
             />
           </div>
-         {/*  <button
+          {/*  <button
             onClick={handlePasswordChange}
             className="bg-primary text-white px-5 py-2 rounded-lg"
           >

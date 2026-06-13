@@ -87,24 +87,7 @@ const Income = () => {
     setOpenAddIncomeModal(true);
   };
 
-  //handle Update income
- /*  const handleUpdateIncome = async (income) => {
-    try {
-      await axiosInstance.put(
-        API_PATHS.INCOME.UPDATE_INCOME(editingIncome._id),
-        income,
-      );
-
-     toast.success("Income updated successfully");
-
-     setEditingIncome(null);
-     setOpenAddIncomeModal(false);
-
-     await fetchIncomeDetails();
-   } catch (error) {
-     toast.error(error.response?.data?.message || "Failed to update income");
-   }
- }; */
+ 
 
 const handleUpdateIncome = async (income) => {
   try {

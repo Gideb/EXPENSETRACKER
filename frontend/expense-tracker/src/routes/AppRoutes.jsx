@@ -12,7 +12,8 @@ import Expense from "../pages/Dashboard/Expense";
 import Income from "../pages/Dashboard/Income";
 import AuthLayout from "../components/layouts/AuthLayout";
 import Transactions from "../pages/Dashboard/Transactions";
-import Settings from "../pages/Settings/Settings";
+import Budget from "../pages/Dashboard/Budget";
+import Settings from "../pages/Dashboard/Settings";
 
 const AppRoutes = () => {
   return (
@@ -30,6 +31,7 @@ const AppRoutes = () => {
         <Route path="/expense" element={<Expense />} />
         <Route path="/income" element={<Income />} />
         <Route path="/transactions" element={<Transactions />} />
+        <Route path="/budget" element={<Budget />} />
         <Route path="/settings" element={<Settings />} />
       </Routes>
     </Router>

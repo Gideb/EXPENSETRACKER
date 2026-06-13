@@ -17,6 +17,8 @@ import Last30DaysExpenses from "../../components/Dashboard/Last30DaysExpenses";
 import RecentIncomeWithChart from "../../components/Dashboard/RecentIncomeWithChart";
 import RecentIncome from "../../components/Dashboard/RecentIncome";
 import HealthScore from "../../components/Cards/HealthScore";
+import BudgetSummary from "../../components/Dashboard/BudgetSummary";
+import BudgetCard from "../../components/Cards/BudgetCard";
 
 const Home = () => {
   useUserAuth();
@@ -105,7 +107,9 @@ const Home = () => {
           <div className="max-w-md">
             <HealthScore dashboardData={dashboardData} />
           </div>
+         
         </div>
+         
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
           {/* list for 5 most recent transactions */}
