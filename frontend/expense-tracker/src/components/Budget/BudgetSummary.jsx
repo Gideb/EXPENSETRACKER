@@ -67,33 +67,33 @@ const BudgetSummary = ({ setOpenAddBudgetModal }) => {
       title: "Total Budget",
       value: formatCurrency(summary.totalBudget),
       icon: <MdAccountBalanceWallet className="text-2xl sm:text-3xl" />,
-      bgColor: "bg-gradient-to-br from-blue-500 to-blue-600",
-      textColor: "text-white",
+      
+      textColor: "text-slate-800 dark:text-gray-100",
       subtitle: "Allocated for this month",
     },
     {
       title: "Total Spent",
       value: formatCurrency(summary.totalSpent),
       icon: <MdMoneyOff className="text-2xl sm:text-3xl" />,
-      bgColor: "bg-gradient-to-br from-orange-500 to-orange-600",
-      textColor: "text-white",
+     
+      textColor: "text-slate-800 dark:text-gray-100",
       subtitle: `${summary.percentUtilized}% of budget used`,
     },
     {
       title: "Remaining Balance",
       value: formatCurrency(summary.remainingBalance),
       icon: <MdSavings className="text-2xl sm:text-3xl" />,
-      bgColor: "bg-gradient-to-br from-green-500 to-green-600",
-      textColor: "text-white",
+      
+      textColor: "text-slate-800 dark:text-gray-100",
       subtitle: summary.remainingBalance < 0 ? "Over budget!" : "Left to spend",
       warning: summary.remainingBalance < 0,
     },
     {
       title: "Over Budget Categories",
       value: summary.overBudgetCategories,
-      icon: <MdWarning className="text-2xl sm:text-2xl sm:text-3xl" />,
-      bgColor: "bg-gradient-to-br from-red-500 to-red-600",
-      textColor: "text-white",
+      icon: <MdWarning className="text-2xl sm:text-3xl" />,
+     
+      textColor: "text-slate-800 dark:text-gray-100",
       subtitle: `${summary.categoriesAtRisk} categories near limit`,
       warning: summary.overBudgetCategories > 0,
     },
@@ -150,11 +150,11 @@ const BudgetSummary = ({ setOpenAddBudgetModal }) => {
       </div>
 
       {/* Summary Cards Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 ">
         {summaryCards.map((card, index) => (
           <div
             key={index}
-            className={`${card.bgColor} rounded-lg sm:rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 overflow-hidden group`}
+            className="bg-linear-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-900 rounded-xl shadow-sm hover:shadow-md transition-all duration-300 transform hover:-translate-y-1 overflow-hidden group border border-gray-100 dark:border-gray-700"
           >
             <div className="p-4 sm:p-6">
               <div className="flex items-start justify-between mb-4">
@@ -164,7 +164,7 @@ const BudgetSummary = ({ setOpenAddBudgetModal }) => {
                   {card.icon}
                 </div>
                 {card.warning && (
-                  <span className="px-2 py-1 text-xs font-bold bg-red-50 bg-opacity-30 text-red-700 rounded animate-pulse">
+                  <span className="px-2 py-1 text-xs font-bold bg-red-600 bg-opacity-30 text-white rounded animate-pulse">
                     Alert!
                   </span>
                 )}
@@ -176,7 +176,9 @@ const BudgetSummary = ({ setOpenAddBudgetModal }) => {
                 {card.title}
               </h3>
 
-              <p className={`${card.textColor} text-xl sm:text-2xl lg:text-3xl font-semibold mb-2`}>
+              <p
+                className={`${card.textColor} text-xl sm:text-2xl lg:text-3xl font-semibold mb-2`}
+              >
                 {card.value}
               </p>
 

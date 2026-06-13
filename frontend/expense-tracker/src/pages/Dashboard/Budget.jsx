@@ -174,7 +174,7 @@ const Budget = () => {
         />
 
         <BudgetList
-          transactions={budgets}
+          budgets={budgets}
           handleEditBudget={handleEditBudget}
           onDelete={(budget) => {
             setOpenDeleteAlert({ show: true, data: budget });

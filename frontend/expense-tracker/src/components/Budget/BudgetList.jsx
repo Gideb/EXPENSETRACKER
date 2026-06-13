@@ -1,14 +1,6 @@
-import { LuDownload } from "react-icons/lu";
-import TransactionInfoCard from "../Cards/TransactionInfoCard";
-import moment from "moment";
-import { addThousandsSeparator } from "../../utils/helper";
+import BudgetCard from "../Cards/BudgetCard";
 
-const BudgetList = ({
-  transactions,
-  onDelete,
-  handleEditBudget,
-  onDownload,
-}) => {
+const BudgetList = ({ budgets, onDelete, handleEditBudget }) => {
   return (
     <div className="card">
       <div className="inline md:flex items-center justify-between">
@@ -18,22 +10,14 @@ const BudgetList = ({
             Track and review all your budgets in one place.
           </p>
         </div>
-
-        {/* <button className="card-btn my-4 group" onClick={onDownload}>
-          <LuDownload className="text-base group-hover:-translate-y-0.5 duration-300 transition-all ease-in-out" />{" "}
-          Download
-        </button> */}
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2">
-        {transactions?.map((budget) => (
-          <TransactionInfoCard
+        {budgets?.map((budget) => (
+          <BudgetCard
             key={budget._id}
-            title={budget.category}
-            amount={addThousandsSeparator(budget.limitAmount)} 
-            date={moment(budget.month).format("MMMM YYYY")} 
+            budget={budget}
             icon={budget.icon}
-            type="budget"
             onEdit={() => handleEditBudget(budget)}
             onDelete={() => onDelete(budget)}
           />
