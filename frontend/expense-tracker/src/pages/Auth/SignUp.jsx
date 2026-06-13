@@ -74,8 +74,8 @@ const SignUp = () => {
 
   return (
     <div className="lg:w-full h-auto md:h-full mt-10 md:mt-0 flex flex-col justify-center">
-      <h3 className="text-black text-xl font-semibold">Create an account</h3>
-      <p className="mt-1.25 text-slate-700 text-xs mb-6">
+      <h3 className="text-black dark:text-white text-xl font-semibold">Create an account</h3>
+      <p className="mt-1.25 text-slate-700 dark:text-slate-400 text-xs mb-6">
         Enter your details below to Join us
       </p>
 
@@ -116,9 +116,9 @@ const SignUp = () => {
           SIGN UP
         </button>
 
-        <p className="text-slate-800 text-[13px] mt-3">
+        <p className="text-slate-800 dark:text-slate-400 text-[13px] mt-3">
           Already have an account?{" "}
-          <Link to="/login" className="text-primary underline font-medium">
+          <Link to="/login" className="text-primary hover:underline font-medium">
             LOGIN
           </Link>
         </p>

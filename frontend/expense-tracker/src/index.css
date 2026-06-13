@@ -25,21 +25,21 @@ body {
 
 
 .btn-primary {
-    @apply w-full text-sm font-medium text-white bg-amber-700 shadow-lg shadow-purple-600/10 p-2.5 hover:text-orange-700 hover:bg-amber-500/35 rounded-md my-1 cursor-pointer transition-all duration-300 ;
+    @apply w-full text-sm font-medium text-white bg-amber-700 dark:bg-amber-600 shadow-lg shadow-amber-600/10 p-2.5 hover:text-orange-700 hover:bg-amber-500/35 dark:hover:bg-amber-100 rounded-md my-1 cursor-pointer transition-all duration-300 ;
 }
 
 .card{
-    @apply bg-white p-6 rounded-2xl shadow-md shadow-gray-100 border border-gray-200/50;
+    @apply bg-white dark:bg-gray-900 p-6 rounded-2xl shadow-md shadow-gray-100 dark:shadow-gray-800 border border-gray-200/50;
 }
 
 .card-btn{
-    @apply flex items-center gap-3 text-[12px] font-medium md:text-gray-700 hover:text-amber-700 text-amber-700 md:bg-gray-50 hover:bg-amber-100/60 bg-amber-100/60 px-4 py-1.5 rounded-lg border  md:border-gray-200 hover:border-amber-700 border-amber-700 cursor-pointer;
+    @apply flex items-center gap-3 text-[12px] font-medium md:text-gray-700  hover:text-amber-700  text-amber-700 md:bg-gray-50 hover:bg-amber-100/60 bg-amber-100/60 px-4 py-1.5 rounded-lg border  md:border-gray-200 hover:border-amber-700 border-amber-700 cursor-pointer dark:bg-amber-700 dark:text-gray-100 dark:hover:text-gray-100 dark:border-amber-50 dark:hover:border-amber-50 dark:hover:bg-amber-800;
 }
 
 .add-btn {
-    @apply flex items-center gap-2 cursor-pointer px-4 py-2 rounded-md text-xs md:text-sm font-medium text-amber-600 whitespace-nowrap bg-amber-100/60 border border-amber-600 hover:text-amber-700;
+    @apply flex items-center gap-2 cursor-pointer px-4 py-2 rounded-md text-xs md:text-sm font-medium text-amber-600 dark:text-white whitespace-nowrap bg-amber-100/60 dark:bg-amber-600 border border-amber-600 hover:text-amber-700 dark:hover:text-white dark:hover:bg-amber-800;
 }
 
 .add-btn-fill {
-    @apply text-white bg-primary hover:bg-amber-100;
+    @apply text-white bg-primary hover:bg-amber-100 dark:bg-amber-600 dark:hover:bg-amber-500 hover:text-amber-700  ;
 }

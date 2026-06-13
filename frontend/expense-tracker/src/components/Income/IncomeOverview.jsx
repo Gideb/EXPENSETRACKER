@@ -12,7 +12,7 @@ const IncomeOverview = ({ transactions, onAddIncome }) => {
     <div className="card">
       <div className="inline md:flex items-center justify-between  ">
         <div className="">
-          <h5 className="text-lg">Income Overview</h5>
+          <h5 className="text-lg dark:text-gray-100">Income Overview</h5>
           <p className="text-xs text-gray-400 mt-1">
             Track your earnings over time and analyze your income{" "}
           </p>

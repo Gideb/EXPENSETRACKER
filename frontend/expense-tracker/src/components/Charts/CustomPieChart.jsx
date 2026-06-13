@@ -30,7 +30,7 @@ const CustomPieChart = ({
           nameKey="name"
           cx="50%"
           cy="50%"
-          outerRadius={130}
+          outerRadius={140}
           innerRadius={100}
           labelLine={false}
         />
@@ -45,7 +45,7 @@ const CustomPieChart = ({
               y="50%"
               dy={-25}
               textAnchor="middle"
-              fill="#666"
+              fill="#808080"
               fontSize={14}
             >
               {label}
@@ -56,7 +56,7 @@ const CustomPieChart = ({
               y="50%"
               dy={8}
               textAnchor="middle"
-              fill="#666"
+              fill="#808080"
               fontSize={24}
               fontWeight="semi-bold"
             >

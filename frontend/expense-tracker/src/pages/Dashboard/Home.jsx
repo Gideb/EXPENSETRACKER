@@ -16,6 +16,7 @@ import ExpenseTransactions from "../../components/Dashboard/ExpenseTransactions"
 import Last30DaysExpenses from "../../components/Dashboard/Last30DaysExpenses";
 import RecentIncomeWithChart from "../../components/Dashboard/RecentIncomeWithChart";
 import RecentIncome from "../../components/Dashboard/RecentIncome";
+import HealthScore from "../../components/Cards/HealthScore";
 
 const Home = () => {
   useUserAuth();
@@ -25,7 +26,6 @@ const Home = () => {
   const [dashboardData, setDashboardData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  
 
   const fetchDashboardData = useCallback(async () => {
     setLoading(true);
@@ -47,29 +47,6 @@ const Home = () => {
   useEffect(() => {
     void Promise.resolve().then(fetchDashboardData);
   }, [fetchDashboardData]);
-
-
-
-/* const totalIncome = dashboardData?.totalIncome || 0;
-const totalExpense = dashboardData?.totalExpense || 0;
-
-const percentage = totalIncome > 0 ? (totalExpense / totalIncome) * 100 : 0;
-
-const showWarning = percentage >= 80; */
-
-
-const totalIncome = dashboardData?.totalIncome || 0;
-const totalExpense = dashboardData?.totalExpense || 0;
-
-const spendingRatio = totalIncome > 0 ? (totalExpense / totalIncome) * 100 : 0;
-
-let healthStatus = "green"; // default
-
-if (spendingRatio >= 90) {
-  healthStatus = "red";
-} else if (spendingRatio >= 80) {
-  healthStatus = "yellow";
-}
 
   return (
     <Dashboardlayout activeMenu="Dashboard">
@@ -118,52 +95,7 @@ if (spendingRatio >= 90) {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="max-w-md">
-            <div
-              className={`p-4 rounded-lg text-xs border ${
-                healthStatus === "green"
-                  ? "bg-green-50 border-green-200 text-green-700"
-                  : healthStatus === "yellow"
-                    ? "bg-yellow-50 border-yellow-200 text-yellow-700"
-                    : "bg-red-50 border-red-200 text-red-700"
-              }`}
-            >
-              {healthStatus === "green" && (
-                <>
-                  🟢 Financial Health: Good
-                  <br />
-                  Your spending is under control.
-                </>
-              )}
-
-              {healthStatus === "yellow" && (
-                <>
-                  🟡 Financial Health: Warning
-                  <br />
-                  You're spending close to your income limit. Be careful.
-                </>
-              )}
-
-              {healthStatus === "red" && (
-                <>
-                  🔴 Financial Health: Critical
-                  <br />
-                  Your expenses are too high compared to income.
-                </>
-              )}
-            </div>
-
-            <div className="w-full bg-gray-200 h-2 rounded-full mt-2">
-              <div
-                className={`h-2 rounded-full transition-all duration-300 ${
-                  healthStatus === "green"
-                    ? "bg-green-500"
-                    : healthStatus === "yellow"
-                      ? "bg-yellow-500"
-                      : "bg-red-500"
-                }`}
-                style={{ width: `${Math.min(spendingRatio, 100)}%` }}
-              />
-            </div>
+            <HealthScore dashboardData={dashboardData} />
           </div>
         </div>
 

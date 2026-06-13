@@ -23,15 +23,16 @@ const StatsInfoCard = ({ icon, label, value, color }) => {
 const AuthLayout = () => {
   return (
     <div className="flex">
-      <div className="w-screen h-screen md:w-[60vw] px-12 pt-8 pb-12 ">
-        <h2 className="text-lg font-medium text-black flex items-center gap-3">
-          Expense Tracker <ImCalculator className="text-amber-800" />
+      <div className="w-screen h-screen md:w-[60vw] px-12 pt-8 pb-12 dark:bg-gray-950 dark:text-white">
+        <h2 className="text-lg font-medium text-black dark:text-white flex items-center gap-3">
+          Expense Tracker{" "}
+          <ImCalculator className="text-amber-800 dark:text-amber-600" />
         </h2>
 
         <Outlet />
       </div>
 
-      <div className="hidden md:block w-[40vw] h-screen bg-violet-50 bg-auth-bg-img bg-cover bg-no-repeat relative overflow-hidden bg-center p-8 ">
+      <div className="hidden md:block w-[40vw] h-screen bg-amber-50 bg-auth-bg-img bg-cover bg-no-repeat relative overflow-hidden bg-center p-8 ">
         <div className="bg-primary w-48 h-48 rounded-[40px] absolute -top-7 -left-5 " />
         <div className="border-20 border-orange-600 w-48 h-48 rounded-[40px] absolute top-[30%] right-[-10%] " />
         <div className="bg-primary w-48 h-48 rounded-[40px] absolute -bottom-7 -left-5 " />

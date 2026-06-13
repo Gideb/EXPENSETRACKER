@@ -7,9 +7,9 @@ const ExpenseList = ({ transactions, onDelete,handleEditExpense, onDownload }) =
   return (
     <div className="card">
       <div className="inline md:flex items-center justify-between">
-        <h5 className="text-lg">All Expenses</h5>
+        <h5 className="text-lg dark:text-gray-100">All Expenses</h5>
 
-        <button className="card-btn my-4 md:my-0" onClick={onDownload}>
+        <button className="card-btn my-4" onClick={onDownload}>
           <LuDownload className="text-base" /> Download Data
         </button>
       </div>

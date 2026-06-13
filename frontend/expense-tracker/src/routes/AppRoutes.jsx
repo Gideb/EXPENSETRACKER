@@ -12,22 +12,25 @@ import Expense from "../pages/Dashboard/Expense";
 import Income from "../pages/Dashboard/Income";
 import AuthLayout from "../components/layouts/AuthLayout";
 import Transactions from "../pages/Dashboard/Transactions";
+import Settings from "../pages/Settings/Settings";
 
 const AppRoutes = () => {
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<Root />} />
-
+        {/* Auth routes */}
         <Route path="/" element={<AuthLayout />}>
-          <Route path="/login" element={<Login />} />
-          <Route path="/signup" element={<SignUp />} />
+          <Route index element={<Root />} />
+          <Route path="login" element={<Login />} />
+          <Route path="signup" element={<SignUp />} />
         </Route>
 
+        {/* Dashboard routes */}
         <Route path="/dashboard" element={<Home />} />
         <Route path="/expense" element={<Expense />} />
         <Route path="/income" element={<Income />} />
         <Route path="/transactions" element={<Transactions />} />
+        <Route path="/settings" element={<Settings />} />
       </Routes>
     </Router>
   );

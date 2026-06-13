@@ -95,3 +95,84 @@ exports.getUserInfo = async (req, res) => {
     });
   }
 };
+
+
+//update user info
+exports.updateProfile = async (req, res) => {
+  try {
+    const { fullName, email, profileImageUrl } = req.body;
+
+    const user = await User.findById(req.user.id);
+
+    if (!user) {
+      return res.status(404).json({
+        message: "User not found",
+      });
+    }
+
+    if (email) {
+      const normalizedEmail = email.trim().toLowerCase();
+
+      const existingUser = await User.findOne({
+        email: normalizedEmail,
+        _id: { $ne: user._id },
+      });
+
+      if (existingUser) {
+        return res.status(400).json({
+          message: "Email already in use",
+        });
+      }
+
+      user.email = normalizedEmail;
+    }
+
+    if (fullName) user.fullName = fullName;
+    if (profileImageUrl) user.profileImageUrl = profileImageUrl;
+
+    await user.save();
+
+    res.status(200).json({
+      message: "Profile updated",
+      user,
+    });
+  } catch (err) {
+    res.status(500).json({
+      message: "Failed to update profile",
+      error: err.message,
+    });
+  }
+};
+
+
+//change password
+exports.changePassword = async (req, res) => {
+  try {
+    const { currentPassword, newPassword } = req.body;
+
+    const user = await User.findById(req.user.id);
+
+    const isMatch = await user.comparePassword(currentPassword);
+
+    if (!isMatch) {
+      return res.status(400).json({
+        message: "Current password is incorrect",
+      });
+    }
+
+    user.password = newPassword;
+
+    await user.save();
+
+    res.status(200).json({
+      message: "Password updated successfully",
+    });
+  } catch (err) {
+    res.status(500).json({
+      message: "Failed to change password",
+      error: err.message,
+    });
+  }
+};
+
+

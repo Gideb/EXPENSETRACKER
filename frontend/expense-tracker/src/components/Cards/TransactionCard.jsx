@@ -18,8 +18,8 @@ const TransactionCard = ({
     type === "income" ? "bg-green-50 text-green-500" : "bg-red-50 text-red-500";
 
   return (
-    <div className="group relative flex items-center gap-4 mt-2 p-3 rounded-lg hover:bg-gray-100/40 border border-gray-100 mx-1 shadow-md hover:-translate-y-1.5 duration-500 ease-in-out transition-all hover:shadow-xl">
-      <div className="w-12 h-12 flex items-center justify-center text-xl text-gray-800 bg-gray-100 rounded-full">
+    <div className="group relative flex items-center gap-4 mt-2 p-3 rounded-lg hover:bg-gray-100/40 dark:bg-gray-800 dark:hover:bg-gray-500/80 border border-gray-100 mx-1 shadow-md hover:-translate-y-1.5 duration-500 ease-in-out transition-all hover:shadow-xl">
+      <div className="w-12 h-12 flex items-center justify-center text-xl text-gray-800 dark:text-gray-300 bg-gray-100  rounded-full">
         {icon ? (
           <img src={icon} alt={title} className="w-6 h-6" />
         ) : (
@@ -29,14 +29,16 @@ const TransactionCard = ({
 
       <div className="flex-1 flex items-center justify-between">
         <div>
-          <p className="text-sm text-gray-700 font-medium">{title}</p>
+          <p className="text-sm text-gray-700 dark:text-gray-100 font-medium">
+            {title}
+          </p>
           <p className="text-xs text-gray-400 mt-1">{date}</p>
         </div>
 
         <div className="flex items-center gap-2">
           {!hideDeleteBtn && (
             <button
-              className=" text-gray-400 hover:text-red-500
+              className=" text-gray-400  hover:text-red-500 dark:text-gray-200 dark:hover:text-red-700
       cursor-pointer opacity-60 md:opacity-0 md:group-hover:opacity-100
       transition-all duration-300 "
               onClick={onDelete}

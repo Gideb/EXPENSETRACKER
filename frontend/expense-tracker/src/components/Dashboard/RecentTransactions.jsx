@@ -7,10 +7,10 @@ const RecentTransactions = ({ transactions, onSeeMore }) => {
   return (
     <div className="card">
       <div className="flex items-center justify-between">
-        <h5 className="text-lg">Recent Transactions</h5>
+        <h5 className="text-lg dark:text-gray-100">Recent Transactions</h5>
 
-        <button className="card-btn" onClick={onSeeMore}>
-          See All <LuArrowRight className="text-base" />
+        <button className="card-btn group" onClick={onSeeMore}>
+          See All <LuArrowRight className="text-base dark:text-gray-100 group-hover:translate-x-1 duration-300 transition-all ease-in-out" />
         </button>
       </div>
 

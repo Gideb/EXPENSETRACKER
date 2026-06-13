@@ -6,7 +6,7 @@ import SideMenu from "./SideMenu";
 const Dashboardlayout = ({ children, activeMenu }) => {
   const { user } = useContext(UserContext);
   return (
-    <div className="">
+    <div className="dark:bg-gray-950">
       <Navbar activeMenu={activeMenu} />
 
       {user && (

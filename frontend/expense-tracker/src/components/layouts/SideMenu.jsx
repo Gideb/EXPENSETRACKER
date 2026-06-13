@@ -4,6 +4,7 @@ import { UserContext } from "../../context/UserContext";
 import { useNavigate } from "react-router-dom";
 import { BASE_URL } from "../../utils/apiPaths";
 import CharAvatar from "../Cards/CharAvatar";
+import { LuSettings } from "react-icons/lu";
 
 const SideMenu = ({ activeMenu }) => {
   const { user, clearUser } = useContext(UserContext);
@@ -34,9 +35,9 @@ const SideMenu = ({ activeMenu }) => {
       : user.profileImageUrl;
 
   return (
-    <div className="w-64 h-[calc(100vh-61px)] bg-white border-r border-gray-200/50 z-20 p-5 sticky top-15.25">
+    <div className="w-64 h-[calc(100vh-61px)] bg-white border-r border-gray-200/50 dark:bg-gray-950 z-20 p-5 sticky top-15.25">
       <div className="flex flex-col items-center justify-center gap-3 mt-3 mb-7">
-        {/* ✅ FIXED RENDER LOGIC */}
+        
         {hasImage ? (
           <img
             src={imageUrl}
@@ -66,7 +67,7 @@ const SideMenu = ({ activeMenu }) => {
             className={`w-full flex items-center gap-4 cursor-pointer text-[15px] py-3 px-6 rounded-lg mb-3 ${
               isActive
                 ? "bg-primary text-white hover:bg-primary/90"
-                : "text-slate-900 hover:bg-amber-600/20"
+                : "text-slate-900 hover:bg-amber-600/20 dark:hover:bg-amber-600/30 dark:text-gray-100"
             }`}
             onClick={() => handleClick(item.path)}
           >
@@ -75,6 +76,14 @@ const SideMenu = ({ activeMenu }) => {
           </button>
         );
       })}
+
+      {/* <button
+        onClick={() => navigate("/settings")}
+        className="w-full flex flex-col h-full items-center gap-4 cursor-pointer text-[15px] py-3 px-6 rounded-lg mb-3  text-gray-600 hover:text-primary"
+      >
+        <LuSettings className="text-xl" />
+        Settings
+      </button> */}
     </div>
   );
 };
