@@ -7,7 +7,12 @@ const ExpenseTransactions = ({ transactions, onSeeMore }) => {
   return (
     <div className="card">
       <div className="flex items-center justify-between">
-        <h5 className="text-lg dark:text-gray-100">Expenses</h5>
+        <div>
+          <h5 className="text-lg dark:text-gray-100">Expenses</h5>
+          <p className="text-xs text-gray-400 mt-1">
+            View your recent expense history.
+          </p>
+        </div>
 
         <button className="card-btn group" onClick={onSeeMore}>
           See All{" "}

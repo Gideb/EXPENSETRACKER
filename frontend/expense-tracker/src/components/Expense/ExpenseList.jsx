@@ -6,11 +6,17 @@ import { addThousandsSeparator } from "../../utils/helper";
 const ExpenseList = ({ transactions, onDelete,handleEditExpense, onDownload }) => {
   return (
     <div className="card">
-      <div className="inline md:flex items-center justify-between">
-        <h5 className="text-lg dark:text-gray-100">All Expenses</h5>
+      <div className="flex items-center justify-between">
+        <div>
+          <h5 className="text-lg dark:text-gray-100 ">Expenses</h5>
+          <p className="text-xs text-gray-400 mt-1">
+            Track and reiew all your expenses in one place.
+          </p>
+        </div>
 
-        <button className="card-btn my-4" onClick={onDownload}>
-          <LuDownload className="text-base" /> Download Data
+        <button className="card-btn my-4 group" onClick={onDownload}>
+          <LuDownload className="text-base group-hover:-translate-y-0.5 duration-300 transition-all ease-in-out" />{" "}
+          Download
         </button>
       </div>
 

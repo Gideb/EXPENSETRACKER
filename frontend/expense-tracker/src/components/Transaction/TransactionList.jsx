@@ -10,17 +10,18 @@ const TransactionList = ({
 }) => {
   return (
     <div className="card">
-      <div className="inline md:flex items-center justify-between">
+      <div className="flex items-center justify-between">
         <div>
           <h5 className="text-lg dark:text-gray-100">Transaction History</h5>
 
           <p className="text-xs text-gray-400 mt-1">
-            See all your transactions over time in one place
+            Browse through all your transactions over time in one place
           </p>
         </div>
 
-        <button className="card-btn my-4 md:my-0" onClick={onDownload}>
-          <LuDownload className="text-base" /> Download Data
+        <button className="card-btn my-4 group " onClick={onDownload}>
+          <LuDownload className="text-base group-hover:-translate-y-0.5 duration-300 transition-all ease-in-out" />{" "}
+          Download
         </button>
       </div>
 
