@@ -17,12 +17,12 @@ exports.getDashboardData = async (req, res) => {
               { $group: { _id: null, total: { $sum: "$amount" } } },
             ],
 
-            recentIncome: [{ $sort: { createdAt: -1 } }, { $limit: 5 }],
+            recentIncome: [{ $sort: { date: -1 } }, { $limit: 5 }],
 
             last60DaysIncome: [
               {
                 $match: {
-                  createdAt: {
+                  date: {
                     $gte: new Date(Date.now() - 60 * 24 * 60 * 60 * 1000),
                   },
                 },
@@ -48,13 +48,30 @@ exports.getDashboardData = async (req, res) => {
               { $group: { _id: null, total: { $sum: "$amount" } } },
             ],
 
-            recentExpense: [{ $sort: { createdAt: -1 } }, { $limit: 5 }],
+            recentExpense: [{ $sort: { date: -1 } }, { $limit: 5 }],
 
             last30DaysExpense: [
               {
                 $match: {
-                  createdAt: {
+                  date: {
                     $gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
+                  },
+                },
+              },
+              {
+                $group: {
+                  _id: null,
+                  total: { $sum: "$amount" },
+                  transactions: { $push: "$$ROOT" },
+                },
+              },
+            ],
+/* current week */
+            currentWeeksExpense: [
+              {
+                $match: {
+                  date: {
+                    $gte: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000),
                   },
                 },
               },
@@ -84,6 +101,11 @@ exports.getDashboardData = async (req, res) => {
       total: 0,
       transactions: [],
     };
+//current week
+    const currentWeeksExpense = expenseData[0]?.currentWeeksExpense[0] || {
+      total: 0,
+      transactions: [],
+    };
 
     const recentIncome = incomeData[0]?.recentIncome || [];
     const recentExpense = expenseData[0]?.recentExpense || [];
@@ -95,11 +117,13 @@ exports.getDashboardData = async (req, res) => {
       totalExpense,
       last60DaysIncome,
       last30DaysExpense,
+      //current week
+      currentWeeksExpense,
       recentTransactions: [
         ...recentIncome.map((t) => ({ ...t, type: "income" })),
         ...recentExpense.map((t) => ({ ...t, type: "expense" })),
       ]
-        .sort((a, b) => b.createdAt - a.createdAt)
+        .sort((a, b) => b.date - a.date)
         .slice(0, 5),
     });
   } catch (err) {

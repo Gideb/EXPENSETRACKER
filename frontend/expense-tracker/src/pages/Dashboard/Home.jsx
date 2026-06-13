@@ -89,7 +89,15 @@ const Home = () => {
             value={addThousandsSeparator(
               dashboardData?.last30DaysExpense?.total,
             )}
-            color="bg-slate-600"
+            color="bg-rose-700"
+          />
+          <InfoCard
+            icon={<GiTakeMyMoney />}
+            label="Last 7 Days Expense"
+            value={addThousandsSeparator(
+              dashboardData?.currentWeeksExpense?.total || 0,
+            )}
+            color="bg-yellow-600"
           />
         </div>
 
