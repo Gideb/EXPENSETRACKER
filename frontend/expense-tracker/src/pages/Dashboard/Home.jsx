@@ -17,8 +17,8 @@ import Last30DaysExpenses from "../../components/Dashboard/Last30DaysExpenses";
 import RecentIncomeWithChart from "../../components/Dashboard/RecentIncomeWithChart";
 import RecentIncome from "../../components/Dashboard/RecentIncome";
 import HealthScore from "../../components/Cards/HealthScore";
-import BudgetSummary from "../../components/Dashboard/BudgetSummary";
-import BudgetCard from "../../components/Cards/BudgetCard";
+
+import BudgetWidget from "../../components/Dashboard/BudgetWidget";
 
 const Home = () => {
   useUserAuth();
@@ -58,58 +58,62 @@ const Home = () => {
         )}
         {error && <p className="text-sm text-red-500">{error}</p>}
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <InfoCard
-            icon={<IoMdCard />}
-            label="Total Balance"
-            value={addThousandsSeparator(dashboardData?.totalBalance)}
-            color="bg-primary"
-          />
-          <InfoCard
-            icon={<LuWalletMinimal />}
-            label="Total Income"
-            value={addThousandsSeparator(dashboardData?.totalIncome)}
-            color="bg-emerald-600"
-          />
-          <InfoCard
-            icon={<LuHandCoins />}
-            label="Total Expense"
-            value={addThousandsSeparator(dashboardData?.totalExpense)}
-            color="bg-red-600"
-          />
-          <InfoCard
-            icon={<GiCash />}
-            label="Past 60 Days Income"
-            value={addThousandsSeparator(
-              dashboardData?.last60DaysIncome?.total,
-            )}
-            color="bg-purple-600"
-          />
-          <InfoCard
-            icon={<GiTakeMyMoney />}
-            label="Past 30 Days Expense"
-            value={addThousandsSeparator(
-              dashboardData?.last30DaysExpense?.total,
-            )}
-            color="bg-rose-700"
-          />
-          <InfoCard
-            icon={<GiTakeMyMoney />}
-            label="Last 7 Days Expense"
-            value={addThousandsSeparator(
-              dashboardData?.currentWeeksExpense?.total || 0,
-            )}
-            color="bg-yellow-600"
-          />
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="max-w-md">
+        <div className="gap-6 grid grid-cols-1 md:grid-cols-2">
+          <div className="flex flex-col gap-6">
+            <BudgetWidget />
             <HealthScore dashboardData={dashboardData} />
           </div>
-         
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <InfoCard
+              icon={<IoMdCard />}
+              label="Total Balance"
+              value={addThousandsSeparator(dashboardData?.totalBalance)}
+              color="bg-primary"
+            />
+            <InfoCard
+              icon={<LuWalletMinimal />}
+              label="Total Income"
+              value={addThousandsSeparator(dashboardData?.totalIncome)}
+              color="bg-emerald-600"
+            />
+            <InfoCard
+              icon={<LuHandCoins />}
+              label="Total Expense"
+              value={addThousandsSeparator(dashboardData?.totalExpense)}
+              color="bg-red-600"
+            />
+            <InfoCard
+              icon={<GiCash />}
+              label="Past 60 Days Income"
+              value={addThousandsSeparator(
+                dashboardData?.last60DaysIncome?.total,
+              )}
+              color="bg-purple-600"
+            />
+            <InfoCard
+              icon={<GiTakeMyMoney />}
+              label="Past 30 Days Expense"
+              value={addThousandsSeparator(
+                dashboardData?.last30DaysExpense?.total,
+              )}
+              color="bg-rose-700"
+            />
+            <InfoCard
+              icon={<GiTakeMyMoney />}
+              label="Last 7 Days Expense"
+              value={addThousandsSeparator(
+                dashboardData?.currentWeeksExpense?.total || 0,
+              )}
+              color="bg-yellow-600"
+            />
+          </div>
         </div>
-         
+
+        {/* <div className="grid grid-cols-1 md:grid-cols-2 gap-6"> */}
+        {/* <div className="flex flex-col gap-6">
+          <BudgetWidget />
+          <HealthScore dashboardData={dashboardData} />
+        </div> */}
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
           {/* list for 5 most recent transactions */}

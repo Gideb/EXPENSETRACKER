@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import AddBudgetForm from "../../components/Budget/AddBudgetForm";
-import BudgetCard from "../../components/Cards/BudgetCard";
 import Dashboardlayout from "../../components/layouts/Dashboardlayout";
 import { useUserAuth } from "../../hooks/useUserAuth";
 import { API_PATHS } from "../../utils/apiPaths";
@@ -10,7 +9,7 @@ import { toast } from "react-hot-toast";
 import axiosInstance from "../../utils/axiosInstance";
 import BudgetList from "../../components/Budget/BudgetList";
 import DeleteAlert from "../../components/DeleteAlert";
-import BudgetSummary from "../../components/Dashboard/BudgetSummary";
+import BudgetSummary from "../../components/Budget/BudgetSummary";
 
 const Budget = () => {
   useUserAuth();
