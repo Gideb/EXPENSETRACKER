@@ -10,7 +10,7 @@ const TransactionList = ({
 }) => {
   return (
     <div className="card">
-      <div className="flex items-center justify-between">
+      <div className="inline md:flex items-center justify-between">
         <div>
           <h5 className="text-lg dark:text-gray-100">Transaction History</h5>
 

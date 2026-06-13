@@ -11,7 +11,7 @@ const IncomeList = ({
 }) => {
   return (
     <div className="card">
-      <div className="flex items-center justify-between">
+      <div className="inline md:flex items-center justify-between">
         <div>
           <h5 className="text-lg dark:text-gray-100 ">Income Transactions</h5>
           <p className="text-xs text-gray-400 mt-1">
