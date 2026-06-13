@@ -41,5 +41,5 @@ body {
 }
 
 .add-btn-fill {
-    @apply text-white bg-primary hover:bg-amber-100 dark:bg-amber-600 dark:hover:bg-amber-500 hover:text-amber-700  ;
+    @apply text-white bg-primary hover:bg-amber-100 dark:bg-amber-700 dark:hover:bg-amber-900   ;
 }
