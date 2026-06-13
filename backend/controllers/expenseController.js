@@ -46,6 +46,8 @@ exports.addExpense = async (req, res) => {
     return res.status(201).json({
       expense: newExpense,
       budgetStatus,
+      budgetExceeded: budgetStatus?.exceeded || false,
+      exceededCategory: budgetStatus?.category || null,
     });
   } catch (error) {
     console.error("Error adding expense:", error);
