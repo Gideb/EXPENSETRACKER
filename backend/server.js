@@ -11,7 +11,7 @@ const budgetRoutes = require("./routes/budgetRoutes");
 
 const app = express();
 
-//middleware to handle CORS
+//middleware to handle CORS.
 app.use(
   cors({
     origin: process.env.CLIENT_URL || "*",
@@ -28,7 +28,7 @@ app.use("/api/v1/expense", expenseRoutes);
 app.use("/api/v1/dashboard", dashboardRoutes);
 app.use("/api/v1/budget", budgetRoutes);
 
-//serve uploads folder
+//serve uploads folder.
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 const PORT = process.env.PORT || 5000;
