@@ -56,10 +56,10 @@ const Login = () => {
   };
 
   return (
-    /*  <AuthLayout> */
-
     <div className="lg:w-[70%] h-3/4 md:h-full flex flex-col justify-center ">
-      <h3 className="text-black dark:text-white text-xl font-semibold">Welcome Back</h3>
+      <h3 className="text-black dark:text-white text-xl font-semibold">
+        Welcome Back
+      </h3>
       <p className="mt-1.25 text-slate-700 dark:text-slate-400 text-xs mb-6">
         Please enter your details to login
       </p>
@@ -87,16 +87,25 @@ const Login = () => {
           LOGIN
         </button>
 
-        <p className="text-slate-800  dark:text-slate-400 text-[13px] mt-3">
-          Don't have an account?{" "}
-          <Link to="/signup" className="text-primary underline font-medium">
-            SIGNUP
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between mt-3">
+          <Link
+            to="/forgot-Password"
+            className="text-primary underline font-medium text-[13px] order-1 sm:order-2"
+          >
+            Forgot Password?
           </Link>
-        </p>
+
+          <div className="sm:hidden h-px w-full bg-linear-to-r from-gray-300 via-gray-300 to-transparent my-4 order-2" />
+
+          <p className="text-slate-800 dark:text-slate-400 text-[13px] order-3 sm:order-1">
+            Don't have an account?{" "}
+            <Link to="/signup" className="text-primary underline font-medium">
+              SIGNUP
+            </Link>
+          </p>
+        </div>
       </form>
     </div>
-
-    /* </AuthLayout> */
   );
 };
 

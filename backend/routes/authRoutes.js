@@ -6,6 +6,8 @@ const {
   getUserInfo,
   updateProfile,
   changePassword,
+  forgotPassword,
+  resetPassword,
 } = require("../controllers/authController");
 
 const upload = require("../middleware/uploadMiddleware");
@@ -17,6 +19,9 @@ router.post("/login", loginUser);
 router.get("/getUser", protect, getUserInfo);
 router.put("/update-profile", protect, updateProfile);
 router.put("/change-password", protect, changePassword);
+
+router.post("/forgot-password", forgotPassword);
+router.post("/reset-password/:token", resetPassword);
 
 router.post("/upload-image", upload.single("image"), (req, res) => {
   if (!req.file) {

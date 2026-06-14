@@ -14,6 +14,8 @@ import AuthLayout from "../components/layouts/AuthLayout";
 import Transactions from "../pages/Dashboard/Transactions";
 import Budget from "../pages/Dashboard/Budget";
 import Settings from "../pages/Dashboard/Settings";
+import ForgotPassword from "../pages/Auth/ForgotPassword";
+import ResetPassword from "../pages/Auth/ResetPassword";
 
 const AppRoutes = () => {
   return (
@@ -24,6 +26,8 @@ const AppRoutes = () => {
           <Route index element={<Root />} />
           <Route path="login" element={<Login />} />
           <Route path="signup" element={<SignUp />} />
+          <Route path="forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-password/:token" element={<ResetPassword />} />
         </Route>
 
         {/* Dashboard routes */}

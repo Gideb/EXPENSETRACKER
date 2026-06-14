@@ -9,7 +9,7 @@ const UserSchema = new mongoose.Schema(
       type: String,
       required: true,
       unique: true,
-      lowercase: true,  
+      lowercase: true,
       trim: true,
     },
 
@@ -22,18 +22,32 @@ const UserSchema = new mongoose.Schema(
       type: String,
       default: null,
     },
+
+    resetPasswordToken: {
+      type: String,
+      default: null,
+    },
+
+    resetPasswordExpires: {
+      type: Date,
+      default: null,
+    },
   },
   { timestamps: true },
 );
 
-// Hash password before saving
+//////////////////////////////
+// HASH PASSWORD
+//////////////////////////////
 UserSchema.pre("save", async function () {
   if (!this.isModified("password")) return;
 
   this.password = await bcrypt.hash(this.password, 10);
 });
 
-// Compare passwords
+//////////////////////////////
+// COMPARE PASSWORD
+//////////////////////////////
 UserSchema.methods.comparePassword = async function (candidatePassword) {
   return await bcrypt.compare(candidatePassword, this.password);
 };
