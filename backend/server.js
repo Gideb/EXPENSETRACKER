@@ -14,7 +14,10 @@ const app = express();
 //middleware to handle CORS.
 app.use(
   cors({
-    origin: process.env.CLIENT_URL || "*",
+    origin: [
+      "http://localhost:5173",
+      "https://expensetracker-taupe-six.vercel.app",
+    ],
     methods: ["GET", "POST", "PUT", "DELETE"],
     allowedHeaders: ["Content-Type", "Authorization"],
   }),
