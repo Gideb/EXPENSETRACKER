@@ -51,7 +51,7 @@ const AddBudgetForm = ({ onBudgetAdded, onUpdateBudget, editData }) => {
         value={budget.category}
         onChange={({ target }) => handleChange("category", target.value)}
         label="Category"
-        placeholder="e.g., Food, Transport, Entertainment"
+        placeholder="Food, Transport, Clothing"
         type="text"
       />
 

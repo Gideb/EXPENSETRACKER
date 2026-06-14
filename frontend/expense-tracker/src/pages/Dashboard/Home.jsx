@@ -10,7 +10,7 @@ import RecentTransactions from "../../components/Dashboard/RecentTransactions";
 
 import { IoMdCard } from "react-icons/io";
 import { LuHandCoins, LuWalletMinimal } from "react-icons/lu";
-import { GiCash, GiTakeMyMoney } from "react-icons/gi";
+import { GiCash, GiMoneyStack, GiPayMoney, GiTakeMyMoney } from "react-icons/gi";
 import FinanceOverview from "../../components/Dashboard/FinanceOverview";
 import ExpenseTransactions from "../../components/Dashboard/ExpenseTransactions";
 import Last30DaysExpenses from "../../components/Dashboard/Last30DaysExpenses";
@@ -91,7 +91,7 @@ const Home = () => {
               color="bg-purple-600"
             />
             <InfoCard
-              icon={<GiTakeMyMoney />}
+              icon={<GiMoneyStack />}
               label="Past 30 Days Expense"
               value={addThousandsSeparator(
                 dashboardData?.last30DaysExpense?.total,

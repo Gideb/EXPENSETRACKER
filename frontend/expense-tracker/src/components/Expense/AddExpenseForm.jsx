@@ -44,7 +44,7 @@ const AddExpenseForm = ({ onAddExpense, onUpdateExpense, editData }) => {
         value={income.category}
         onChange={({ target }) => handleChange("category", target.value)}
         label="Expense Category"
-        placeholder="Food, Fees, Fuel"
+        placeholder="Food, Transport, Clothing"
         type="text"
       />
 
@@ -61,7 +61,6 @@ const AddExpenseForm = ({ onAddExpense, onUpdateExpense, editData }) => {
         placeholder="Select date"
         type="date"
         max={new Date().toISOString().split("T")[0]}
-  
         value={income.date}
         onChange={({ target }) => handleChange("date", target.value)}
       />

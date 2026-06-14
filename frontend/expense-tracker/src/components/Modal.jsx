@@ -5,7 +5,6 @@ const Modal = ({ title, onClose, isOpen, children }) => {
   return (
     <div className="fixed top-0 right-0 left-0 z-50 flex justify-center items-center w-full h-[calc(100%-1rem)] max-h-full overflow-y-auto overflow-x-hidden bg-black/20 backdrop-opacity-30 ">
       <div className="relative p-4 w-full max-w-2xl max-h-full ">
-
         {/* modal content */}
         <div className="relative bg-white rounded-lg shadow-sm dark:bg-gray-700">
           {/* Modal header */}
@@ -16,7 +15,7 @@ const Modal = ({ title, onClose, isOpen, children }) => {
             </h3>
 
             <button
-              className="text-gray-400 bg-transparent hover:bg-red-200 hover:text-gray-900 rounded-md text-sm w-8 h-8 inline-flex justify-center items-center dark:hover:bg-red-600 dark:hover:text-white cursor-pointer"
+              className="text-gray-100 sm:text-gray-600 bg-red-700 sm:bg-transparent sm:hover:bg-red-700 rounded-md text-md w-8 h-8 inline-flex justify-center items-center dark:hover:bg-red-600 dark:sm:text-gray-200 hover:text-white cursor-pointer font-bold"
               onClick={onClose}
               type="button"
             >

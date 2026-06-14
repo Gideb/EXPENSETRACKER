@@ -149,7 +149,7 @@ const BudgetSummary = ({ setOpenAddBudgetModal }) => {
         </div>
       </div>
 
-      <div className="flex gap-3 my-5 justify-end">
+      <div className="flex gap-3 my-5 sm:justify-end justify-start">
         <button
           onClick={() => setOpenAddBudgetModal(true)}
           className="add-btn transition-colors"
