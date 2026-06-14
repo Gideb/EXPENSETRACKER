@@ -89,7 +89,7 @@ const Login = () => {
 
         <div className="flex flex-col sm:flex-row sm:items-center justify-between mt-3">
           <Link
-            to="/forgot-Password"
+            to="/forgot-password"
             className="text-primary underline font-medium text-[13px] order-1 sm:order-2"
           >
             Forgot Password?
