@@ -149,6 +149,21 @@ const BudgetSummary = ({ setOpenAddBudgetModal }) => {
         </div>
       </div>
 
+      <div className="flex gap-3 my-5 justify-end">
+        <button
+          onClick={() => setOpenAddBudgetModal(true)}
+          className="add-btn transition-colors"
+        >
+          + Add Budget
+        </button>
+        <button
+          onClick={() => (window.location.href = "/expense")}
+          className="px-4 py-2 text-xs font-medium text-gray-700 bg-gray-100 rounded border border-gray-400 hover:bg-gray-200 dark:bg-slate-700 dark:text-slate-100 dark:hover:bg-slate-800 cursor-pointer transition-colors"
+        >
+          Record Expense
+        </button>
+      </div>
+
       {/* Summary Cards Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 ">
         {summaryCards.map((card, index) => (
@@ -206,8 +221,8 @@ const BudgetSummary = ({ setOpenAddBudgetModal }) => {
       </div>
 
       {/* Quick Actions Row */}
-      <div className="mt-6 flex flex-wrap gap-4 justify-between items-center">
-        <div className="flex gap-3">
+      <div className="mt-6 flex flex-wrap gap-4 justify-end items-center">
+        {/* <div className="flex gap-3">
           <button
             onClick={() => setOpenAddBudgetModal(true)}
             className="add-btn transition-colors"
@@ -220,7 +235,7 @@ const BudgetSummary = ({ setOpenAddBudgetModal }) => {
           >
             Record Expense
           </button>
-        </div>
+        </div> */}
 
         <div className="text-sm text-gray-500 dark:text-gray-400">
           Last updated: {new Date().toLocaleDateString()}

@@ -20,7 +20,7 @@ const Modal = ({ title, onClose, isOpen, children }) => {
               onClick={onClose}
               type="button"
             >
-              🗙
+              x
             </button>
           </div>
 
