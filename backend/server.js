@@ -31,6 +31,11 @@ app.use("/api/v1/expense", expenseRoutes);
 app.use("/api/v1/dashboard", dashboardRoutes);
 app.use("/api/v1/budget", budgetRoutes);
 
+
+app.get("/test", (req, res) => {
+  res.json({ message: "backend alive" });
+});
+
 //serve uploads folder.
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
