@@ -24,6 +24,8 @@ const ForgotPassword = () => {
     } catch (error) {
       toast.error(error.response?.data?.message || "Something went wrong");
     }
+
+    
   };
   return (
     <div className="space-y-6 mt-10">
@@ -48,6 +50,8 @@ const ForgotPassword = () => {
           Send Reset Link
         </button>
       </form>
+
+      
     </div>
   );
 };
