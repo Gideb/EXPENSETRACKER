@@ -42,7 +42,7 @@ const SideMenu = ({ activeMenu }) => {
           <img
             src={imageUrl}
             alt="Profile Image"
-            className="w-20 h-20 bg-slate-400 rounded-full object-cover"
+            className="w-20 h-20 bg-slate-400 rounded-full object-cover border-2 border-amber-600"
           />
         ) : (
           <CharAvatar
@@ -53,7 +53,7 @@ const SideMenu = ({ activeMenu }) => {
           />
         )}
 
-        <h5 className="text-gray-950 font-medium leading-6">
+        <h5 className="text-gray-950 dark:text-gray-200 font-medium leading-6">
           {user?.fullName || ""}
         </h5>
       </div>
