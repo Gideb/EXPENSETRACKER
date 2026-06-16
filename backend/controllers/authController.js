@@ -227,6 +227,8 @@ exports.forgotPassword = async (req, res) => {
 
     const resetUrl = `${process.env.CLIENT_URL}/reset-password/${token}`;
 
+console.log("Before sendEmail");
+
     await sendEmail(
       email,
       "Password Reset",
@@ -239,6 +241,8 @@ exports.forgotPassword = async (req, res) => {
         </a>
       `,
     );
+console.log("after sendEmail");
+
 
     res.status(200).json({
       message: "Reset link sent",
@@ -249,9 +253,7 @@ exports.forgotPassword = async (req, res) => {
     });
   }
 
-  console.log("CLIENT_URL:", process.env.CLIENT_URL);
-  console.log("EMAIL_USER:", process.env.EMAIL_USER);
-  console.log("EMAIL_PASS exists:", !!process.env.EMAIL_PASS);
+
 };
 
 /////////////////////////
