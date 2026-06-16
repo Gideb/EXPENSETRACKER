@@ -9,7 +9,7 @@ const axiosInstance = axios.create({
     Accept: "application/json",
   },
 });
-console.log("BASE_URL:", BASE_URL);
+/* console.log("BASE_URL:", BASE_URL); */
 //request interceptor
 axiosInstance.interceptors.request.use(
   (config) => {
