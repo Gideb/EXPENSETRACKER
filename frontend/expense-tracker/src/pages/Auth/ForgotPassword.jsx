@@ -4,7 +4,7 @@ import Input from "../../components/Inputs/Input";
 import { toast } from "react-hot-toast";
 import { API_PATHS } from "../../utils/apiPaths";
 
-
+//SIGNED-GILBERT DEBRAH (gideb on github)
 const ForgotPassword = () => {
   const [email, setEmail] = useState("");
 

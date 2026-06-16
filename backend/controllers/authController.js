@@ -227,8 +227,6 @@ exports.forgotPassword = async (req, res) => {
 
     const resetUrl = `${process.env.CLIENT_URL}/reset-password/${token}`;
 
-console.log("Before sendEmail");
-
     await sendEmail(
       email,
       "Password Reset",
@@ -241,8 +239,6 @@ console.log("Before sendEmail");
         </a>
       `,
     );
-console.log("after sendEmail");
-
 
     res.status(200).json({
       message: "Reset link sent",
@@ -252,8 +248,6 @@ console.log("after sendEmail");
       message: error.message,
     });
   }
-
-
 };
 
 /////////////////////////
