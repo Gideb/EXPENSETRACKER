@@ -21,6 +21,7 @@ const UserSchema = new mongoose.Schema(
     profileImageUrl: {
       type: String,
       default: null,
+      maxlength: 3 * 1024 * 1024,
     },
 
     resetPasswordToken: {

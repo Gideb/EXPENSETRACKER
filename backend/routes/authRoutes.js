@@ -27,8 +27,9 @@ router.post("/upload-image", upload.single("image"), (req, res) => {
   if (!req.file) {
     return res.status(400).json({ message: "No file uploaded" });
   }
-  // Use relative URL so it works across different domains/protocols/ports
-  const imageUrl = `/uploads/${req.file.filename}`;
+
+  const imageUrl = `data:${req.file.mimetype};base64,${req.file.buffer.toString("base64")}`;
+
   res.status(200).json({ imageUrl });
 });
 

@@ -4,18 +4,21 @@ import {
   Route,
   Navigate,
 } from "react-router-dom";
+
+import AuthLayout from "../components/layouts/AuthLayout";
 import Login from "../pages/Auth/Login";
 import SignUp from "../pages/Auth/SignUp";
+import ForgotPassword from "../pages/Auth/ForgotPassword";
+import ResetPassword from "../pages/Auth/ResetPassword";
 
 import Home from "../pages/Dashboard/Home";
 import Expense from "../pages/Dashboard/Expense";
 import Income from "../pages/Dashboard/Income";
-import AuthLayout from "../components/layouts/AuthLayout";
 import Transactions from "../pages/Dashboard/Transactions";
 import Budget from "../pages/Dashboard/Budget";
+
 import Settings from "../pages/Dashboard/Settings";
-import ForgotPassword from "../pages/Auth/ForgotPassword";
-import ResetPassword from "../pages/Auth/ResetPassword";
+
 
 const AppRoutes = () => {
   return (
