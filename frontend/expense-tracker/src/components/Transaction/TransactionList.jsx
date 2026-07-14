@@ -3,11 +3,7 @@ import moment from "moment";
 import TransactionCard from "../Cards/TransactionCard";
 import { addThousandsSeparator } from "../../utils/helper";
 
-const TransactionList = ({
-  transactions,
-  onDownload,
-  onDelete,
-}) => {
+const TransactionList = ({ transactions, onDownload, onDelete }) => {
   return (
     <div className="card">
       <div className="inline md:flex items-center justify-between">
@@ -19,14 +15,16 @@ const TransactionList = ({
           </p>
         </div>
 
-        <button className="card-btn my-4 group " onClick={onDownload}>
-          <LuDownload className="text-base group-hover:-translate-y-0.5 duration-300 transition-all ease-in-out" />{" "}
-          Download PDF
-        </button>
-        <button className="card-btn my-4 group " onClick={onDownload}>
-          <LuDownload className="text-base group-hover:-translate-y-0.5 duration-300 transition-all ease-in-out" />{" "}
-          Download EXCEL
-        </button>
+        <div>
+          <button className="card-btn my-4 group " onClick={onDownload}>
+            <LuDownload className="text-base group-hover:-translate-y-0.5 duration-300 transition-all ease-in-out" />{" "}
+            Download PDF
+          </button>
+          <button className="card-btn my-4 group " onClick={onDownload}>
+            <LuDownload className="text-base group-hover:-translate-y-0.5 duration-300 transition-all ease-in-out" />{" "}
+            Download EXCEL
+          </button>
+        </div>
       </div>
 
       <div className="mt-6 grid grid-cols-1 md:grid-cols-2">
