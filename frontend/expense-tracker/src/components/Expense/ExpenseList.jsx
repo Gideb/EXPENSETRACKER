@@ -16,7 +16,11 @@ const ExpenseList = ({ transactions, onDelete,handleEditExpense, onDownload }) =
 
         <button className="card-btn my-4 group" onClick={onDownload}>
           <LuDownload className="text-base group-hover:-translate-y-0.5 duration-300 transition-all ease-in-out" />{" "}
-          Download
+          Download PDF
+        </button>
+        <button className="card-btn my-4 group" onClick={onDownload}>
+          <LuDownload className="text-base group-hover:-translate-y-0.5 duration-300 transition-all ease-in-out" />{" "}
+          Download EXCEL
         </button>
       </div>
 
