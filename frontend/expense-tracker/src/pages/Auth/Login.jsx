@@ -7,11 +7,13 @@ import axiosInstance from "../../utils/axiosInstance";
 import { API_PATHS } from "../../utils/apiPaths";
 import { validateEmail } from "../../utils/helper";
 import { UserContext } from "../../context/UserContext";
+import toast from "react-hot-toast";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+   const [loading, setLoading] = useState(false);
 
   const { updateUser } = useContext(UserContext);
 
@@ -34,6 +36,7 @@ const Login = () => {
     setError("");
 
     //login api
+    setLoading(true);
     try {
       const response = await axiosInstance.post(API_PATHS.AUTH.LOGIN, {
         email,
@@ -45,13 +48,18 @@ const Login = () => {
       if (token) {
         localStorage.setItem("token", token);
         updateUser(user);
+
+        toast.success("Login successful!");
+        
         navigate("/dashboard");
       }
     } catch (error) {
-      setError(
+      toast.error(
         error.response?.data?.message ||
           "Something went wrong. Please try again.",
       );
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -83,8 +91,8 @@ const Login = () => {
 
         {error && <p className="text-red-500 text-xs pb-2.5">{error}</p>}
 
-        <button type="submit" className="btn-primary">
-          LOGIN
+        <button type="submit" className="btn-primary" disabled={loading}>
+          {loading ? "Logging in..." : "LOGIN"}
         </button>
 
         <div className="flex flex-col sm:flex-row sm:items-center justify-between mt-3">

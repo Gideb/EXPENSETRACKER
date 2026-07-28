@@ -7,12 +7,14 @@ import { API_PATHS } from "../../utils/apiPaths";
 import { validateEmail } from "../../utils/helper";
 import { UserContext } from "../../context/UserContext";
 import uploadImage from "../../utils/uploadImage";
+import toast from "react-hot-toast";
 
 const SignUp = () => {
   const [profilePic, setProfilePic] = useState(null);
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+   const [isLoading, setIsLoading] = useState(false);
 
   const [error, setError] = useState(null);
 
@@ -42,7 +44,8 @@ const SignUp = () => {
     }
 
     setError("");
-
+    
+    setIsLoading(true);
     try {
       if (profilePic) {
         const uploadResponse = await uploadImage(profilePic);
@@ -62,13 +65,18 @@ const SignUp = () => {
       if (token) {
         localStorage.setItem("token", token);
         updateUser(user);
+        
+        toast.success("Signup successful!");
         navigate("/dashboard");
       }
     } catch (error) {
-      setError(
+      
+      toast.error(
         error.response?.data?.message ||
           "Something went wrong. Please try again.",
       );
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -112,8 +120,8 @@ const SignUp = () => {
 
         {error && <p className="text-red-500 text-xs pb-2.5">{error}</p>}
 
-        <button type="submit" className="btn-primary">
-          SIGN UP
+        <button type="submit" className="btn-primary" disabled={isLoading}>
+          {isLoading ? "Signing up..." : "SIGN UP"}
         </button>
 
         <p className="text-slate-800 dark:text-slate-400 text-[13px] mt-3">
