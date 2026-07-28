@@ -15,8 +15,7 @@ const exportPDF = async (req, res) => {
     /**
      * Get user information
      */
-    const user = await User.findById(userId)
-      .select("name email");
+    const user = await User.findById(userId).select("fullName email");
 
     /**
      * Fetch financial records
@@ -95,7 +94,7 @@ const exportPDF = async (req, res) => {
           "Gideb Finance",
 
         user:{
-          name:user.name,
+          name:user.fullName,
           email:user.email
 
         },
