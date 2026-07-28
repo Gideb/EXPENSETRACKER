@@ -149,17 +149,16 @@ const handleUpdateIncome = async (income) => {
       const url = window.URL.createObjectURL(new Blob([response.data]));
       const link = document.createElement("a");
       link.href = url;
-      link.setAttribute("download", "income.xlsx");
+      link.setAttribute("download", "income_data.xlsx");
       document.body.appendChild(link);
       link.click();
       link.remove();
       window.URL.revokeObjectURL(url);
     } catch (err) {
-      setError(
+      toast.error(
         err.response?.data?.message ||
           "Failed to download income details. Please try again.",
       );
-      toast.error("Failed to download expense data. Please try again");
     }
   };
 
@@ -169,14 +168,25 @@ const handleUpdateIncome = async (income) => {
       const response = await axiosInstance.get(API_PATHS.REPORTS.EXPORT_PDF, {
         responseType: "blob",
       });
-    } catch (err) {
+
+      const blob = new Blob([response.data], { type: "application/pdf" });
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = "income_report.pdf";
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+      toast.success("PDF exported successfully.");
+    } catch (error) {
       toast.error(
-        err.response?.data?.message || "Failed to export income details. Please try again.",
+        error.response?.data?.message || "Failed to export income details. Please try again.",
       );
     }
 
   }
-  
+
     useEffect(() => {
       fetchIncomeDetails();
 

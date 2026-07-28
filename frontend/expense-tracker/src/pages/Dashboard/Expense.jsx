@@ -157,21 +157,31 @@ const Expense = () => {
       link.parentNode.removeChild(link);
       window.URL.revokeObjectURL(url);
     } catch (error) {
-      console.error(
+      toast.error(
         error.response?.data?.message ||
           "Failed to download expense details. Please try again.",
       );
-      toast.error("Failed to download expense data. Please try again");
+    
     }
   };
 
 //handle exportpdf
-  const handleExportPDF = async () => {
+ const handleExportPDF = async () => {
     try {
       const response = await axiosInstance.get(API_PATHS.REPORTS.EXPORT_PDF, {
         responseType: "blob",
       });
 
+      const blob = new Blob([response.data], { type: "application/pdf" });
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = "expense_report.pdf";
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+      toast.success("PDF exported successfully.");
     } catch (error) {
       toast.error(
         error.response?.data?.message || "Failed to export expense details. Please try again.",
@@ -185,7 +195,7 @@ const Expense = () => {
     return () => {};
   }, []);
 
-  
+
   return (
     <Dashboardlayout activeMenu="Expense">
       <div className="space-y-6 my-5 mx-auto">
