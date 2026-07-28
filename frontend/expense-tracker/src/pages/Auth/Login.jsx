@@ -8,6 +8,7 @@ import { API_PATHS } from "../../utils/apiPaths";
 import { validateEmail } from "../../utils/helper";
 import { UserContext } from "../../context/UserContext";
 import toast from "react-hot-toast";
+import LoginLoader from "./LoginLoader";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -50,7 +51,7 @@ const Login = () => {
         updateUser(user);
 
         toast.success("Login successful!");
-        
+
         navigate("/dashboard");
       }
     } catch (error) {
@@ -91,9 +92,19 @@ const Login = () => {
 
         {error && <p className="text-red-500 text-xs pb-2.5">{error}</p>}
 
-        <button type="submit" className="btn-primary" disabled={loading}>
-          {loading ? "Logging in..." : "LOGIN"}
-        </button>
+        {loading ? (
+            <LoginLoader />
+          ) : (
+            <button
+              type="submit"
+              disabled={loading}
+              className="btn-primary "
+            >
+              {loading ? "Logging in..." : "Login"}
+            </button>
+          )}
+
+        
 
         <div className="flex flex-col sm:flex-row sm:items-center justify-between mt-3">
           <Link

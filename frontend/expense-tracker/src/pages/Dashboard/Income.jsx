@@ -165,6 +165,8 @@ const handleUpdateIncome = async (income) => {
 
   //handle export income details in pdf
 
+
+  
   useEffect(() => {
     fetchIncomeDetails();
 
