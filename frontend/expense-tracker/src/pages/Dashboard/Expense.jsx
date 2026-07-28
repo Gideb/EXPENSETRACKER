@@ -184,6 +184,8 @@ const Expense = () => {
 
     return () => {};
   }, []);
+
+  
   return (
     <Dashboardlayout activeMenu="Expense">
       <div className="space-y-6 my-5 mx-auto">

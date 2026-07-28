@@ -1,4 +1,4 @@
-import { LuDownload } from "react-icons/lu";
+import { LuDownload, LuUpload } from "react-icons/lu";
 import TransactionInfoCard from "../Cards/TransactionInfoCard";
 import moment from "moment";
 import { addThousandsSeparator } from "../../utils/helper";
@@ -21,13 +21,15 @@ const ExpenseList = ({
         </div>
 
         <div className="flex gap-1 items-center justify-center">
-          <button className="card-btn my-4 group" onClick={exportPDF}>
-            <LuDownload className="text-base group-hover:-translate-y-0.5 duration-300 transition-all ease-in-out" />{" "}
-            Export PDF
-          </button>
+          
           <button className="card-btn my-4 group" onClick={onDownload}>
             <LuDownload className="text-base group-hover:-translate-y-0.5 duration-300 transition-all ease-in-out" />{" "}
             Download EXCEL
+          </button>
+          
+          <button className="card-btn my-4 group" onClick={exportPDF}>
+            <LuUpload className="text-base group-hover:-translate-y-0.5 duration-300 transition-all ease-in-out" />{" "}
+            Export PDF
           </button>
         </div>
       </div>

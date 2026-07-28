@@ -129,6 +129,39 @@ const Transactions = () => {
     window.URL.revokeObjectURL(url);
   };
 
+  //export transactions to PDF
+  const handleExportPDF = async () => {
+    try {
+      const response = await axiosInstance.get(API_PATHS.REPORTS.EXPORT_PDF, {
+        responseType: "blob",
+      });
+
+      const blob = new Blob([response.data], { type: "application/pdf" });
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = "transactions.pdf";
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+      toast.success("PDF exported successfully.");
+    } catch (error) {
+      toast.error(
+        error.response?.data?.message || "Failed to export transactions. Please try again.",
+      );
+    }
+  };
+  
+    useEffect(() => {
+      fetchTransactions();
+
+      return () => { };
+    }, []);
+
+  
+
+
   return (
     <Dashboardlayout activeMenu="Transactions">
       <div className="space-y-6 my-5 mx-auto">
@@ -141,6 +174,7 @@ const Transactions = () => {
               setOpenDeleteAlert({ show: true, data: transactions });
             }}
             onDownload={downloadAllTransactions}
+            exportPDF={handleExportPDF}
           />
         </div>
 

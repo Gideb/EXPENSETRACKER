@@ -1,9 +1,9 @@
-import { LuDownload } from "react-icons/lu";
+import { LuDownload, LuUpload } from "react-icons/lu";
 import moment from "moment";
 import TransactionCard from "../Cards/TransactionCard";
 import { addThousandsSeparator } from "../../utils/helper";
 
-const TransactionList = ({ transactions, onDownload, onDelete }) => {
+const TransactionList = ({ transactions, onDownload, onDelete, exportPDF }) => {
   return (
     <div className="card">
       <div className="inline md:flex items-center justify-between">
@@ -16,14 +16,16 @@ const TransactionList = ({ transactions, onDownload, onDelete }) => {
         </div>
 
         <div className="flex gap-1 items-center justify-center">
-          <button className="card-btn my-4 group " onClick={onDownload}>
-            <LuDownload className="text-base group-hover:-translate-y-0.5 duration-300 transition-all ease-in-out" />{" "}
-            Download PDF
-          </button>
-          <button className="card-btn my-4 group " onClick={onDownload}>
+         <button className="card-btn my-4 group " onClick={onDownload}>
             <LuDownload className="text-base group-hover:-translate-y-0.5 duration-300 transition-all ease-in-out" />{" "}
             Download EXCEL
           </button>
+          
+          <button className="card-btn my-4 group " onClick={exportPDF}>
+            <LuUpload className="text-base group-hover:-translate-y-0.5 duration-300 transition-all ease-in-out" />{" "}
+            Export PDF
+          </button>
+          
         </div>
       </div>
 
