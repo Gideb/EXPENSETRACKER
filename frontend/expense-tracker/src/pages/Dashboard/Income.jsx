@@ -88,7 +88,7 @@ const Income = () => {
   };
 
  
-
+//handle update income
 const handleUpdateIncome = async (income) => {
   try {
     console.log("Editing Income:", editingIncome);
@@ -117,8 +117,6 @@ const handleUpdateIncome = async (income) => {
 };
 
 
-
-
   // delete Income
   const deleteIncome = async (income) => {
     if (!income?._id) return;
@@ -138,7 +136,7 @@ const handleUpdateIncome = async (income) => {
     }
   };
 
-  // handle download income details
+  // handle download income details in excel sheet
   const handleDownloadIncomeDetails = async () => {
     try {
       const response = await axiosInstance.get(
@@ -165,11 +163,15 @@ const handleUpdateIncome = async (income) => {
     }
   };
 
+  //handle export income details in pdf
+
   useEffect(() => {
     fetchIncomeDetails();
 
     return () => {};
   }, []);
+
+
   return (
     <Dashboardlayout activeMenu="Income">
       <div className="space-y-6 my-5 mx-auto">

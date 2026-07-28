@@ -37,6 +37,11 @@ export const API_PATHS = {
     GET_BUDGET_SUMMARY: "/api/v1/budget/summary",
     GET_BUDGET_SUMMARY_BY_MONTH: (month) => `/api/v1/budget/summary/${month}`,
   },
+  REPORTS: {
+    EXPORT_PDF: "/api/v1/reports/exportPDF",
+  },
+  SETTINGS: {
+  },
   IMAGE: {
     UPLOAD_IMAGE: "/api/v1/auth/upload-image",
   },
