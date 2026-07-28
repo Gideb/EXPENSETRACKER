@@ -2,96 +2,197 @@ const PDFDocument = require("pdfkit");
 
 const generatePDF = (res, data) => {
   const doc = new PDFDocument({
-    margin: 50,
     size: "A4",
+    margin: 50,
   });
 
-  res.setHeader("Content-Type", "application/pdf");
+  // ============================
+  // Helpers
+  // ============================
 
+  const formatAmount = (amount) =>
+    `GHS ${new Intl.NumberFormat("en-GH").format(amount)}`;
+
+  const formatDate = (date) =>
+    new Date(date).toLocaleDateString("en-GB", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+    });
+
+  const drawLine = () => {
+    doc
+      .moveTo(50, doc.y)
+      .lineTo(545, doc.y)
+      .strokeColor("#d1d5db")
+      .stroke();
+
+    doc.moveDown();
+  };
+
+  const checkPage = () => {
+    if (doc.y > 730) {
+      doc.addPage();
+    }
+  };
+
+  // ============================
+  // Response Headers
+  // ============================
+
+  res.setHeader("Content-Type", "application/pdf");
   res.setHeader(
     "Content-Disposition",
-    "attachment; filename=Expense_Report.pdf"
+    `attachment; filename=Expense_Report_${
+      new Date().toISOString().split("T")[0]
+    }.pdf`
   );
 
   doc.pipe(res);
 
+  // ============================
+  // Header
+  // ============================
+
   doc
-    .fontSize(22)
+    .font("Helvetica-Bold")
+    .fillColor("#2563eb")
+    .fontSize(24)
     .text("Expense Tracker Report", {
       align: "center",
     });
 
+  doc.moveDown(0.5);
+
+  doc
+    .font("Helvetica")
+    .fillColor("black")
+    .fontSize(11)
+    .text(`Generated: ${new Date().toLocaleDateString("en-GB")}`, {
+      align: "center",
+    });
+
+  doc.moveDown(1.5);
+
+  // ============================
+  // Summary
+  // ============================
+
+  doc
+    .font("Helvetica-Bold")
+    .fontSize(18)
+    .fillColor("#111827")
+    .text("Summary");
+
+  drawLine();
+
+  doc.fontSize(13);
+
+  doc.text(`Total Income: ${formatAmount(data.totalIncome)}`);
+  doc.text(`Total Expenses: ${formatAmount(data.totalExpense)}`);
+  doc.text(`Balance: ${formatAmount(data.balance)}`);
+
   doc.moveDown();
 
-  doc.fontSize(12);
+  // ============================
+  // Income Section
+  // ============================
 
-  doc.text(`Generated: ${new Date().toLocaleDateString()}`);
+  doc
+    .font("Helvetica-Bold")
+    .fontSize(18)
+    .fillColor("#16a34a")
+    .text("Income");
 
-  doc.moveDown();
+  drawLine();
 
-  doc.text(`Total Income: GH₵${data.totalIncome}`);
+  doc
+    .fontSize(12)
+    .fillColor("black")
+    .font("Helvetica-Bold");
 
-  doc.text(`Total Expense: GH₵${data.totalExpense}`);
+  doc.text("Date", 50);
+  doc.text("Source", 180);
+  doc.text("Amount", 430);
 
-    doc.text(`Balance: GH₵${data.balance}`);
-    
-    //after summary
-    doc
-  .fontSize(16)
-  .text("Income");
+  doc.moveDown(0.5);
 
-doc.moveDown();
+  doc.font("Helvetica");
 
-data.incomes.forEach((income) => {
-  doc.text(
-    `${income.date.toLocaleDateString()} | ${income.source} | GH₵${income.amount}`
-  );
-});
+  data.incomes.forEach((income) => {
+    checkPage();
 
-doc.moveDown();
+    const y = doc.y;
 
-  doc.moveDown();
+    doc.text(formatDate(income.date), 50, y);
 
+    doc.text(income.source, 180, y, {
+      width: 220,
+    });
 
-    //expense table
+    doc.text(formatAmount(income.amount), 430, y);
 
-    doc
-  .fontSize(16)
-  .text("Expenses");
-
-doc.moveDown();
-
-data.expenses.forEach((expense) => {
-  doc.text(
-    `${expense.date.toLocaleDateString()} | ${expense.category} | GH₵${expense.amount}`
-  );
-});
-    
-    doc
-  .fontSize(22)
-  .fillColor("#2563eb")
-  .text("Expense Tracker Report", {
-    align: "center",
+    doc.moveDown();
   });
 
-doc.moveDown(2);
+  doc.moveDown(2);
 
-doc.fillColor("black");
+  // ============================
+  // Expense Section
+  // ============================
 
-doc.fontSize(16).text("Summary");
+  doc
+    .font("Helvetica-Bold")
+    .fontSize(18)
+    .fillColor("#dc2626")
+    .text("Expenses");
 
-doc.moveDown(0.5);
+  drawLine();
 
-doc.font("Helvetica-Bold");
-doc.text(`Total Income: GH₵${data.totalIncome}`);
+  doc
+    .fontSize(12)
+    .fillColor("black")
+    .font("Helvetica-Bold");
 
-doc.text(`Total Expense: GH₵${data.totalExpense}`);
+  doc.text("Date", 50);
+  doc.text("Category", 180);
+  doc.text("Amount", 430);
 
-doc.text(`Balance: GH₵${data.balance}`);
+  doc.moveDown(0.5);
 
-    doc.font("Helvetica");
-    
-    
+  doc.font("Helvetica");
+
+  data.expenses.forEach((expense) => {
+    checkPage();
+
+    const y = doc.y;
+
+    doc.text(formatDate(expense.date), 50, y);
+
+    doc.text(expense.category, 180, y, {
+      width: 220,
+    });
+
+    doc.text(formatAmount(expense.amount), 430, y);
+
+    doc.moveDown();
+  });
+
+  // ============================
+  // Footer
+  // ============================
+
+  doc.moveDown(2);
+
+  drawLine();
+
+  doc
+    .fontSize(10)
+    .fillColor("gray")
+    .text("Generated by Expense Tracker", {
+      align: "center",
+    });
+
   doc.end();
 };
 
