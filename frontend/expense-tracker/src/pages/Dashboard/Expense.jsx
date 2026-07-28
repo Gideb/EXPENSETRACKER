@@ -165,6 +165,20 @@ const Expense = () => {
     }
   };
 
+//handle exportpdf
+  const handleExportPDF = async () => {
+    try {
+      const response = await axiosInstance.get(API_PATHS.REPORTS.EXPORT_PDF, {
+        responseType: "blob",
+      });
+
+    } catch (error) {
+      toast.error(
+        error.response?.data?.message || "Failed to export expense details. Please try again.",
+      );
+    }
+  };
+
   useEffect(() => {
     fetchExpenseDetails();
 
@@ -181,6 +195,8 @@ const Expense = () => {
             />
           </div>
 
+          {/* expense list */}
+
           <ExpenseList
             transactions={expenseData}
             handleEditExpense={handleEditExpense}
@@ -188,9 +204,12 @@ const Expense = () => {
               setOpenDeleteAlert({ show: true, data: expense });
             }}
             onDownload={handleDownloadExpenseDetails}
+            exportPDF={ handleExportPDF }
           />
         </div>
 
+        
+        {/* add expense modal */}
         <Modal
           isOpen={openAddExpenseModal}
           onClose={() => {
@@ -206,6 +225,8 @@ const Expense = () => {
           />
         </Modal>
 
+        
+        {/* delete alert modal */}
         <Modal
           isOpen={openDeleteAlert.show}
           onClose={() => setOpenDeleteAlert({ show: false, data: null })}

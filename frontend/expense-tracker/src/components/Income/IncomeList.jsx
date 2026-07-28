@@ -8,6 +8,7 @@ const IncomeList = ({
   onDelete,
   handleEditIncome,
   onDownload,
+  exportPDF,
 }) => {
   return (
     <div className="card">
@@ -20,9 +21,9 @@ const IncomeList = ({
         </div>
 
         <div className="flex gap-1 items-center justify-center">
-          <button className="card-btn my-4 group" onClick={onDownload}>
+          <button className="card-btn my-4 group" onClick={exportPDF}>
             <LuDownload className="text-base group-hover:-translate-y-0.5 duration-300 transition-all ease-in-out" />{" "}
-            Download PDF
+            Export PDF
           </button>
           <button className="card-btn my-4 group" onClick={onDownload}>
             <LuDownload className="text-base group-hover:-translate-y-0.5 duration-300 transition-all ease-in-out" />{" "}

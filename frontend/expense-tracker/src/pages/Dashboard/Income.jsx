@@ -164,14 +164,26 @@ const handleUpdateIncome = async (income) => {
   };
 
   //handle export income details in pdf
+  const handleExportPDF = async () => {
+    try {
+      const response = await axiosInstance.get(API_PATHS.REPORTS.EXPORT_PDF, {
+        responseType: "blob",
+      });
+    } catch (err) {
+      toast.error(
+        err.response?.data?.message || "Failed to export income details. Please try again.",
+      );
+    }
 
+  }
+  
+    useEffect(() => {
+      fetchIncomeDetails();
+
+      return () => { };
+    }, []);
 
   
-  useEffect(() => {
-    fetchIncomeDetails();
-
-    return () => {};
-  }, []);
 
 
   return (
@@ -194,9 +206,11 @@ const handleUpdateIncome = async (income) => {
               setOpenDeleteAlert({ show: true, data: income });
             }}
             onDownload={handleDownloadIncomeDetails}
+            exportPDF={ handleExportPDF }
           />
         </div>
 
+        {/* add income modal */}
         <Modal
           isOpen={openAddIncomeModal}
           onClose={() => {
@@ -212,6 +226,8 @@ const handleUpdateIncome = async (income) => {
           />
         </Modal>
 
+        
+        {/* delete alert modal */}
         <Modal
           isOpen={openDeleteAlert.show}
           onClose={() => setOpenDeleteAlert({ show: false, data: null })}
