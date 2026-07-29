@@ -1,29 +1,25 @@
-import { useCallback, useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import Dashboardlayout from "../../components/layouts/Dashboardlayout";
-import { useUserAuth } from "../../hooks/useUserAuth";
-import axiosInstance from "../../utils/axiosInstance";
-import { API_PATHS } from "../../utils/apiPaths";
-import { addThousandsSeparator } from "../../utils/helper";
-import InfoCard from "../../components/Cards/InfoCard";
-import RecentTransactions from "../../components/Dashboard/RecentTransactions";
+import { useCallback, useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import Dashboardlayout from '../../components/layouts/Dashboardlayout';
+import { useUserAuth } from '../../hooks/useUserAuth';
+import axiosInstance from '../../utils/axiosInstance';
+import { API_PATHS } from '../../utils/apiPaths';
+import { addThousandsSeparator } from '../../utils/helper';
+import InfoCard from '../../components/Cards/InfoCard';
+import RecentTransactions from '../../components/Dashboard/RecentTransactions';
 
-import { IoMdCard } from "react-icons/io";
-import { LuHandCoins, LuWalletMinimal } from "react-icons/lu";
-import {
-  GiCash,
-  GiMoneyStack,
-  GiTakeMyMoney,
-} from "react-icons/gi";
-import FinanceOverview from "../../components/Dashboard/FinanceOverview";
-import ExpenseTransactions from "../../components/Dashboard/ExpenseTransactions";
-import Last30DaysExpenses from "../../components/Dashboard/Last30DaysExpenses";
-import RecentIncomeWithChart from "../../components/Dashboard/RecentIncomeWithChart";
-import RecentIncome from "../../components/Dashboard/RecentIncome";
-import HealthScore from "../../components/Cards/HealthScore";
+import { IoMdCard } from 'react-icons/io';
+import { LuHandCoins, LuWalletMinimal } from 'react-icons/lu';
+import { GiCash, GiMoneyStack, GiTakeMyMoney } from 'react-icons/gi';
+import FinanceOverview from '../../components/Dashboard/FinanceOverview';
+import ExpenseTransactions from '../../components/Dashboard/ExpenseTransactions';
+import Last30DaysExpenses from '../../components/Dashboard/Last30DaysExpenses';
+import RecentIncomeWithChart from '../../components/Dashboard/RecentIncomeWithChart';
+import RecentIncome from '../../components/Dashboard/RecentIncome';
+import HealthScore from '../../components/Cards/HealthScore';
 
-import BudgetWidget from "../../components/Dashboard/BudgetWidget";
-import EmptyStateCard from "../../components/Common/EmptyStateCard";
+import BudgetWidget from '../../components/Dashboard/BudgetWidget';
+import EmptyStateCard from '../../components/Common/EmptyStateCard';
 
 //SIGNED-GILBERT DEBRAH (gideb on github)
 
@@ -34,11 +30,11 @@ const Home = () => {
 
   const [dashboardData, setDashboardData] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
+  const [error, setError] = useState('');
 
   const fetchDashboardData = useCallback(async () => {
     setLoading(true);
-    setError("");
+    setError('');
 
     try {
       const response = await axiosInstance.get(API_PATHS.DASHBOARD.GET_DATA);
@@ -47,7 +43,7 @@ const Home = () => {
         setDashboardData(response.data);
       }
     } catch (err) {
-      setError(err.response?.data?.message || "Failed to load dashboard data.");
+      setError(err.response?.data?.message || 'Failed to load dashboard data.');
     } finally {
       setLoading(false);
     }
@@ -57,30 +53,24 @@ const Home = () => {
     void Promise.resolve().then(fetchDashboardData);
   }, [fetchDashboardData]);
 
+  const hasAnyIncome = (dashboardData?.totalIncome || 0) > 0;
 
-const hasAnyIncome = (dashboardData?.totalIncome || 0) > 0;
+  const hasAnyExpense = (dashboardData?.totalExpense || 0) > 0;
 
-const hasAnyExpense = (dashboardData?.totalExpense || 0) > 0;
+  const hasIncomeInLast60Days = dashboardData?.last60DaysIncome?.transactions?.length > 0;
 
-const hasIncomeInLast60Days =
-  dashboardData?.last60DaysIncome?.transactions?.length > 0;
+  const hasExpenseInLast30Days = dashboardData?.last30DaysExpense?.transactions?.length > 0;
 
-const hasExpenseInLast30Days =
-  dashboardData?.last30DaysExpense?.transactions?.length > 0;
+  const hasTransactions = dashboardData?.recentTransactions?.length > 0;
 
-const hasTransactions =
-  dashboardData?.recentTransactions?.length > 0;
+  const hasFinancialData = hasAnyIncome || hasAnyExpense;
 
-const hasFinancialData = hasAnyIncome || hasAnyExpense;
-
-const isNewUser =  !hasAnyIncome &&  !hasAnyExpense;
+  const isNewUser = !hasAnyIncome && !hasAnyExpense;
 
   return (
     <Dashboardlayout activeMenu="Dashboard">
       <div className="space-y-6 my-5 mx-auto">
-        {loading && (
-          <p className="text-sm text-slate-500">Loading dashboard...</p>
-        )}
+        {loading && <p className="text-sm text-slate-500">Loading dashboard...</p>}
         {error && <p className="text-sm text-red-500">{error}</p>}
 
         <div className="flex flex-col lg:flex-row gap-6">
@@ -114,32 +104,26 @@ const isNewUser =  !hasAnyIncome &&  !hasAnyExpense;
               <InfoCard
                 icon={<GiCash />}
                 label="Past 60 Days Income"
-                value={addThousandsSeparator(
-                  dashboardData?.last60DaysIncome?.total,
-                )}
+                value={addThousandsSeparator(dashboardData?.last60DaysIncome?.total)}
                 color="bg-purple-600"
               />
               <InfoCard
                 icon={<GiMoneyStack />}
                 label="Past 30 Days Expense"
-                value={addThousandsSeparator(
-                  dashboardData?.last30DaysExpense?.total,
-                )}
+                value={addThousandsSeparator(dashboardData?.last30DaysExpense?.total)}
                 color="bg-rose-700"
               />
               <InfoCard
                 icon={<GiTakeMyMoney />}
                 label="Last 7 Days Expense"
-                value={addThousandsSeparator(
-                  dashboardData?.currentWeeksExpense?.total || 0,
-                )}
+                value={addThousandsSeparator(dashboardData?.currentWeeksExpense?.total || 0)}
                 color="bg-yellow-600"
               />
             </div>
           </div>
         </div>
 
-       {/*  {isNewUser && (
+        {/*  {isNewUser && (
           <div className="bg-white rounded-2xl p-8 shadow-sm border border-slate-100 text-center">
             <h2 className="text-xl font-semibold">
               Welcome to Expense Tracker
@@ -158,20 +142,20 @@ const isNewUser =  !hasAnyIncome &&  !hasAnyExpense;
             </h3>
 
             <p className="text-slate-500 mt-2 text-xs sm:text-sm">
-              You haven't added any income or expenses yet. Start by recording
-              your first transaction.
+              You haven't added any income or expenses yet. Start by recording your first
+              transaction.
             </p>
 
             <div className="flex justify-center gap-3 mt-5">
               <button
-                onClick={() => navigate("/income")}
+                onClick={() => navigate('/income')}
                 className="px-4 py-2 bg-emerald-600 text-white rounded add-btn"
               >
                 + Add Income
               </button>
 
               <button
-                onClick={() => navigate("/expense")}
+                onClick={() => navigate('/expense')}
                 className="px-4 py-2 bg-red-600! text-white! rounded add-btn border-red-500! hover:bg-red-800!"
               >
                 + Add Expense
@@ -184,7 +168,7 @@ const isNewUser =  !hasAnyIncome &&  !hasAnyExpense;
             {hasTransactions && (
               <RecentTransactions
                 transactions={dashboardData?.recentTransactions}
-                onSeeMore={() => navigate("/transactions")}
+                onSeeMore={() => navigate('/transactions')}
               />
             )}
 
@@ -203,16 +187,12 @@ const isNewUser =  !hasAnyIncome &&  !hasAnyExpense;
             {hasAnyExpense && (
               <>
                 <ExpenseTransactions
-                  transactions={
-                    dashboardData?.last30DaysExpense?.transactions || []
-                  }
-                  onSeeMore={() => navigate("/expense")}
+                  transactions={dashboardData?.last30DaysExpense?.transactions || []}
+                  onSeeMore={() => navigate('/expense')}
                 />
 
                 {hasExpenseInLast30Days ? (
-                  <Last30DaysExpenses
-                    data={dashboardData?.last30DaysExpense?.transactions || []}
-                  />
+                  <Last30DaysExpenses data={dashboardData?.last30DaysExpense?.transactions || []} />
                 ) : (
                   <EmptyStateCard
                     title="No expenses in the last 30 days"
@@ -227,12 +207,7 @@ const isNewUser =  !hasAnyIncome &&  !hasAnyExpense;
               <>
                 {hasIncomeInLast60Days ? (
                   <RecentIncomeWithChart
-                    data={
-                      dashboardData?.last60DaysIncome?.transactions?.slice(
-                        0,
-                        4,
-                      ) || []
-                    }
+                    data={dashboardData?.last60DaysIncome?.transactions?.slice(0, 4) || []}
                     totalIncome={dashboardData?.last60DaysIncome?.total || 0}
                   />
                 ) : (
@@ -243,10 +218,8 @@ const isNewUser =  !hasAnyIncome &&  !hasAnyExpense;
                 )}
 
                 <RecentIncome
-                  transactions={
-                    dashboardData?.last60DaysIncome?.transactions || []
-                  }
-                  onSeeMore={() => navigate("/income")}
+                  transactions={dashboardData?.last60DaysIncome?.transactions || []}
+                  onSeeMore={() => navigate('/income')}
                 />
               </>
             )}

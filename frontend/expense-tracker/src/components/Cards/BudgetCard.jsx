@@ -1,5 +1,5 @@
-import { FiEdit2, FiTrendingUp, FiTrendingDown } from "react-icons/fi";
-import { LuTrash2, LuWallet, LuChartPie } from "react-icons/lu";
+import { FiEdit2, FiTrendingUp, FiTrendingDown } from 'react-icons/fi';
+import { LuTrash2, LuWallet, LuChartPie } from 'react-icons/lu';
 
 const BudgetCard = ({ budget, icon, onEdit, onDelete }) => {
   const spent = budget.spentAmount || 0;
@@ -12,29 +12,29 @@ const BudgetCard = ({ budget, icon, onEdit, onDelete }) => {
 
   // Get status text
   const getStatusText = () => {
-    if (isExceeded) return "Exceeded";
-    if (isNearLimit) return "Near Limit";
-    return "On Track";
+    if (isExceeded) return 'Exceeded';
+    if (isNearLimit) return 'Near Limit';
+    return 'On Track';
   };
 
   // Determine status gradient
   const getStatusGradient = () => {
-    if (isExceeded) return "from-red-500 to-red-600";
-    if (isNearLimit) return "from-amber-500 to-orange-500";
-    return "from-emerald-500 to-green-600";
+    if (isExceeded) return 'from-red-500 to-red-600';
+    if (isNearLimit) return 'from-amber-500 to-orange-500';
+    return 'from-emerald-500 to-green-600';
   };
 
   const getStatusColor = () => {
-    if (isExceeded) return "#ef4444";
-    if (isNearLimit) return "#f59e0b";
-    return "#10b981";
+    if (isExceeded) return '#ef4444';
+    if (isNearLimit) return '#f59e0b';
+    return '#10b981';
   };
 
   // Format currency compact
   const formatCurrency = (amount) => {
-    return new Intl.NumberFormat("en-GH", {
-      style: "currency",
-      currency: "GHS",
+    return new Intl.NumberFormat('en-GH', {
+      style: 'currency',
+      currency: 'GHS',
       minimumFractionDigits: 0,
       maximumFractionDigits: 0,
     }).format(amount);
@@ -42,10 +42,8 @@ const BudgetCard = ({ budget, icon, onEdit, onDelete }) => {
 
   // Get usage icon
   const getUsageIcon = () => {
-    if (isExceeded)
-      return <FiTrendingDown className="text-red-500" size={12} />;
-    if (isNearLimit)
-      return <FiTrendingUp className="text-amber-500" size={12} />;
+    if (isExceeded) return <FiTrendingDown className="text-red-500" size={12} />;
+    if (isNearLimit) return <FiTrendingUp className="text-amber-500" size={12} />;
     return <FiTrendingUp className="text-emerald-500" size={12} />;
   };
 
@@ -133,17 +131,15 @@ const BudgetCard = ({ budget, icon, onEdit, onDelete }) => {
         <div className="flex items-center justify-between pt-2 border-t border-gray-50 dark:border-gray-700">
           <div className="flex items-center gap-1">
             <LuChartPie size={10} className="text-gray-400" />
-            <span className="text-[10px] text-gray-500 dark:text-gray-400">
-              Monthly
-            </span>
+            <span className="text-[10px] text-gray-500 dark:text-gray-400">Monthly</span>
           </div>
           <span
             className={`text-[10px] font-medium px-1.5 py-0.5 rounded-full ${
               isExceeded
-                ? "bg-red-50 text-red-600 dark:bg-red-900/20 dark:text-red-400"
+                ? 'bg-red-50 text-red-600 dark:bg-red-900/20 dark:text-red-400'
                 : isNearLimit
-                  ? "bg-amber-50 text-amber-600 dark:bg-amber-900/20 dark:text-amber-400"
-                  : "bg-emerald-50 text-emerald-600 dark:bg-emerald-900/20 dark:text-emerald-400"
+                  ? 'bg-amber-50 text-amber-600 dark:bg-amber-900/20 dark:text-amber-400'
+                  : 'bg-emerald-50 text-emerald-600 dark:bg-emerald-900/20 dark:text-emerald-400'
             }`}
           >
             {getStatusText()}

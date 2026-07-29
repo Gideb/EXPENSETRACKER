@@ -1,20 +1,20 @@
 /* import AuthLayout from "../../components/layouts/AuthLayout"; */
 
-import { useContext, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import Input from "../../components/Inputs/Input";
-import axiosInstance from "../../utils/axiosInstance";
-import { API_PATHS } from "../../utils/apiPaths";
-import { validateEmail } from "../../utils/helper";
-import { UserContext } from "../../context/UserContext";
-import toast from "react-hot-toast";
-import LoginLoader from "./LoginLoader";
+import { useContext, useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import Input from '../../components/Inputs/Input';
+import axiosInstance from '../../utils/axiosInstance';
+import { API_PATHS } from '../../utils/apiPaths';
+import { validateEmail } from '../../utils/helper';
+import { UserContext } from '../../context/UserContext';
+import toast from 'react-hot-toast';
+import LoginLoader from './LoginLoader';
 
 const Login = () => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
-   const [loading, setLoading] = useState(false);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
   const { updateUser } = useContext(UserContext);
 
@@ -25,16 +25,16 @@ const Login = () => {
     e.preventDefault();
 
     if (!validateEmail(email)) {
-      setError("Please enter a valid email address.");
+      setError('Please enter a valid email address.');
       return;
     }
 
     if (!password) {
-      setError("Please enter the correct password ");
+      setError('Please enter the correct password ');
       return;
     }
 
-    setError("");
+    setError('');
 
     //login api
     setLoading(true);
@@ -47,18 +47,15 @@ const Login = () => {
       const { token, user } = response.data;
 
       if (token) {
-        localStorage.setItem("token", token);
+        localStorage.setItem('token', token);
         updateUser(user);
 
-        toast.success("Login successful!");
+        toast.success('Login successful!');
 
-        navigate("/dashboard");
+        navigate('/dashboard');
       }
     } catch (error) {
-      toast.error(
-        error.response?.data?.message ||
-          "Something went wrong. Please try again.",
-      );
+      toast.error(error.response?.data?.message || 'Something went wrong. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -66,9 +63,7 @@ const Login = () => {
 
   return (
     <div className="lg:w-[70%] h-3/4 md:h-full flex flex-col justify-center ">
-      <h3 className="text-black dark:text-white text-xl font-semibold">
-        Welcome Back
-      </h3>
+      <h3 className="text-black dark:text-white text-xl font-semibold">Welcome Back</h3>
       <p className="mt-1.25 text-slate-700 dark:text-slate-400 text-xs mb-6">
         Please enter your details to login
       </p>
@@ -93,18 +88,12 @@ const Login = () => {
         {error && <p className="text-red-500 text-xs pb-2.5">{error}</p>}
 
         {loading ? (
-            <LoginLoader />
-          ) : (
-            <button
-              type="submit"
-              disabled={loading}
-              className="btn-primary "
-            >
-              {loading ? "Logging in..." : "Login"}
-            </button>
-          )}
-
-        
+          <LoginLoader />
+        ) : (
+          <button type="submit" disabled={loading} className="btn-primary ">
+            {loading ? 'Logging in...' : 'Login'}
+          </button>
+        )}
 
         <div className="flex flex-col sm:flex-row sm:items-center justify-between mt-3">
           <Link
@@ -117,7 +106,7 @@ const Login = () => {
           <div className="sm:hidden h-px w-full bg-linear-to-r from-gray-300 via-gray-300 to-transparent my-4 order-2" />
 
           <p className="text-slate-800 dark:text-slate-400 text-[13px] order-3 sm:order-1">
-            Don't have an account?{" "}
+            Don't have an account?{' '}
             <Link to="/signup" className="text-primary underline font-medium">
               SIGNUP
             </Link>

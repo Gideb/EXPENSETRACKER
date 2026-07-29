@@ -6,19 +6,17 @@ import {
   YAxis,
   Area,
   AreaChart,
-} from "recharts";
-import { addThousandsSeparator } from "../../utils/helper";
+} from 'recharts';
+import { addThousandsSeparator } from '../../utils/helper';
 
 const CustomLineChart = ({ data }) => {
   const CustomToolTip = ({ active, payload }) => {
     if (active && payload && payload.length) {
       return (
         <div className="bg-white/50 backdrop-blur-md shadow-md rounded-lg p-2 border border-gray-200">
-          <p className="text-xs font-semibold text-amber-700 mb-1">
-            {payload[0].payload.category}
-          </p>
+          <p className="text-xs font-semibold text-amber-700 mb-1">{payload[0].payload.category}</p>
           <p className="text-sm text-gray-700">
-            Amount:{" "}
+            Amount:{' '}
             <span className="text-sm font-semibold text-gray-900">
               GHS{addThousandsSeparator(payload[0].payload.amount)}
             </span>
@@ -42,12 +40,8 @@ const CustomLineChart = ({ data }) => {
 
           <CartesianGrid stroke="none" />
 
-          <XAxis
-            dataKey="month"
-            tick={{ fontSize: 12, fill: "#555" }}
-            stroke="none"
-          />
-          <YAxis tick={{ fontSize: 12, fill: "#555" }} stroke="none" />
+          <XAxis dataKey="month" tick={{ fontSize: 12, fill: '#555' }} stroke="none" />
+          <YAxis tick={{ fontSize: 12, fill: '#555' }} stroke="none" />
 
           <Tooltip content={CustomToolTip} />
 
@@ -57,7 +51,7 @@ const CustomLineChart = ({ data }) => {
             stroke="#875cf5"
             fill="url(#incomeGradient)"
             strokeWidth={3}
-            dot={{ r: 3, fill: "#ab8df8" }}
+            dot={{ r: 3, fill: '#ab8df8' }}
           />
         </AreaChart>
       </ResponsiveContainer>

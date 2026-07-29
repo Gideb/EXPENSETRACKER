@@ -1,7 +1,7 @@
-import { LuArrowRight } from "react-icons/lu";
-import TransactionInfoCard from "../Cards/TransactionInfoCard";
-import moment from "moment";
-import { addThousandsSeparator } from "../../utils/helper";
+import { LuArrowRight } from 'react-icons/lu';
+import TransactionInfoCard from '../Cards/TransactionInfoCard';
+import moment from 'moment';
+import { addThousandsSeparator } from '../../utils/helper';
 
 const ExpenseTransactions = ({ transactions, onSeeMore }) => {
   const hasTransactions = transactions?.length > 0;
@@ -11,9 +11,7 @@ const ExpenseTransactions = ({ transactions, onSeeMore }) => {
       <div className="flex items-center justify-between">
         <div>
           <h5 className="text-lg dark:text-gray-100">Expenses</h5>
-          <p className="text-xs text-gray-400 mt-1">
-            Expenses for the past 30 days.
-          </p>
+          <p className="text-xs text-gray-400 mt-1">Expenses for the past 30 days.</p>
         </div>
 
         {hasTransactions && (
@@ -33,7 +31,7 @@ const ExpenseTransactions = ({ transactions, onSeeMore }) => {
                 key={expense._id}
                 title={expense.category}
                 icon={expense.icon}
-                date={moment(expense.date).format("DD MM YYYY")}
+                date={moment(expense.date).format('DD MM YYYY')}
                 amount={addThousandsSeparator(expense.amount)}
                 type="expense"
                 hideDeleteBtn
@@ -41,9 +39,7 @@ const ExpenseTransactions = ({ transactions, onSeeMore }) => {
             ))
         ) : (
           <div className="py-10 text-center">
-            <p className="text-sm text-slate-500">
-              No expenses recorded in the last 30 days.
-            </p>
+            <p className="text-sm text-slate-500">No expenses recorded in the last 30 days.</p>
 
             <button
               onClick={onSeeMore}

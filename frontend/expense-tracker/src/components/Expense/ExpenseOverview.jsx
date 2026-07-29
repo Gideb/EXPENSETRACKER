@@ -1,13 +1,10 @@
-import { useMemo } from "react";
-import { prepareExpenseLineChartData } from "../../utils/helper";
-import { LuPlus } from "react-icons/lu";
-import CustomLineChart from "../Charts/CustomLineChart";
+import { useMemo } from 'react';
+import { prepareExpenseLineChartData } from '../../utils/helper';
+import { LuPlus } from 'react-icons/lu';
+import CustomLineChart from '../Charts/CustomLineChart';
 
 const ExpenseOverview = ({ transactions, onAddExpense }) => {
-  const chartData = useMemo(
-    () => prepareExpenseLineChartData(transactions),
-    [transactions],
-  );
+  const chartData = useMemo(() => prepareExpenseLineChartData(transactions), [transactions]);
 
   return (
     <div className="card">
@@ -15,8 +12,7 @@ const ExpenseOverview = ({ transactions, onAddExpense }) => {
         <div className="">
           <h5 className="text-lg dark:text-gray-100">Expense Overview</h5>
           <p className="text-xs text-gray-400 mt-1">
-            Track your spending trends over time and gain insights on where your
-            money goes
+            Track your spending trends over time and gain insights on where your money goes
           </p>
         </div>
 

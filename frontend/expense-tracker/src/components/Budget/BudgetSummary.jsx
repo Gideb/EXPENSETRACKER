@@ -1,14 +1,9 @@
-import { useEffect, useState } from "react";
-import {
-  MdAccountBalanceWallet,
-  MdMoneyOff,
-  MdSavings,
-  MdWarning,
-} from "react-icons/md";
-import { FaChartLine } from "react-icons/fa";
-import axiosInstance from "../../utils/axiosInstance";
-import { API_PATHS } from "../../utils/apiPaths";
-import { toast } from "react-hot-toast";
+import { useEffect, useState } from 'react';
+import { MdAccountBalanceWallet, MdMoneyOff, MdSavings, MdWarning } from 'react-icons/md';
+import { FaChartLine } from 'react-icons/fa';
+import axiosInstance from '../../utils/axiosInstance';
+import { API_PATHS } from '../../utils/apiPaths';
+import { toast } from 'react-hot-toast';
 
 const BudgetSummary = ({ setOpenAddBudgetModal }) => {
   const [summary, setSummary] = useState({
@@ -28,25 +23,23 @@ const BudgetSummary = ({ setOpenAddBudgetModal }) => {
   const fetchBudgetSummary = async () => {
     try {
       setLoading(true);
-      const response = await axiosInstance.get(
-        API_PATHS.BUDGET.GET_BUDGET_SUMMARY,
-      );
+      const response = await axiosInstance.get(API_PATHS.BUDGET.GET_BUDGET_SUMMARY);
 
       if (response.data) {
         setSummary(response.data);
       }
     } catch (error) {
-      console.error("Failed to load budget summary:", error);
-      toast.error("Failed to load budget summary");
+      console.error('Failed to load budget summary:', error);
+      toast.error('Failed to load budget summary');
     } finally {
       setLoading(false);
     }
   };
 
   const formatCurrency = (amount) => {
-    return new Intl.NumberFormat("en-GH", {
-      style: "currency",
-      currency: "GHS",
+    return new Intl.NumberFormat('en-GH', {
+      style: 'currency',
+      currency: 'GHS',
       minimumFractionDigits: 0,
       maximumFractionDigits: 2,
     }).format(amount);
@@ -54,28 +47,27 @@ const BudgetSummary = ({ setOpenAddBudgetModal }) => {
 
   const summaryCards = [
     {
-      title: "Total Budget",
+      title: 'Total Budget',
       value: formatCurrency(summary.totalBudget),
       icon: <MdAccountBalanceWallet className="text-xl sm:text-2xl" />,
-      subtitle: "Allocated for this month",
+      subtitle: 'Allocated for this month',
     },
     {
-      title: "Total Spent",
+      title: 'Total Spent',
       value: formatCurrency(summary.totalSpent),
       icon: <MdMoneyOff className="text-xl sm:text-2xl" />,
       subtitle: `${summary.percentUtilized}% of budget used`,
       progress: summary.percentUtilized,
     },
     {
-      title: "Remaining Balance",
+      title: 'Remaining Balance',
       value: formatCurrency(Math.abs(summary.remainingBalance)),
       icon: <MdSavings className="text-xl sm:text-2xl" />,
-      subtitle:
-        summary.remainingBalance < 0 ? "Over budget by" : "Left to spend",
+      subtitle: summary.remainingBalance < 0 ? 'Over budget by' : 'Left to spend',
       negative: summary.remainingBalance < 0,
     },
     {
-      title: "Over Budget Categories",
+      title: 'Over Budget Categories',
       value: summary.overBudgetCategories,
       icon: <MdWarning className="text-xl sm:text-2xl" />,
       subtitle: `${summary.categoriesAtRisk} categories near limit`,
@@ -141,7 +133,7 @@ const BudgetSummary = ({ setOpenAddBudgetModal }) => {
           + Add Budget
         </button>
         <button
-          onClick={() => (window.location.href = "/expense")}
+          onClick={() => (window.location.href = '/expense')}
           className="px-5 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-800 rounded-md hover:bg-gray-200 dark:hover:bg-gray-700 border border-gray-300 dark:border-gray-700 transition-all duration-200 cursor-pointer"
         >
           Record Expense
@@ -181,11 +173,11 @@ const BudgetSummary = ({ setOpenAddBudgetModal }) => {
                   <p
                     className={`text-2xl sm:text-3xl font-semibold tracking-tight ${
                       isNegative || isWarning
-                        ? "text-amber-600 dark:text-amber-400"
-                        : "text-gray-900 dark:text-white"
+                        ? 'text-amber-600 dark:text-amber-400'
+                        : 'text-gray-900 dark:text-white'
                     }`}
                   >
-                    {isNegative && "- "}
+                    {isNegative && '- '}
                     {card.value}
                   </p>
 

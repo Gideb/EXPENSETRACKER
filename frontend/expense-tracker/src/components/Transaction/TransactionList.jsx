@@ -1,7 +1,7 @@
-import { LuDownload, LuUpload } from "react-icons/lu";
-import moment from "moment";
-import TransactionCard from "../Cards/TransactionCard";
-import { addThousandsSeparator } from "../../utils/helper";
+import { LuDownload, LuUpload } from 'react-icons/lu';
+import moment from 'moment';
+import TransactionCard from '../Cards/TransactionCard';
+import { addThousandsSeparator } from '../../utils/helper';
 
 const TransactionList = ({ transactions, onDownload, onDelete, exportPDF }) => {
   return (
@@ -16,16 +16,15 @@ const TransactionList = ({ transactions, onDownload, onDelete, exportPDF }) => {
         </div>
 
         <div className="flex gap-1 items-center justify-center">
-         <button className="card-btn my-4 group " onClick={onDownload}>
-            <LuDownload className="text-base group-hover:-translate-y-0.5 duration-300 transition-all ease-in-out" />{" "}
+          <button className="card-btn my-4 group " onClick={onDownload}>
+            <LuDownload className="text-base group-hover:-translate-y-0.5 duration-300 transition-all ease-in-out" />{' '}
             Download excel
           </button>
-          
+
           <button className="card-btn my-4 group " onClick={exportPDF}>
-            <LuUpload className="text-base group-hover:-translate-y-0.5 duration-300 transition-all ease-in-out" />{" "}
+            <LuUpload className="text-base group-hover:-translate-y-0.5 duration-300 transition-all ease-in-out" />{' '}
             Export pdf
           </button>
-          
         </div>
       </div>
 
@@ -33,9 +32,9 @@ const TransactionList = ({ transactions, onDownload, onDelete, exportPDF }) => {
         {transactions?.map((item) => (
           <TransactionCard
             key={item._id}
-            title={item.type === "expense" ? item.category : item.source}
+            title={item.type === 'expense' ? item.category : item.source}
             icon={item.icon}
-            date={moment(item.date).format("DD MM YYYY")}
+            date={moment(item.date).format('DD MM YYYY')}
             amount={addThousandsSeparator(item.amount)}
             type={item.type}
             onDelete={() => onDelete(item)}

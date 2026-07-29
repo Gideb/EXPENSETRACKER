@@ -1,47 +1,48 @@
-import { LiaExchangeAltSolid } from "react-icons/lia";
+import { LiaExchangeAltSolid } from 'react-icons/lia';
 import {
-    LuChartPie,
+  LuChartPie,
   LuHandCoins,
   LuLayoutDashboard,
   LuLogOut,
   LuWalletMinimal,
-} from "react-icons/lu";
+} from 'react-icons/lu';
 
-export const  SIDE_MENU_DATA = [
+export const SIDE_MENU_DATA = [
   {
-    id: "01",
-    label: "Dashboard",
+    id: '01',
+    label: 'Dashboard',
     icon: LuLayoutDashboard,
-    path: "/dashboard",
-  },{
-    id: "02",
-    label: "Transactions",
+    path: '/dashboard',
+  },
+  {
+    id: '02',
+    label: 'Transactions',
     icon: LiaExchangeAltSolid,
-    path: "/transactions",
+    path: '/transactions',
   },
   {
-    id: "03",
-    label: "Income",
+    id: '03',
+    label: 'Income',
     icon: LuWalletMinimal,
-    path: "/income",
+    path: '/income',
   },
-  { 
-    id: "04",
-    label: "Expense",
-    icon: LuHandCoins,
-    path: "/expense",
-  },
-  { 
-    id: "05",
-    label: "Budget",
-    icon: LuChartPie,
-    path: "/budget",
-  },
-  
   {
-    id: "06",
-    label: "Logout",
+    id: '04',
+    label: 'Expense',
+    icon: LuHandCoins,
+    path: '/expense',
+  },
+  {
+    id: '05',
+    label: 'Budget',
+    icon: LuChartPie,
+    path: '/budget',
+  },
+
+  {
+    id: '06',
+    label: 'Logout',
     icon: LuLogOut,
-    path: "/logout",
+    path: '/logout',
   },
 ];

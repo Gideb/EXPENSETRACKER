@@ -1,13 +1,13 @@
-import { useEffect, useState } from "react";
-import Input from "../Inputs/Input";
-import EmojiPickerPopup from "../EmojiPickerPopup";
+import { useEffect, useState } from 'react';
+import Input from '../Inputs/Input';
+import EmojiPickerPopup from '../EmojiPickerPopup';
 
 const AddExpenseForm = ({ onAddExpense, onUpdateExpense, editData }) => {
   const [income, setIncome] = useState({
-    category: "",
-    amount: "",
-    date: "",
-    icon: "",
+    category: '',
+    amount: '',
+    date: '',
+    icon: '',
   });
 
   useEffect(() => {
@@ -15,18 +15,14 @@ const AddExpenseForm = ({ onAddExpense, onUpdateExpense, editData }) => {
 
     setIncome((prev) => {
       const d = editData.date ? new Date(editData.date) : null;
-      const normalizedDate =
-        d && !Number.isNaN(d.getTime()) ? d.toISOString().split("T")[0] : "";
+      const normalizedDate = d && !Number.isNaN(d.getTime()) ? d.toISOString().split('T')[0] : '';
 
       return {
         ...prev,
-        category: editData.category || "",
-        amount:
-          editData.amount !== undefined && editData.amount !== null
-            ? editData.amount
-            : "",
+        category: editData.category || '',
+        amount: editData.amount !== undefined && editData.amount !== null ? editData.amount : '',
         date: normalizedDate,
-        icon: editData.icon || "",
+        icon: editData.icon || '',
       };
     });
   }, [editData]);
@@ -37,12 +33,12 @@ const AddExpenseForm = ({ onAddExpense, onUpdateExpense, editData }) => {
     <div>
       <EmojiPickerPopup
         icon={income.icon}
-        onSelect={(selectedIcon) => handleChange("icon", selectedIcon)}
+        onSelect={(selectedIcon) => handleChange('icon', selectedIcon)}
       />
 
       <Input
         value={income.category}
-        onChange={({ target }) => handleChange("category", target.value)}
+        onChange={({ target }) => handleChange('category', target.value)}
         label="Expense Category"
         placeholder="Food, Transport, Clothing"
         type="text"
@@ -50,7 +46,7 @@ const AddExpenseForm = ({ onAddExpense, onUpdateExpense, editData }) => {
 
       <Input
         value={income.amount}
-        onChange={({ target }) => handleChange("amount", target.value)}
+        onChange={({ target }) => handleChange('amount', target.value)}
         label=" Amount"
         placeholder="Enter Amount"
         type="number"
@@ -60,20 +56,18 @@ const AddExpenseForm = ({ onAddExpense, onUpdateExpense, editData }) => {
         label="Date"
         placeholder="Select date"
         type="date"
-        max={new Date().toISOString().split("T")[0]}
+        max={new Date().toISOString().split('T')[0]}
         value={income.date}
-        onChange={({ target }) => handleChange("date", target.value)}
+        onChange={({ target }) => handleChange('date', target.value)}
       />
 
       <div className="flex justify-end mt-6 ">
         <button
           type="button"
           className="add-btn add-btn-fill"
-          onClick={() =>
-            editData ? onUpdateExpense(income) : onAddExpense(income)
-          }
+          onClick={() => (editData ? onUpdateExpense(income) : onAddExpense(income))}
         >
-          {editData ? "Update Expense" : "Add Expense"}
+          {editData ? 'Update Expense' : 'Add Expense'}
         </button>
       </div>
     </div>

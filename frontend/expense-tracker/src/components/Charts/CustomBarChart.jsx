@@ -7,22 +7,22 @@ import {
   Tooltip,
   XAxis,
   YAxis,
-} from "recharts";
-import { addThousandsSeparator } from "../../utils/helper";
+} from 'recharts';
+import { addThousandsSeparator } from '../../utils/helper';
 
 const CustomBarChart = ({ data, type }) => {
-  const xAxisKey = type === "income" ? "month" : "category";
-  const tooltipLabelKey = type === "income" ? "source" : "category";
+  const xAxisKey = type === 'income' ? 'month' : 'category';
+  const tooltipLabelKey = type === 'income' ? 'source' : 'category';
 
   //function to alternate colors
   const getBarColor = (index) => {
-    return type === "income"
+    return type === 'income'
       ? index % 2 === 0
-        ? "#059403"
-        : "#90FA73"
+        ? '#059403'
+        : '#90FA73'
       : index % 2 === 0
-        ? "#D90202"
-        : "#f58282";
+        ? '#D90202'
+        : '#f58282';
   };
 
   const renderBar = (props) => {
@@ -39,7 +39,7 @@ const CustomBarChart = ({ data, type }) => {
             {payload[0].payload[tooltipLabelKey]}
           </p>
           <p className="text-sm text-gray-700">
-            Amount:{" "}
+            Amount:{' '}
             <span className="text-sm font-semibold text-gray-900">
               GHS{addThousandsSeparator(payload[0].payload.amount)}
             </span>
@@ -56,19 +56,15 @@ const CustomBarChart = ({ data, type }) => {
         <BarChart data={data}>
           <CartesianGrid stroke="none" />
 
-          <XAxis
-            dataKey={xAxisKey}
-            tick={{ fontSize: 12, fill: "#555" }}
-            stroke="none"
-          />
-          <YAxis tick={{ fontSize: 12, fill: "#555" }} stroke="none" />
+          <XAxis dataKey={xAxisKey} tick={{ fontSize: 12, fill: '#555' }} stroke="none" />
+          <YAxis tick={{ fontSize: 12, fill: '#555' }} stroke="none" />
 
           <Tooltip content={CustomToolTip} />
           <Bar
             dataKey="amount"
             fill="#c942ff"
             radius={[10, 10, 0, 0]}
-            activeStyle={{ fill: "green" }}
+            activeStyle={{ fill: 'green' }}
             shape={renderBar}
           />
         </BarChart>

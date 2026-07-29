@@ -1,13 +1,12 @@
-import { useRef, useState, useEffect } from "react";
-import { LuTrash, LuUpload, LuUser } from "react-icons/lu";
+import { useRef, useState, useEffect } from 'react';
+import { LuTrash, LuUpload, LuUser } from 'react-icons/lu';
 
 const ProfilePhotoSelector = ({ image, setImage }) => {
   const inputRef = useRef(null);
   const [previewUrl, setPreviewUrl] = useState(null);
 
-  
   useEffect(() => {
-    if (typeof image === "string") {
+    if (typeof image === 'string') {
       setPreviewUrl(image);
     }
   }, [image]);

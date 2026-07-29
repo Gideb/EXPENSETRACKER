@@ -1,8 +1,8 @@
-import { useContext, useEffect } from "react";
-import { UserContext } from "../context/UserContext";
-import { useNavigate } from "react-router-dom";
-import axiosInstance from "../utils/axiosInstance";
-import { API_PATHS } from "../utils/apiPaths";
+import { useContext, useEffect } from 'react';
+import { UserContext } from '../context/UserContext';
+import { useNavigate } from 'react-router-dom';
+import axiosInstance from '../utils/axiosInstance';
+import { API_PATHS } from '../utils/apiPaths';
 
 export const useUserAuth = () => {
   const { user, updateUser, clearUser } = useContext(UserContext);
@@ -21,10 +21,10 @@ export const useUserAuth = () => {
           updateUser(response.data);
         }
       } catch (error) {
-        console.log("Failed to fetch user info:", error);
+        console.log('Failed to fetch user info:', error);
         if (isMounted) {
           clearUser();
-          navigate("/login");
+          navigate('/login');
         }
       }
     };

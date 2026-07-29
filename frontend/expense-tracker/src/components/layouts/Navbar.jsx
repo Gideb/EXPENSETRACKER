@@ -1,7 +1,7 @@
-import { useState } from "react";
-import SideMenu from "./SideMenu";
-import { HiOutlineMenu, HiOutlineX } from "react-icons/hi";
-import { ImCalculator } from "react-icons/im";
+import { useState } from 'react';
+import SideMenu from './SideMenu';
+import { HiOutlineMenu, HiOutlineX } from 'react-icons/hi';
+import { ImCalculator } from 'react-icons/im';
 
 const Navbar = ({ activeMenu }) => {
   const [openSideMenu, setOpenSideMenu] = useState(false);
@@ -22,8 +22,7 @@ const Navbar = ({ activeMenu }) => {
       </button>
 
       <h2 className="text-lg font-semibold flex items-center gap-3 text-amber-700 dark:text-amber-600">
-        Expense Tracker{" "}
-        <ImCalculator className="text-md text-slate-600 dark:text-white " />
+        Expense Tracker <ImCalculator className="text-md text-slate-600 dark:text-white " />
       </h2>
 
       {openSideMenu && (

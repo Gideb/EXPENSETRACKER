@@ -1,21 +1,21 @@
-import { useEffect, useState } from "react";
-import Dashboardlayout from "../../components/layouts/Dashboardlayout";
-import IncomeOverview from "../../components/Income/IncomeOverview";
-import { useUserAuth } from "../../hooks/useUserAuth";
-import axiosInstance from "../../utils/axiosInstance";
-import { API_PATHS } from "../../utils/apiPaths";
-import Modal from "../../components/Modal";
-import AddIncomeForm from "../../components/Income/AddIncomeForm";
-import { toast } from "react-hot-toast";
-import IncomeList from "../../components/Income/IncomeList";
-import DeleteAlert from "../../components/DeleteAlert";
+import { useEffect, useState } from 'react';
+import Dashboardlayout from '../../components/layouts/Dashboardlayout';
+import IncomeOverview from '../../components/Income/IncomeOverview';
+import { useUserAuth } from '../../hooks/useUserAuth';
+import axiosInstance from '../../utils/axiosInstance';
+import { API_PATHS } from '../../utils/apiPaths';
+import Modal from '../../components/Modal';
+import AddIncomeForm from '../../components/Income/AddIncomeForm';
+import { toast } from 'react-hot-toast';
+import IncomeList from '../../components/Income/IncomeList';
+import DeleteAlert from '../../components/DeleteAlert';
 
 const Income = () => {
   useUserAuth();
 
   const [incomeData, setIncomeData] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
+  const [error, setError] = useState('');
   const [openDeleteAlert, setOpenDeleteAlert] = useState({
     show: false,
     data: null,
@@ -37,8 +37,8 @@ const Income = () => {
       }
     } catch (error) {
       console.error(
-        "Failed to load Expense details.",
-        error.response?.data?.message || error.message,
+        'Failed to load Expense details.',
+        error.response?.data?.message || error.message
       );
     } finally {
       setLoading(false);
@@ -51,17 +51,17 @@ const Income = () => {
 
     // validation checks
     if (!source.trim()) {
-      toast.error("Please enter an income source.");
+      toast.error('Please enter an income source.');
       return;
     }
 
     if (!amount || isNaN(amount) || Number(amount) <= 0) {
-      toast.error("Please enter a valid amount greater than 0.");
+      toast.error('Please enter a valid amount greater than 0.');
       return;
     }
 
     if (!date) {
-      toast.error("Please select a date.");
+      toast.error('Please select a date.');
       return;
     }
 
@@ -74,10 +74,10 @@ const Income = () => {
       });
 
       setOpenAddIncomeModal(false);
-      toast.success("Income Added Successfully");
+      toast.success('Income Added Successfully');
       await fetchIncomeDetails();
     } catch (error) {
-      setError(error.response?.data?.message || "Failed to add income.");
+      setError(error.response?.data?.message || 'Failed to add income.');
     }
   };
 
@@ -87,77 +87,69 @@ const Income = () => {
     setOpenAddIncomeModal(true);
   };
 
- 
-//handle update income
-const handleUpdateIncome = async (income) => {
-  try {
-    console.log("Editing Income:", editingIncome);
-    console.log("Payload:", income);
+  //handle update income
+  const handleUpdateIncome = async (income) => {
+    try {
+      console.log('Editing Income:', editingIncome);
+      console.log('Payload:', income);
 
-    const response = await axiosInstance.put(
-      API_PATHS.INCOME.UPDATE_INCOME(editingIncome._id),
-      income,
-    );
+      const response = await axiosInstance.put(
+        API_PATHS.INCOME.UPDATE_INCOME(editingIncome._id),
+        income
+      );
 
-    console.log("Success:", response.data);
+      console.log('Success:', response.data);
 
-    toast.success("Income updated successfully");
+      toast.success('Income updated successfully');
 
-    setEditingIncome(null);
-    setOpenAddIncomeModal(false);
+      setEditingIncome(null);
+      setOpenAddIncomeModal(false);
 
-    await fetchIncomeDetails();
-  } catch (error) {
-    console.error("UPDATE ERROR:", error);
-    console.error("RESPONSE:", error.response);
-    console.error("DATA:", error.response?.data);
+      await fetchIncomeDetails();
+    } catch (error) {
+      console.error('UPDATE ERROR:', error);
+      console.error('RESPONSE:', error.response);
+      console.error('DATA:', error.response?.data);
 
-    toast.error(error.response?.data?.message || "Failed to update income");
-  }
-};
-
+      toast.error(error.response?.data?.message || 'Failed to update income');
+    }
+  };
 
   // delete Income
   const deleteIncome = async (income) => {
     if (!income?._id) return;
-    setError("");
+    setError('');
 
     try {
       await axiosInstance.delete(API_PATHS.INCOME.DELETE_INCOME(income._id));
 
       setOpenDeleteAlert({ show: false, data: null });
-      toast.success(
-        `${openDeleteAlert.data?.source || "Income"} record deleted successfully!`,
-      );
+      toast.success(`${openDeleteAlert.data?.source || 'Income'} record deleted successfully!`);
 
       await fetchIncomeDetails();
     } catch (err) {
-      setError(err.response?.data?.message || "Failed to delete income entry.");
+      setError(err.response?.data?.message || 'Failed to delete income entry.');
     }
   };
 
   // handle download income details in excel sheet
   const handleDownloadIncomeDetails = async () => {
     try {
-      const response = await axiosInstance.get(
-        API_PATHS.INCOME.DOWNLOAD_INCOME,
-        {
-          responseType: "blob",
-        },
-      );
+      const response = await axiosInstance.get(API_PATHS.INCOME.DOWNLOAD_INCOME, {
+        responseType: 'blob',
+      });
 
       const url = window.URL.createObjectURL(new Blob([response.data]));
-      const link = document.createElement("a");
+      const link = document.createElement('a');
       link.href = url;
-      link.setAttribute("download", "income_data.xlsx");
+      link.setAttribute('download', 'income_data.xlsx');
       document.body.appendChild(link);
       link.click();
       link.remove();
       window.URL.revokeObjectURL(url);
     } catch (err) {
       toast.error(
-        err.response?.data?.message ||
-          "Failed to download income details. Please try again.",
+        err.response?.data?.message || 'Failed to download income details. Please try again.'
       );
     }
   };
@@ -165,36 +157,32 @@ const handleUpdateIncome = async (income) => {
   //handle export income details in pdf
   const handleExportPDF = async () => {
     try {
-      const response = await axiosInstance.get(API_PATHS.REPORTS.EXPORT_PDF, {
-        responseType: "blob",
+      const response = await axiosInstance.get(API_PATHS.INCOME.EXPORT_PDF, {
+        responseType: 'blob',
       });
 
-      const blob = new Blob([response.data], { type: "application/pdf" });
+      const blob = new Blob([response.data], { type: 'application/pdf' });
       const url = window.URL.createObjectURL(blob);
-      const link = document.createElement("a");
+      const link = document.createElement('a');
       link.href = url;
-      link.download = "income_report.pdf";
+      link.download = 'income_report.pdf';
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
       window.URL.revokeObjectURL(url);
-      toast.success("PDF exported successfully.");
+      toast.success('PDF exported successfully.');
     } catch (error) {
       toast.error(
-        error.response?.data?.message || "Failed to export income details. Please try again.",
+        error.response?.data?.message || 'Failed to export income details. Please try again.'
       );
     }
+  };
 
-  }
+  useEffect(() => {
+    fetchIncomeDetails();
 
-    useEffect(() => {
-      fetchIncomeDetails();
-
-      return () => { };
-    }, []);
-
-  
-
+    return () => {};
+  }, []);
 
   return (
     <Dashboardlayout activeMenu="Income">
@@ -216,7 +204,7 @@ const handleUpdateIncome = async (income) => {
               setOpenDeleteAlert({ show: true, data: income });
             }}
             onDownload={handleDownloadIncomeDetails}
-            exportPDF={ handleExportPDF }
+            exportPDF={handleExportPDF}
           />
         </div>
 
@@ -227,7 +215,7 @@ const handleUpdateIncome = async (income) => {
             setOpenAddIncomeModal(false);
             setEditingIncome(null);
           }}
-          title={editingIncome ? "Edit Income" : "Add Income"}
+          title={editingIncome ? 'Edit Income' : 'Add Income'}
         >
           <AddIncomeForm
             onAddIncome={handleAddIncome}
@@ -236,7 +224,6 @@ const handleUpdateIncome = async (income) => {
           />
         </Modal>
 
-        
         {/* delete alert modal */}
         <Modal
           isOpen={openDeleteAlert.show}
@@ -244,7 +231,7 @@ const handleUpdateIncome = async (income) => {
           title="Delete income"
         >
           <DeleteAlert
-            content={` ${openDeleteAlert.data?.source || "This"} entry will be deleted from your income records.`}
+            content={` ${openDeleteAlert.data?.source || 'This'} entry will be deleted from your income records.`}
             onCancel={() => setOpenDeleteAlert({ show: false, data: null })}
             onDelete={() => {
               deleteIncome(openDeleteAlert.data);

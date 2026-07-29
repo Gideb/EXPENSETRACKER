@@ -1,8 +1,8 @@
-import { Outlet } from "react-router-dom";
-import Card from "../../assets/images/card1.jpg";
-import { LuTrendingUpDown } from "react-icons/lu";
+import { Outlet } from 'react-router-dom';
+import Card from '../../assets/images/card1.jpg';
+import { LuTrendingUpDown } from 'react-icons/lu';
 
-import { ImCalculator } from "react-icons/im";
+import { ImCalculator } from 'react-icons/im';
 
 const StatsInfoCard = ({ icon, label, value, color }) => {
   return (
@@ -25,8 +25,7 @@ const AuthLayout = () => {
     <div className="flex">
       <div className="w-screen h-screen md:w-[60vw] px-12 pt-8 pb-12 dark:bg-gray-950 dark:text-white">
         <h2 className="text-lg font-medium text-black dark:text-white flex items-center gap-3">
-          Expense Tracker{" "}
-          <ImCalculator className="text-amber-800 dark:text-amber-600" />
+          Expense Tracker <ImCalculator className="text-amber-800 dark:text-amber-600" />
         </h2>
 
         <Outlet />

@@ -1,38 +1,31 @@
-import { useState } from "react";
-import axiosInstance from "../../utils/axiosInstance";
-import Input from "../../components/Inputs/Input";
-import { toast } from "react-hot-toast";
-import { API_PATHS } from "../../utils/apiPaths";
+import { useState } from 'react';
+import axiosInstance from '../../utils/axiosInstance';
+import Input from '../../components/Inputs/Input';
+import { toast } from 'react-hot-toast';
+import { API_PATHS } from '../../utils/apiPaths';
 
 //SIGNED-GILBERT DEBRAH (gideb on github)
 const ForgotPassword = () => {
-  const [email, setEmail] = useState("");
+  const [email, setEmail] = useState('');
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     try {
-      const response = await axiosInstance.post(
-        API_PATHS.AUTH.FORGOT_PASSWORD,
-        {
-          email,
-        },
-      );
+      const response = await axiosInstance.post(API_PATHS.AUTH.FORGOT_PASSWORD, {
+        email,
+      });
 
       toast.success(response.data.message);
-      setEmail("");
+      setEmail('');
     } catch (error) {
-      toast.error(error.response?.data?.message || "Something went wrong");
+      toast.error(error.response?.data?.message || 'Something went wrong');
     }
-
-    
   };
   return (
     <div className="space-y-6 mt-10">
       <div>
-        <h2 className="text-md font-medium dark:text-gray-400">
-          Forgot Password?
-        </h2>
+        <h2 className="text-md font-medium dark:text-gray-400">Forgot Password?</h2>
         <p className="text-sm text-gray-500">
           Enter your email and we'll send you a password reset link.
         </p>
@@ -50,8 +43,6 @@ const ForgotPassword = () => {
           Send Reset Link
         </button>
       </form>
-
-      
     </div>
   );
 };

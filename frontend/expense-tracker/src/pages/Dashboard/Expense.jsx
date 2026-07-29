@@ -1,14 +1,14 @@
-import { useEffect, useState } from "react";
-import Dashboardlayout from "../../components/layouts/Dashboardlayout";
-import ExpenseOverview from "../../components/Expense/ExpenseOverview";
-import { useUserAuth } from "../../hooks/useUserAuth";
-import axiosInstance from "../../utils/axiosInstance";
-import { API_PATHS } from "../../utils/apiPaths";
-import Modal from "../../components/Modal";
-import AddExpenseForm from "../../components/Expense/AddExpenseForm";
-import { toast } from "react-hot-toast";
-import ExpenseList from "../../components/Expense/ExpenseList";
-import DeleteAlert from "../../components/DeleteAlert";
+import { useEffect, useState } from 'react';
+import Dashboardlayout from '../../components/layouts/Dashboardlayout';
+import ExpenseOverview from '../../components/Expense/ExpenseOverview';
+import { useUserAuth } from '../../hooks/useUserAuth';
+import axiosInstance from '../../utils/axiosInstance';
+import { API_PATHS } from '../../utils/apiPaths';
+import Modal from '../../components/Modal';
+import AddExpenseForm from '../../components/Expense/AddExpenseForm';
+import { toast } from 'react-hot-toast';
+import ExpenseList from '../../components/Expense/ExpenseList';
+import DeleteAlert from '../../components/DeleteAlert';
 
 const Expense = () => {
   useUserAuth();
@@ -28,17 +28,15 @@ const Expense = () => {
     setLoading(true);
 
     try {
-      const response = await axiosInstance.get(
-        API_PATHS.EXPENSE.GET_ALL_EXPENSES,
-      );
+      const response = await axiosInstance.get(API_PATHS.EXPENSE.GET_ALL_EXPENSES);
 
       if (response.data) {
         setExpenseData(response.data);
       }
     } catch (error) {
       console.error(
-        "Failed to load Expense details.",
-        error.response?.data?.message || error.message,
+        'Failed to load Expense details.',
+        error.response?.data?.message || error.message
       );
     } finally {
       setLoading(false);
@@ -51,17 +49,17 @@ const Expense = () => {
 
     // validation checks
     if (!category.trim()) {
-      toast.error("Please enter an expense category.");
+      toast.error('Please enter an expense category.');
       return;
     }
 
     if (!amount || isNaN(amount) || Number(amount) <= 0) {
-      toast.error("Please enter a valid amount greater than 0.");
+      toast.error('Please enter a valid amount greater than 0.');
       return;
     }
 
     if (!date) {
-      toast.error("Please select a date.");
+      toast.error('Please select a date.');
       return;
     }
 
@@ -74,13 +72,10 @@ const Expense = () => {
       });
 
       setOpenAddExpenseModal(false);
-      toast.success("Expense Added Successfully");
+      toast.success('Expense Added Successfully');
       fetchExpenseDetails();
     } catch (error) {
-      console.error(
-        "Failed to add Expense.",
-        error.response?.data?.message || error.message,
-      );
+      console.error('Failed to add Expense.', error.response?.data?.message || error.message);
     }
   };
 
@@ -93,28 +88,28 @@ const Expense = () => {
   //handle update expense
   const handleUpdateExpense = async (expense) => {
     try {
-      console.log("Editing Expense:", editingExpense);
-      console.log("Payload:", expense);
+      console.log('Editing Expense:', editingExpense);
+      console.log('Payload:', expense);
 
       const response = await axiosInstance.put(
         API_PATHS.EXPENSE.UPDATE_EXPENSE(editingExpense._id),
-        expense,
+        expense
       );
 
-      console.log("Success:", response.data);
+      console.log('Success:', response.data);
 
-      toast.success("Expense updated successfully");
+      toast.success('Expense updated successfully');
 
       setEditingExpense(null);
       setOpenAddExpenseModal(false);
 
       await fetchExpenseDetails();
     } catch (error) {
-      console.error("UPDATE ERROR:", error);
-      console.error("RESPONSE:", error.response);
-      console.error("DATA:", error.response?.data);
+      console.error('UPDATE ERROR:', error);
+      console.error('RESPONSE:', error.response);
+      console.error('DATA:', error.response?.data);
 
-      toast.error(error.response?.data?.message || "Failed to update expense");
+      toast.error(error.response?.data?.message || 'Failed to update expense');
     }
   };
 
@@ -126,65 +121,56 @@ const Expense = () => {
       await axiosInstance.delete(API_PATHS.EXPENSE.DELETE_EXPENSE(expense._id));
 
       setOpenDeleteAlert({ show: false, data: null });
-      toast.success(
-        `${openDeleteAlert.data?.category || "Expense"} record deleted successfully!`,
-      );
+      toast.success(`${openDeleteAlert.data?.category || 'Expense'} record deleted successfully!`);
 
       await fetchExpenseDetails();
     } catch (error) {
-      console.error(
-        error.response?.data?.message || "Failed to delete expense entry.",
-      );
+      console.error(error.response?.data?.message || 'Failed to delete expense entry.');
     }
   };
 
   // handle download Expense details
   const handleDownloadExpenseDetails = async () => {
     try {
-      const response = await axiosInstance.get(
-        API_PATHS.EXPENSE.DOWNLOAD_EXPENSES,
-        {
-          responseType: "blob",
-        },
-      );
+      const response = await axiosInstance.get(API_PATHS.EXPENSE.DOWNLOAD_EXPENSES, {
+        responseType: 'blob',
+      });
 
       const url = window.URL.createObjectURL(new Blob([response.data]));
-      const link = document.createElement("a");
+      const link = document.createElement('a');
       link.href = url;
-      link.setAttribute("download", "expense_data.xlsx");
+      link.setAttribute('download', 'expense_data.xlsx');
       document.body.appendChild(link);
       link.click();
       link.parentNode.removeChild(link);
       window.URL.revokeObjectURL(url);
     } catch (error) {
       toast.error(
-        error.response?.data?.message ||
-          "Failed to download expense details. Please try again.",
+        error.response?.data?.message || 'Failed to download expense details. Please try again.'
       );
-    
     }
   };
 
-//handle exportpdf
- const handleExportPDF = async () => {
+  //handle exportpdf
+  const handleExportPDF = async () => {
     try {
-      const response = await axiosInstance.get(API_PATHS.REPORTS.EXPORT_PDF, {
-        responseType: "blob",
+      const response = await axiosInstance.get(API_PATHS.EXPENSE.EXPORT_PDF, {
+        responseType: 'blob',
       });
 
-      const blob = new Blob([response.data], { type: "application/pdf" });
+      const blob = new Blob([response.data], { type: 'application/pdf' });
       const url = window.URL.createObjectURL(blob);
-      const link = document.createElement("a");
+      const link = document.createElement('a');
       link.href = url;
-      link.download = "expense_report.pdf";
+      link.download = 'expense_report.pdf';
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
       window.URL.revokeObjectURL(url);
-      toast.success("PDF exported successfully.");
+      toast.success('PDF exported successfully.');
     } catch (error) {
       toast.error(
-        error.response?.data?.message || "Failed to export expense details. Please try again.",
+        error.response?.data?.message || 'Failed to export expense details. Please try again.'
       );
     }
   };
@@ -194,7 +180,6 @@ const Expense = () => {
 
     return () => {};
   }, []);
-
 
   return (
     <Dashboardlayout activeMenu="Expense">
@@ -216,11 +201,10 @@ const Expense = () => {
               setOpenDeleteAlert({ show: true, data: expense });
             }}
             onDownload={handleDownloadExpenseDetails}
-            exportPDF={ handleExportPDF }
+            exportPDF={handleExportPDF}
           />
         </div>
 
-        
         {/* add expense modal */}
         <Modal
           isOpen={openAddExpenseModal}
@@ -228,7 +212,7 @@ const Expense = () => {
             setOpenAddExpenseModal(false);
             setEditingExpense(null);
           }}
-          title={editingExpense ? "Edit Expense" : "Add Expense"}
+          title={editingExpense ? 'Edit Expense' : 'Add Expense'}
         >
           <AddExpenseForm
             onAddExpense={handleAddExpense}
@@ -237,7 +221,6 @@ const Expense = () => {
           />
         </Modal>
 
-        
         {/* delete alert modal */}
         <Modal
           isOpen={openDeleteAlert.show}
@@ -245,7 +228,7 @@ const Expense = () => {
           title="Delete Expense"
         >
           <DeleteAlert
-            content={` ${openDeleteAlert.data?.category || "This"} expense entry will be deleted from your expense records.`}
+            content={` ${openDeleteAlert.data?.category || 'This'} expense entry will be deleted from your expense records.`}
             onCancel={() => setOpenDeleteAlert({ show: false, data: null })}
             onDelete={() => {
               deleteExpense(openDeleteAlert.data);

@@ -1,15 +1,9 @@
-import { LuDownload, LuUpload } from "react-icons/lu";
-import TransactionInfoCard from "../Cards/TransactionInfoCard";
-import moment from "moment";
-import { addThousandsSeparator } from "../../utils/helper";
+import { LuDownload, LuUpload } from 'react-icons/lu';
+import TransactionInfoCard from '../Cards/TransactionInfoCard';
+import moment from 'moment';
+import { addThousandsSeparator } from '../../utils/helper';
 
-const ExpenseList = ({
-  transactions,
-  onDelete,
-  handleEditExpense,
-  onDownload,
-  exportPDF
-}) => {
+const ExpenseList = ({ transactions, onDelete, handleEditExpense, onDownload, exportPDF }) => {
   return (
     <div className="card">
       <div className="inline md:flex items-center justify-between">
@@ -21,14 +15,13 @@ const ExpenseList = ({
         </div>
 
         <div className="flex gap-1 items-center justify-center">
-          
           <button className="card-btn my-4 group" onClick={onDownload}>
-            <LuDownload className="text-base group-hover:-translate-y-0.5 duration-300 transition-all ease-in-out" />{" "}
+            <LuDownload className="text-base group-hover:-translate-y-0.5 duration-300 transition-all ease-in-out" />{' '}
             Download excel
           </button>
-          
+
           <button className="card-btn my-4 group" onClick={exportPDF}>
-            <LuUpload className="text-base group-hover:-translate-y-0.5 duration-300 transition-all ease-in-out" />{" "}
+            <LuUpload className="text-base group-hover:-translate-y-0.5 duration-300 transition-all ease-in-out" />{' '}
             Export pdf
           </button>
         </div>
@@ -40,7 +33,7 @@ const ExpenseList = ({
             key={expense._id}
             title={expense.category}
             amount={addThousandsSeparator(expense.amount)}
-            date={moment(expense.date).format("DD MMM YYYY")}
+            date={moment(expense.date).format('DD MMM YYYY')}
             icon={expense.icon}
             type="expense"
             onEdit={() => handleEditExpense(expense)}

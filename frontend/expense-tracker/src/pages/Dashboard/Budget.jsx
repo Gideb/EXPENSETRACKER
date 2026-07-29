@@ -1,15 +1,15 @@
-import { useEffect, useState } from "react";
-import axios from "axios";
-import AddBudgetForm from "../../components/Budget/AddBudgetForm";
-import Dashboardlayout from "../../components/layouts/Dashboardlayout";
-import { useUserAuth } from "../../hooks/useUserAuth";
-import { API_PATHS } from "../../utils/apiPaths";
-import Modal from "../../components/Modal";
-import { toast } from "react-hot-toast";
-import axiosInstance from "../../utils/axiosInstance";
-import BudgetList from "../../components/Budget/BudgetList";
-import DeleteAlert from "../../components/DeleteAlert";
-import BudgetSummary from "../../components/Budget/BudgetSummary";
+import { useEffect, useState } from 'react';
+import axios from 'axios';
+import AddBudgetForm from '../../components/Budget/AddBudgetForm';
+import Dashboardlayout from '../../components/layouts/Dashboardlayout';
+import { useUserAuth } from '../../hooks/useUserAuth';
+import { API_PATHS } from '../../utils/apiPaths';
+import Modal from '../../components/Modal';
+import { toast } from 'react-hot-toast';
+import axiosInstance from '../../utils/axiosInstance';
+import BudgetList from '../../components/Budget/BudgetList';
+import DeleteAlert from '../../components/DeleteAlert';
+import BudgetSummary from '../../components/Budget/BudgetSummary';
 
 const Budget = () => {
   useUserAuth();
@@ -21,7 +21,7 @@ const Budget = () => {
     show: false,
     data: null,
   });
-  const [loading, setLoading] = useState(false); 
+  const [loading, setLoading] = useState(false);
 
   // get all Budget Details
   const fetchBudgets = async () => {
@@ -33,17 +33,15 @@ const Budget = () => {
 
       if (response.data) {
         // Handle different response structures
-        const data = Array.isArray(response.data)
-          ? response.data
-          : response.data.budgets || [];
+        const data = Array.isArray(response.data) ? response.data : response.data.budgets || [];
         setBudgets(data);
       }
     } catch (error) {
       console.error(
-        "Failed to load Budget details.",
-        error.response?.data?.message || error.message,
+        'Failed to load Budget details.',
+        error.response?.data?.message || error.message
       );
-      toast.error(error.response?.data?.message || "Failed to load budgets");
+      toast.error(error.response?.data?.message || 'Failed to load budgets');
     } finally {
       setLoading(false);
     }
@@ -55,17 +53,17 @@ const Budget = () => {
 
     // validation checks
     if (!category?.trim()) {
-      toast.error("Please enter a budget category.");
+      toast.error('Please enter a budget category.');
       return;
     }
 
     if (!limitAmount || isNaN(limitAmount) || Number(limitAmount) <= 0) {
-      toast.error("Please enter a valid amount greater than 0.");
+      toast.error('Please enter a valid amount greater than 0.');
       return;
     }
 
     if (!month) {
-      toast.error("Please select a month.");
+      toast.error('Please select a month.');
       return;
     }
 
@@ -74,18 +72,15 @@ const Budget = () => {
         category,
         limitAmount: Number(limitAmount),
         month,
-        icon: icon || "",
+        icon: icon || '',
       });
 
       setOpenAddBudgetModal(false);
-      toast.success("Budget Added Successfully");
+      toast.success('Budget Added Successfully');
       await fetchBudgets(); // Added await
     } catch (error) {
-      console.error(
-        "Failed to add Budget.",
-        error.response?.data?.message || error.message,
-      );
-      toast.error(error.response?.data?.message || "Failed to add budget");
+      console.error('Failed to add Budget.', error.response?.data?.message || error.message);
+      toast.error(error.response?.data?.message || 'Failed to add budget');
     }
   };
 
@@ -98,63 +93,54 @@ const Budget = () => {
   // handle update Budget
   const handleUpdateBudget = async (budget) => {
     if (!editingBudget?._id) {
-      toast.error("No budget selected for update");
+      toast.error('No budget selected for update');
       return;
     }
 
     try {
-      const response = await axiosInstance.put(
-        API_PATHS.BUDGET.UPDATE_BUDGET(editingBudget._id),
-        {
-          category: budget.category,
-          limitAmount: Number(budget.limitAmount),
-          month: budget.month,
-          icon: budget.icon,
-        },
-      );
+      const response = await axiosInstance.put(API_PATHS.BUDGET.UPDATE_BUDGET(editingBudget._id), {
+        category: budget.category,
+        limitAmount: Number(budget.limitAmount),
+        month: budget.month,
+        icon: budget.icon,
+      });
 
-      toast.success("Budget updated successfully");
+      toast.success('Budget updated successfully');
 
       setEditingBudget(null);
       setOpenAddBudgetModal(false);
 
       await fetchBudgets();
     } catch (error) {
-      console.error("UPDATE ERROR:", error);
-      toast.error(error.response?.data?.message || "Failed to update budget");
+      console.error('UPDATE ERROR:', error);
+      toast.error(error.response?.data?.message || 'Failed to update budget');
     }
   };
 
   // delete Budget
   const deleteBudget = async (budgetData) => {
     if (!budgetData?._id) {
-      toast.error("Invalid budget data");
+      toast.error('Invalid budget data');
       return;
     }
 
     try {
-      await axiosInstance.delete(
-        API_PATHS.BUDGET.DELETE_BUDGET(budgetData._id),
-      );
+      await axiosInstance.delete(API_PATHS.BUDGET.DELETE_BUDGET(budgetData._id));
 
       setOpenDeleteAlert({ show: false, data: null });
-      toast.success(
-        `${budgetData.category || "Budget"} record deleted successfully!`,
-      );
+      toast.success(`${budgetData.category || 'Budget'} record deleted successfully!`);
 
       await fetchBudgets();
     } catch (error) {
-      console.error(
-        error.response?.data?.message || "Failed to delete budget entry.",
-      );
-      toast.error(error.response?.data?.message || "Failed to delete budget");
+      console.error(error.response?.data?.message || 'Failed to delete budget entry.');
+      toast.error(error.response?.data?.message || 'Failed to delete budget');
     }
   };
 
   // Initial fetch on component mount
   useEffect(() => {
     fetchBudgets();
-  }, []); 
+  }, []);
 
   return (
     <Dashboardlayout activeMenu="Budget">
@@ -187,7 +173,7 @@ const Budget = () => {
             setOpenAddBudgetModal(false);
             setEditingBudget(null);
           }}
-          title={editingBudget ? "Edit Budget" : "Add Budget"}
+          title={editingBudget ? 'Edit Budget' : 'Add Budget'}
         >
           <AddBudgetForm
             onBudgetAdded={handleAddBudget}
@@ -203,7 +189,7 @@ const Budget = () => {
         >
           <DeleteAlert
             content={`${
-              openDeleteAlert.data?.category || "This"
+              openDeleteAlert.data?.category || 'This'
             } budget entry will be deleted from your budget records.`}
             onCancel={() => setOpenDeleteAlert({ show: false, data: null })}
             onDelete={() => {

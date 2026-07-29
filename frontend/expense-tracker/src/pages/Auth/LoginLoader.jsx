@@ -1,13 +1,12 @@
-import { motion } from "framer-motion";
-import loader from "../../assets/images/2.png";
+import { motion } from 'framer-motion';
+import loader from '../../assets/images/2.png';
 
 const LoginLoader = () => {
   return (
     <div className="fixed inset-0 bg-white dark:bg-slate-900 flex flex-col items-center justify-center z-50">
       {/* Logo */}
-     
 
-      <div className="flex items-center justify-center " >
+      <div className="flex items-center justify-center ">
         <img src={loader} alt="loader" className="object-contain w-full h-full" />
       </div>
 

@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { UserContext } from "./UserContext";
+import { useState } from 'react';
+import { UserContext } from './UserContext';
 
 const UserProvider = ({ children }) => {
   const [user, setUser] = useState(null);
@@ -14,9 +14,7 @@ const UserProvider = ({ children }) => {
   };
 
   return (
-    <UserContext.Provider value={{ user, updateUser, clearUser }}>
-      {children}
-    </UserContext.Provider>
+    <UserContext.Provider value={{ user, updateUser, clearUser }}>{children}</UserContext.Provider>
   );
 };
 

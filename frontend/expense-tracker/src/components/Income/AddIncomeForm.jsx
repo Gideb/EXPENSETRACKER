@@ -1,36 +1,31 @@
-import { useState, useEffect } from "react";
-import Input from "../Inputs/Input";
-import EmojiPickerPopup from "../EmojiPickerPopup";
+import { useState, useEffect } from 'react';
+import Input from '../Inputs/Input';
+import EmojiPickerPopup from '../EmojiPickerPopup';
 
 const AddIncomeForm = ({ onAddIncome, onUpdateIncome, editData }) => {
   const [income, setIncome] = useState({
-    source: "",
-    amount: "",
-    date: "",
-    icon: "",
+    source: '',
+    amount: '',
+    date: '',
+    icon: '',
   });
 
-  useEffect(() => { 
+  useEffect(() => {
     if (!editData) return;
 
     setIncome((prev) => {
       const d = editData.date ? new Date(editData.date) : null;
-      const normalizedDate =
-        d && !Number.isNaN(d.getTime()) ? d.toISOString().split("T")[0] : "";
+      const normalizedDate = d && !Number.isNaN(d.getTime()) ? d.toISOString().split('T')[0] : '';
 
       return {
         ...prev,
-        source: editData.source || "",
-        amount:
-          editData.amount !== undefined && editData.amount !== null
-            ? editData.amount
-            : "",
+        source: editData.source || '',
+        amount: editData.amount !== undefined && editData.amount !== null ? editData.amount : '',
         date: normalizedDate,
-        icon: editData.icon || "",
+        icon: editData.icon || '',
       };
     });
   }, [editData]);
-
 
   const handleChange = (key, value) => setIncome({ ...income, [key]: value });
 
@@ -38,12 +33,12 @@ const AddIncomeForm = ({ onAddIncome, onUpdateIncome, editData }) => {
     <div>
       <EmojiPickerPopup
         icon={income.icon}
-        onSelect={(selectedIcon) => handleChange("icon", selectedIcon)}
+        onSelect={(selectedIcon) => handleChange('icon', selectedIcon)}
       />
 
       <Input
         value={income.source}
-        onChange={({ target }) => handleChange("source", target.value)}
+        onChange={({ target }) => handleChange('source', target.value)}
         label="Income Source"
         placeholder="Freelance, Salary, Gift"
         type="text"
@@ -51,7 +46,7 @@ const AddIncomeForm = ({ onAddIncome, onUpdateIncome, editData }) => {
 
       <Input
         value={income.amount}
-        onChange={({ target }) => handleChange("amount", target.value)}
+        onChange={({ target }) => handleChange('amount', target.value)}
         label=" Amount"
         placeholder="Enter Amount"
         type="number"
@@ -61,21 +56,19 @@ const AddIncomeForm = ({ onAddIncome, onUpdateIncome, editData }) => {
         label="Date"
         placeholder="Select date"
         type="date"
-        max={new Date().toISOString().split("T")[0]}
-        
+        max={new Date().toISOString().split('T')[0]}
+
         value={income.date}
-        onChange={({ target }) => handleChange("date", target.value)}
+        onChange={({ target }) => handleChange('date', target.value)}
       />
 
       <div className="flex justify-end mt-6 ">
         <button
           type="button"
           className="add-btn add-btn-fill"
-          onClick={() =>
-            editData ? onUpdateIncome(income) : onAddIncome(income)
-          }
+          onClick={() => (editData ? onUpdateIncome(income) : onAddIncome(income))}
         >
-          {editData ? "Update Income" : "Add Income"}
+          {editData ? 'Update Income' : 'Add Income'}
         </button>
       </div>
     </div>

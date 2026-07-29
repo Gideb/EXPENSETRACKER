@@ -1,24 +1,18 @@
-import {
-  BrowserRouter as Router,
-  Routes,
-  Route,
-  Navigate,
-} from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 
-import AuthLayout from "../components/layouts/AuthLayout";
-import Login from "../pages/Auth/Login";
-import SignUp from "../pages/Auth/SignUp";
-import ForgotPassword from "../pages/Auth/ForgotPassword";
-import ResetPassword from "../pages/Auth/ResetPassword";
+import AuthLayout from '../components/layouts/AuthLayout';
+import Login from '../pages/Auth/Login';
+import SignUp from '../pages/Auth/SignUp';
+import ForgotPassword from '../pages/Auth/ForgotPassword';
+import ResetPassword from '../pages/Auth/ResetPassword';
 
-import Home from "../pages/Dashboard/Home";
-import Expense from "../pages/Dashboard/Expense";
-import Income from "../pages/Dashboard/Income";
-import Transactions from "../pages/Dashboard/Transactions";
-import Budget from "../pages/Dashboard/Budget";
+import Home from '../pages/Dashboard/Home';
+import Expense from '../pages/Dashboard/Expense';
+import Income from '../pages/Dashboard/Income';
+import Transactions from '../pages/Dashboard/Transactions';
+import Budget from '../pages/Dashboard/Budget';
 
-import Settings from "../pages/Dashboard/Settings";
-
+import Settings from '../pages/Dashboard/Settings';
 
 const AppRoutes = () => {
   return (
@@ -49,12 +43,8 @@ export default AppRoutes;
 
 const Root = () => {
   //check if token exists in localStorage
-  const isAuthenticated = !!localStorage.getItem("token");
+  const isAuthenticated = !!localStorage.getItem('token');
 
   //redirect to dashboard if authenticated, otherwise to login
-  return isAuthenticated ? (
-    <Navigate to="/dashboard" />
-  ) : (
-    <Navigate to="/login" />
-  );
+  return isAuthenticated ? <Navigate to="/dashboard" /> : <Navigate to="/login" />;
 };

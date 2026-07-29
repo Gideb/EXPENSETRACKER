@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { FaRegEye, FaRegEyeSlash } from "react-icons/fa";
+import { useState } from 'react';
+import { FaRegEye, FaRegEyeSlash } from 'react-icons/fa';
 
 const Input = ({ value, onChange, placeholder, label, type }) => {
   const [showPassword, setShowPassword] = useState(false);
@@ -14,16 +14,14 @@ const Input = ({ value, onChange, placeholder, label, type }) => {
 
       <div className="input-box flex items-center gap-2">
         <input
-          type={
-            type === "password" ? (showPassword ? "text" : "password") : type
-          }
+          type={type === 'password' ? (showPassword ? 'text' : 'password') : type}
           placeholder={placeholder}
           value={value}
           onChange={(e) => onChange(e)}
           className="flex-1 focus:outline-none"
         />
 
-        {type === "password" &&
+        {type === 'password' &&
           (showPassword ? (
             <FaRegEye
               size={22}

@@ -1,4 +1,3 @@
-
 const Modal = ({ title, onClose, isOpen, children }) => {
   if (!isOpen) return null;
 
@@ -10,9 +9,7 @@ const Modal = ({ title, onClose, isOpen, children }) => {
           {/* Modal header */}
 
           <div className="flex items-center justify-between p-4 border-b md:p-5 rounded-t border-gray-200 dark:border-gray-600">
-            <h3 className="text-lg font-medium text-gray-900 dark:text-white">
-              {title}
-            </h3>
+            <h3 className="text-lg font-medium text-gray-900 dark:text-white">{title}</h3>
 
             <button
               className="text-gray-100 sm:text-gray-600 bg-red-700 sm:bg-transparent sm:hover:bg-red-700 rounded-md text-md w-8 h-8 inline-flex justify-center items-center dark:hover:bg-red-600 dark:sm:text-gray-200 hover:text-white cursor-pointer font-bold"

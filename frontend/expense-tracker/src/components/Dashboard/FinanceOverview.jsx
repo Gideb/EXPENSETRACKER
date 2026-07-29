@@ -1,7 +1,7 @@
-import { addThousandsSeparator } from "../../utils/helper";
-import CustomPieChart from "../Charts/CustomPieChart";
+import { addThousandsSeparator } from '../../utils/helper';
+import CustomPieChart from '../Charts/CustomPieChart';
 
-const COLORS = ["#FF7F00", "#008000", "#FF0000", "#BF00FF", "#2F4F4F"];
+const COLORS = ['#FF7F00', '#008000', '#FF0000', '#BF00FF', '#2F4F4F'];
 
 const FinanceOverview = ({
   totalBalance,
@@ -11,10 +11,10 @@ const FinanceOverview = ({
   last60DaysIncome, */
 }) => {
   const balanceData = [
-    { name: "Total Balance", amount: totalBalance },
-    { name: "Total Income", amount: totalIncome },
-    { name: "Total Expense", amount: totalExpenses },
- /*    { name: "Last 60 Days Income", amount: last60DaysIncome },
+    { name: 'Total Balance', amount: totalBalance },
+    { name: 'Total Income', amount: totalIncome },
+    { name: 'Total Expense', amount: totalExpenses },
+    /*    { name: "Last 60 Days Income", amount: last60DaysIncome },
     { name: "Last 30 Days Expense", amount: last30DaysExpense }, */
   ];
 
@@ -24,7 +24,7 @@ const FinanceOverview = ({
         <div>
           <h5 className="text-lg dark:text-gray-100">Financial Overview</h5>
           <p className="text-xs text-gray-400 mt-1">
-             Chart displaying your total balance, income, and expenses.
+            Chart displaying your total balance, income, and expenses.
           </p>
         </div>
       </div>

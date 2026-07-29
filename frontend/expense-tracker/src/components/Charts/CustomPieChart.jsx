@@ -1,20 +1,8 @@
-import {
-  Legend,
-  Pie,
-  PieChart,
-  ResponsiveContainer,
-  Tooltip,
-} from "recharts";
-import CustomToolTip from "./CustomToolTip";
-import CustomLegend from "./CustomLegend";
+import { Legend, Pie, PieChart, ResponsiveContainer, Tooltip } from 'recharts';
+import CustomToolTip from './CustomToolTip';
+import CustomLegend from './CustomLegend';
 
-const CustomPieChart = ({
-  data,
-  label,
-  totalAmount,
-  colors,
-  showTextAnchor,
-}) => {
+const CustomPieChart = ({ data, label, totalAmount, colors, showTextAnchor }) => {
   const chartData = (data || []).map((item, index) => ({
     ...item,
     amount: Math.max(Number(item.amount) || 0, 0),
@@ -40,14 +28,7 @@ const CustomPieChart = ({
 
         {showTextAnchor && (
           <>
-            <text
-              x="50%"
-              y="50%"
-              dy={-25}
-              textAnchor="middle"
-              fill="#808080"
-              fontSize={14}
-            >
+            <text x="50%" y="50%" dy={-25} textAnchor="middle" fill="#808080" fontSize={14}>
               {label}
             </text>
 

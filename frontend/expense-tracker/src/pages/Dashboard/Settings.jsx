@@ -1,5 +1,5 @@
-import Dashboardlayout from "../../components/layouts/Dashboardlayout";
-import { useUserAuth } from "../../hooks/useUserAuth";
+import Dashboardlayout from '../../components/layouts/Dashboardlayout';
+import { useUserAuth } from '../../hooks/useUserAuth';
 
 const Settings = ({ handleProfileUpdate, handlePasswordChange }) => {
   useUserAuth();
@@ -12,17 +12,9 @@ const Settings = ({ handleProfileUpdate, handlePasswordChange }) => {
           <h3 className="font-medium mb-4">Profile Information</h3>
 
           <div className="space-y-4">
-            <input
-              type="text"
-              placeholder="Full Name"
-              className="w-full border rounded-lg p-3"
-            />
+            <input type="text" placeholder="Full Name" className="w-full border rounded-lg p-3" />
 
-            <input
-              type="email"
-              placeholder="Email"
-              className="w-full border rounded-lg p-3"
-            />
+            <input type="email" placeholder="Email" className="w-full border rounded-lg p-3" />
           </div>
 
           {/*   <button

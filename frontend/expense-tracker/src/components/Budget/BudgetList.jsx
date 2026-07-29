@@ -1,4 +1,4 @@
-import BudgetCard from "../Cards/BudgetCard";
+import BudgetCard from '../Cards/BudgetCard';
 
 const BudgetList = ({ budgets, onDelete, handleEditBudget }) => {
   return (
