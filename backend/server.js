@@ -9,6 +9,7 @@ const expenseRoutes = require("./routes/expenseRoutes");
 const dashboardRoutes = require("./routes/dashboardRoutes");
 const budgetRoutes = require("./routes/budgetRoutes");
 const reportRoutes = require("./routes/reportRoutes");
+const transactionRoutes = require("./routes/transactionRoutes");
 
 const app = express();
 
@@ -32,6 +33,7 @@ app.use("/api/v1/expense", expenseRoutes);
 app.use("/api/v1/dashboard", dashboardRoutes);
 app.use("/api/v1/budget", budgetRoutes);
 app.use("/api/v1/reports", reportRoutes);
+app.use( "/api/v1/transactions", transactionRoutes);
 
 
 
