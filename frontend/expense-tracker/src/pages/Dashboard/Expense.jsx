@@ -4,11 +4,11 @@ import ExpenseOverview from '../../components/Expense/ExpenseOverview';
 import { useUserAuth } from '../../hooks/useUserAuth';
 import axiosInstance from '../../utils/axiosInstance';
 import { API_PATHS } from '../../utils/apiPaths';
-import Modal from '../../components/Modal';
+import Modal from '../../components/Modals/Modal';
 import AddExpenseForm from '../../components/Expense/AddExpenseForm';
 import { toast } from 'react-hot-toast';
 import ExpenseList from '../../components/Expense/ExpenseList';
-import DeleteAlert from '../../components/DeleteAlert';
+import DeleteAlert from '../../components/Modals/DeleteAlert';
 
 const Expense = () => {
   useUserAuth();

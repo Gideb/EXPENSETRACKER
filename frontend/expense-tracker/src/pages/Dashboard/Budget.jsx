@@ -4,11 +4,11 @@ import AddBudgetForm from '../../components/Budget/AddBudgetForm';
 import Dashboardlayout from '../../components/layouts/Dashboardlayout';
 import { useUserAuth } from '../../hooks/useUserAuth';
 import { API_PATHS } from '../../utils/apiPaths';
-import Modal from '../../components/Modal';
+import Modal from '../../components/Modals/Modal';
 import { toast } from 'react-hot-toast';
 import axiosInstance from '../../utils/axiosInstance';
 import BudgetList from '../../components/Budget/BudgetList';
-import DeleteAlert from '../../components/DeleteAlert';
+import DeleteAlert from '../../components/Modals/DeleteAlert';
 import BudgetSummary from '../../components/Budget/BudgetSummary';
 
 const Budget = () => {

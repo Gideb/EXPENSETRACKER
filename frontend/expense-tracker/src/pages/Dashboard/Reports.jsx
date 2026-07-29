@@ -1,0 +1,871 @@
+import { useState, useEffect, useRef } from 'react';
+import Dashboardlayout from '../../components/layouts/Dashboardlayout';
+import { useUserAuth } from '../../hooks/useUserAuth';
+import {
+  BarChart3,
+  PieChart,
+  TrendingUp,
+  TrendingDown,
+  Calendar,
+  Download,
+  FileText,
+  Printer,
+  Mail,
+  Filter,
+  ChevronDown,
+  ChevronUp,
+  DollarSign,
+  Wallet,
+  CreditCard,
+  ShoppingBag,
+  Home,
+  Car,
+  Utensils,
+  Smartphone,
+  Heart,
+  Briefcase,
+  ArrowUpRight,
+  ArrowDownRight,
+  AlertCircle,
+  CheckCircle,
+  Clock,
+} from 'lucide-react';
+
+const Reports = () => {
+  useUserAuth();
+
+  // State management
+  const [activeTab, setActiveTab] = useState('summary');
+  const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth());
+  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
+  const [selectedCategory, setSelectedCategory] = useState('all');
+  const [showDateRange, setShowDateRange] = useState(false);
+  const [dateRange, setDateRange] = useState({
+    start: new Date(new Date().getFullYear(), new Date().getMonth(), 1),
+    end: new Date(),
+  });
+  const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
+  const [showFilterOptions, setShowFilterOptions] = useState(false);
+
+  // Sample data - Replace with your actual data
+  const financialData = {
+    summary: {
+      totalIncome: 4850,
+      totalExpenses: 3240,
+      balance: 1610,
+      savingsRate: 33.2,
+      monthlyChange: 12.5,
+    },
+    transactions: [
+      { id: 1, category: 'Food', amount: 450, date: '2026-07-28', type: 'expense' },
+      { id: 2, category: 'Rent', amount: 1200, date: '2026-07-27', type: 'expense' },
+      { id: 3, category: 'Salary', amount: 4850, date: '2026-07-25', type: 'income' },
+      { id: 4, category: 'Transport', amount: 180, date: '2026-07-24', type: 'expense' },
+      { id: 5, category: 'Shopping', amount: 320, date: '2026-07-23', type: 'expense' },
+      { id: 6, category: 'Healthcare', amount: 150, date: '2026-07-22', type: 'expense' },
+      { id: 7, category: 'Entertainment', amount: 240, date: '2026-07-21', type: 'expense' },
+      { id: 8, category: 'Utilities', amount: 350, date: '2026-07-20', type: 'expense' },
+      { id: 9, category: 'Freelance', amount: 1200, date: '2026-07-18', type: 'income' },
+      { id: 10, category: 'Insurance', amount: 200, date: '2026-07-15', type: 'expense' },
+    ],
+    monthlyData: [
+      { month: 'Jan', income: 4200, expenses: 3100 },
+      { month: 'Feb', income: 4500, expenses: 2800 },
+      { month: 'Mar', income: 4800, expenses: 3300 },
+      { month: 'Apr', income: 4100, expenses: 2900 },
+      { month: 'May', income: 4600, expenses: 3500 },
+      { month: 'Jun', income: 4900, expenses: 3100 },
+      { month: 'Jul', income: 4850, expenses: 3240 },
+    ],
+    budgetData: [
+      { category: 'Housing', budget: 1500, spent: 1200, remaining: 300 },
+      { category: 'Food', budget: 600, spent: 450, remaining: 150 },
+      { category: 'Transport', budget: 300, spent: 180, remaining: 120 },
+      { category: 'Shopping', budget: 400, spent: 320, remaining: 80 },
+      { category: 'Healthcare', budget: 250, spent: 150, remaining: 100 },
+      { category: 'Entertainment', budget: 300, spent: 240, remaining: 60 },
+      { category: 'Utilities', budget: 400, spent: 350, remaining: 50 },
+      { category: 'Insurance', budget: 250, spent: 200, remaining: 50 },
+    ],
+    categorySpending: [
+      { category: 'Housing', amount: 1200, percentage: 37 },
+      { category: 'Food', amount: 450, percentage: 14 },
+      { category: 'Transport', amount: 180, percentage: 6 },
+      { category: 'Shopping', amount: 320, percentage: 10 },
+      { category: 'Healthcare', amount: 150, percentage: 5 },
+      { category: 'Entertainment', amount: 240, percentage: 7 },
+      { category: 'Utilities', amount: 350, percentage: 11 },
+      { category: 'Insurance', amount: 200, percentage: 6 },
+      { category: 'Others', amount: 150, percentage: 4 },
+    ],
+  };
+
+  const months = [
+    'Jan',
+    'Feb',
+    'Mar',
+    'Apr',
+    'May',
+    'Jun',
+    'Jul',
+    'Aug',
+    'Sep',
+    'Oct',
+    'Nov',
+    'Dec',
+  ];
+
+  // Category icon mapping
+  const getCategoryIcon = (categoryName) => {
+    const iconMap = {
+      Food: Utensils,
+      Housing: Home,
+      Transport: Car,
+      Shopping: ShoppingBag,
+      Entertainment: Smartphone,
+      Healthcare: Heart,
+      Utilities: CreditCard,
+      Insurance: Briefcase,
+      Rent: Home,
+      Salary: DollarSign,
+      Freelance: Briefcase,
+    };
+    return iconMap[categoryName] || Wallet;
+  };
+
+  const handleExportPDF = async () => {
+    setIsGeneratingPDF(true);
+    // Simulate PDF generation
+    await new Promise((resolve) => setTimeout(resolve, 2000));
+    setIsGeneratingPDF(false);
+    alert('PDF report downloaded!');
+  };
+
+  const handleExportCSV = () => {
+    alert('CSV file downloaded!');
+  };
+
+  const handlePrint = () => {
+    window.print();
+  };
+
+  const handleEmailReport = () => {
+    alert('Report sent to your email!');
+  };
+
+  // Helper function to render category icon
+  const renderCategoryIcon = (categoryName, className = 'w-5 h-5') => {
+    const IconComponent = getCategoryIcon(categoryName);
+    return <IconComponent className={className} />;
+  };
+
+  // Tab content components
+  const renderSummary = () => (
+    <div className="space-y-6">
+      {/* Quick Stats */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-gray-700">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm text-gray-500 dark:text-gray-400">Total Income</p>
+              <p className="text-2xl font-bold text-green-600 dark:text-green-400">
+                ${financialData.summary.totalIncome}
+              </p>
+            </div>
+            <div className="p-3 bg-green-50 dark:bg-green-900/30 rounded-xl">
+              <TrendingUp className="w-6 h-6 text-green-600 dark:text-green-400" />
+            </div>
+          </div>
+          <div className="mt-2 flex items-center gap-1 text-sm text-green-600 dark:text-green-400">
+            <ArrowUpRight className="w-4 h-4" />
+            <span>12.5% from last month</span>
+          </div>
+        </div>
+
+        <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-gray-700">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm text-gray-500 dark:text-gray-400">Total Expenses</p>
+              <p className="text-2xl font-bold text-red-600 dark:text-red-400">
+                ${financialData.summary.totalExpenses}
+              </p>
+            </div>
+            <div className="p-3 bg-red-50 dark:bg-red-900/30 rounded-xl">
+              <TrendingDown className="w-6 h-6 text-red-600 dark:text-red-400" />
+            </div>
+          </div>
+          <div className="mt-2 flex items-center gap-1 text-sm text-red-600 dark:text-red-400">
+            <ArrowDownRight className="w-4 h-4" />
+            <span>8.2% from last month</span>
+          </div>
+        </div>
+
+        <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-gray-700">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm text-gray-500 dark:text-gray-400">Balance</p>
+              <p className="text-2xl font-bold text-blue-600 dark:text-blue-400">
+                ${financialData.summary.balance}
+              </p>
+            </div>
+            <div className="p-3 bg-blue-50 dark:bg-blue-900/30 rounded-xl">
+              <Wallet className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-gray-700">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm text-gray-500 dark:text-gray-400">Savings Rate</p>
+              <p className="text-2xl font-bold text-purple-600 dark:text-purple-400">
+                {financialData.summary.savingsRate}%
+              </p>
+            </div>
+            <div className="p-3 bg-purple-50 dark:bg-purple-900/30 rounded-xl">
+              <PieChart className="w-6 h-6 text-purple-600 dark:text-purple-400" />
+            </div>
+          </div>
+          <div className="mt-2 w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+            <div
+              className="bg-purple-600 dark:bg-purple-400 h-2 rounded-full transition-all duration-500"
+              style={{ width: `${financialData.summary.savingsRate}%` }}
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* Recent Transactions */}
+      <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
+        <div className="px-6 py-4 border-b border-gray-100 dark:border-gray-700 flex items-center justify-between">
+          <h3 className="font-semibold text-gray-900 dark:text-white">Recent Transactions</h3>
+          <button className="text-sm text-blue-600 dark:text-blue-400 hover:underline">
+            View All
+          </button>
+        </div>
+        <div className="divide-y divide-gray-100 dark:divide-gray-700">
+          {financialData.transactions.slice(0, 5).map((transaction) => {
+            const IconComponent = getCategoryIcon(transaction.category);
+            return (
+              <div
+                key={transaction.id}
+                className="px-6 py-4 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
+              >
+                <div className="flex items-center gap-3">
+                  <div
+                    className={`p-2 rounded-lg ${
+                      transaction.type === 'income'
+                        ? 'bg-green-50 dark:bg-green-900/30'
+                        : 'bg-red-50 dark:bg-red-900/30'
+                    }`}
+                  >
+                    <IconComponent
+                      className={`w-5 h-5 ${
+                        transaction.type === 'income'
+                          ? 'text-green-600 dark:text-green-400'
+                          : 'text-red-600 dark:text-red-400'
+                      }`}
+                    />
+                  </div>
+                  <div>
+                    <p className="font-medium text-gray-900 dark:text-white">
+                      {transaction.category}
+                    </p>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">{transaction.date}</p>
+                  </div>
+                </div>
+                <div
+                  className={`font-semibold ${
+                    transaction.type === 'income'
+                      ? 'text-green-600 dark:text-green-400'
+                      : 'text-red-600 dark:text-red-400'
+                  }`}
+                >
+                  {transaction.type === 'income' ? '+' : '-'}${transaction.amount}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderMonthlyReports = () => (
+    <div className="space-y-6">
+      {/* Month Selector */}
+      <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-gray-700">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+          <div className="flex items-center gap-3">
+            <Calendar className="w-5 h-5 text-gray-500 dark:text-gray-400" />
+            <select
+              value={selectedMonth}
+              onChange={(e) => setSelectedMonth(parseInt(e.target.value))}
+              className="border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              {months.map((month, index) => (
+                <option key={index} value={index}>
+                  {month}
+                </option>
+              ))}
+            </select>
+            <select
+              value={selectedYear}
+              onChange={(e) => setSelectedYear(parseInt(e.target.value))}
+              className="border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              {[2024, 2025, 2026].map((year) => (
+                <option key={year} value={year}>
+                  {year}
+                </option>
+              ))}
+            </select>
+          </div>
+          <button
+            onClick={() => setShowDateRange(!showDateRange)}
+            className="text-sm text-blue-600 dark:text-blue-400 hover:underline"
+          >
+            {showDateRange ? 'Hide Date Range' : 'Custom Date Range'}
+          </button>
+        </div>
+
+        {showDateRange && (
+          <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Start Date
+              </label>
+              <input
+                type="date"
+                value={dateRange.start.toISOString().split('T')[0]}
+                onChange={(e) => setDateRange({ ...dateRange, start: new Date(e.target.value) })}
+                className="w-full border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                End Date
+              </label>
+              <input
+                type="date"
+                value={dateRange.end.toISOString().split('T')[0]}
+                onChange={(e) => setDateRange({ ...dateRange, end: new Date(e.target.value) })}
+                className="w-full border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Monthly Chart - Bar Chart Visualization */}
+      <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-6">
+        <h3 className="font-semibold text-gray-900 dark:text-white mb-4">Monthly Overview</h3>
+        <div className="h-64 flex items-end gap-2">
+          {financialData.monthlyData.map((data, index) => (
+            <div key={index} className="flex-1 flex flex-col items-center gap-2">
+              <div className="w-full flex flex-col items-center gap-1">
+                <div
+                  className="w-full bg-green-500 dark:bg-green-400 rounded-t transition-all duration-500 hover:opacity-80"
+                  style={{ height: `${(data.income / 5000) * 100}%`, minHeight: '4px' }}
+                />
+                <div
+                  className="w-full bg-red-500 dark:bg-red-400 rounded-b transition-all duration-500 hover:opacity-80"
+                  style={{ height: `${(data.expenses / 5000) * 100}%`, minHeight: '4px' }}
+                />
+              </div>
+              <span className="text-xs text-gray-600 dark:text-gray-400">{data.month}</span>
+            </div>
+          ))}
+        </div>
+        <div className="mt-4 flex justify-center gap-6">
+          <div className="flex items-center gap-2">
+            <div className="w-3 h-3 bg-green-500 dark:bg-green-400 rounded"></div>
+            <span className="text-sm text-gray-600 dark:text-gray-400">Income</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="w-3 h-3 bg-red-500 dark:bg-red-400 rounded"></div>
+            <span className="text-sm text-gray-600 dark:text-gray-400">Expenses</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Monthly Details Table */}
+      <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead className="bg-gray-50 dark:bg-gray-700/50">
+              <tr>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                  Month
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                  Income
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                  Expenses
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                  Savings
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                  Status
+                </th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
+              {financialData.monthlyData.map((data, index) => {
+                const savings = data.income - data.expenses;
+                return (
+                  <tr
+                    key={index}
+                    className="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
+                  >
+                    <td className="px-6 py-4 text-sm font-medium text-gray-900 dark:text-white">
+                      {data.month}
+                    </td>
+                    <td className="px-6 py-4 text-sm text-green-600 dark:text-green-400">
+                      ${data.income}
+                    </td>
+                    <td className="px-6 py-4 text-sm text-red-600 dark:text-red-400">
+                      ${data.expenses}
+                    </td>
+                    <td className="px-6 py-4 text-sm text-blue-600 dark:text-blue-400">
+                      ${savings}
+                    </td>
+                    <td className="px-6 py-4">
+                      {savings > 0 ? (
+                        <span className="inline-flex items-center gap-1 px-2 py-1 text-xs font-medium text-green-700 dark:text-green-300 bg-green-100 dark:bg-green-900/30 rounded-full">
+                          <CheckCircle className="w-3 h-3" />
+                          Positive
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center gap-1 px-2 py-1 text-xs font-medium text-red-700 dark:text-red-300 bg-red-100 dark:bg-red-900/30 rounded-full">
+                          <AlertCircle className="w-3 h-3" />
+                          Deficit
+                        </span>
+                      )}
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderBudgetReports = () => (
+    <div className="space-y-6">
+      {/* Budget Overview */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-gray-700">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm text-gray-500 dark:text-gray-400">Total Budget</p>
+              <p className="text-2xl font-bold text-gray-900 dark:text-white">
+                ${financialData.budgetData.reduce((sum, b) => sum + b.budget, 0)}
+              </p>
+            </div>
+            <div className="p-3 bg-indigo-50 dark:bg-indigo-900/30 rounded-xl">
+              <Wallet className="w-6 h-6 text-indigo-600 dark:text-indigo-400" />
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-gray-700">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm text-gray-500 dark:text-gray-400">Total Spent</p>
+              <p className="text-2xl font-bold text-red-600 dark:text-red-400">
+                ${financialData.budgetData.reduce((sum, b) => sum + b.spent, 0)}
+              </p>
+            </div>
+            <div className="p-3 bg-red-50 dark:bg-red-900/30 rounded-xl">
+              <CreditCard className="w-6 h-6 text-red-600 dark:text-red-400" />
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-gray-700">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm text-gray-500 dark:text-gray-400">Remaining</p>
+              <p className="text-2xl font-bold text-green-600 dark:text-green-400">
+                ${financialData.budgetData.reduce((sum, b) => sum + b.remaining, 0)}
+              </p>
+            </div>
+            <div className="p-3 bg-green-50 dark:bg-green-900/30 rounded-xl">
+              <CheckCircle className="w-6 h-6 text-green-600 dark:text-green-400" />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Budget Progress */}
+      {financialData.budgetData.map((budget, index) => {
+        const percentage = (budget.spent / budget.budget) * 100;
+        const isOverBudget = percentage > 100;
+        const isNearLimit = percentage > 80 && percentage <= 100;
+        const IconComponent = getCategoryIcon(budget.category);
+
+        return (
+          <div
+            key={index}
+            className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-6"
+          >
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                  <IconComponent className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+                </div>
+                <div>
+                  <h4 className="font-medium text-gray-900 dark:text-white">{budget.category}</h4>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">
+                    ${budget.spent} of ${budget.budget} spent
+                  </p>
+                </div>
+              </div>
+              <div className="text-right">
+                <span
+                  className={`text-sm font-semibold ${
+                    isOverBudget
+                      ? 'text-red-600 dark:text-red-400'
+                      : isNearLimit
+                        ? 'text-yellow-600 dark:text-yellow-400'
+                        : 'text-green-600 dark:text-green-400'
+                  }`}
+                >
+                  {isOverBudget ? 'Over Budget' : `${Math.round(percentage)}%`}
+                </span>
+              </div>
+            </div>
+
+            <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5">
+              <div
+                className={`h-2.5 rounded-full transition-all duration-500 ${
+                  isOverBudget
+                    ? 'bg-red-600 dark:bg-red-400'
+                    : isNearLimit
+                      ? 'bg-yellow-500 dark:bg-yellow-400'
+                      : 'bg-green-600 dark:bg-green-400'
+                }`}
+                style={{ width: `${Math.min(percentage, 100)}%` }}
+              />
+            </div>
+
+            <div className="mt-2 flex justify-between text-xs text-gray-500 dark:text-gray-400">
+              <span>${budget.remaining} remaining</span>
+              <span>{budget.category}</span>
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+
+  const renderAnalytics = () => (
+    <div className="space-y-6">
+      {/* Category Breakdown */}
+      <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-6">
+        <h3 className="font-semibold text-gray-900 dark:text-white mb-4">Spending by Category</h3>
+        <div className="space-y-4">
+          {financialData.categorySpending.map((category, index) => {
+            const IconComponent = getCategoryIcon(category.category);
+            return (
+              <div key={index}>
+                <div className="flex items-center justify-between mb-1">
+                  <div className="flex items-center gap-3">
+                    <div className="p-1.5 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                      <IconComponent className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+                    </div>
+                    <span className="text-sm text-gray-700 dark:text-gray-300">
+                      {category.category}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-4">
+                    <span className="text-sm font-medium text-gray-900 dark:text-white">
+                      ${category.amount}
+                    </span>
+                    <span className="text-sm text-gray-500 dark:text-gray-400 w-12 text-right">
+                      {category.percentage}%
+                    </span>
+                  </div>
+                </div>
+                <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                  <div
+                    className="bg-gradient-to-r from-blue-500 to-purple-500 h-2 rounded-full transition-all duration-500"
+                    style={{ width: `${category.percentage}%` }}
+                  />
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Spending Trends */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-6">
+          <h4 className="font-medium text-gray-900 dark:text-white mb-3">
+            Top Spending Categories
+          </h4>
+          <div className="space-y-3">
+            {financialData.categorySpending
+              .sort((a, b) => b.amount - a.amount)
+              .slice(0, 5)
+              .map((category, index) => (
+                <div key={index} className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm font-medium text-gray-500 dark:text-gray-400">
+                      #{index + 1}
+                    </span>
+                    <span className="text-sm text-gray-700 dark:text-gray-300">
+                      {category.category}
+                    </span>
+                  </div>
+                  <span className="text-sm font-medium text-gray-900 dark:text-white">
+                    ${category.amount}
+                  </span>
+                </div>
+              ))}
+          </div>
+        </div>
+
+        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-6">
+          <h4 className="font-medium text-gray-900 dark:text-white mb-3">Insights</h4>
+          <div className="space-y-4">
+            <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-xl">
+              <div className="flex items-start gap-3">
+                <div className="p-1.5 bg-blue-100 dark:bg-blue-800 rounded-lg">
+                  <TrendingUp className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-blue-900 dark:text-blue-300">
+                    Income Growth
+                  </p>
+                  <p className="text-sm text-blue-700 dark:text-blue-400">
+                    Your income increased by 12.5% this month
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="p-4 bg-yellow-50 dark:bg-yellow-900/20 rounded-xl">
+              <div className="flex items-start gap-3">
+                <div className="p-1.5 bg-yellow-100 dark:bg-yellow-800 rounded-lg">
+                  <AlertCircle className="w-4 h-4 text-yellow-600 dark:text-yellow-400" />
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-yellow-900 dark:text-yellow-300">
+                    Budget Alert
+                  </p>
+                  <p className="text-sm text-yellow-700 dark:text-yellow-400">
+                    Shopping category is at 80% of budget
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="p-4 bg-green-50 dark:bg-green-900/20 rounded-xl">
+              <div className="flex items-start gap-3">
+                <div className="p-1.5 bg-green-100 dark:bg-green-800 rounded-lg">
+                  <CheckCircle className="w-4 h-4 text-green-600 dark:text-green-400" />
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-green-900 dark:text-green-300">
+                    Savings Goal
+                  </p>
+                  <p className="text-sm text-green-700 dark:text-green-400">
+                    You're on track to meet your savings goal
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
+  return (
+    <Dashboardlayout activeMenu="Reports">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        {/* Header */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+                  <div>
+                      <p className="text-xs font-bold text-red-500 mb-5">*still under works</p>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Reports</h1>
+            <p className="text-gray-500 dark:text-gray-400 mt-1">
+              Analyze your financial data and track your spending habits
+            </p>
+          </div>
+
+          {/* Action Buttons */}
+          <div className="flex flex-wrap gap-2">
+            <button
+              onClick={handleExportPDF}
+              disabled={isGeneratingPDF}
+              className="px-4 py-2 bg-red-600 hover:bg-red-700 dark:bg-red-500 dark:hover:bg-red-600 text-white text-sm font-medium rounded-xl transition-all duration-200 flex items-center gap-2 shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {isGeneratingPDF ? (
+                <>
+                  <Clock className="w-4 h-4 animate-spin" />
+                  Generating...
+                </>
+              ) : (
+                <>
+                  <FileText className="w-4 h-4" />
+                  PDF Report
+                </>
+              )}
+            </button>
+
+            <button
+              onClick={handleExportCSV}
+              className="px-4 py-2 bg-green-600 hover:bg-green-700 dark:bg-green-500 dark:hover:bg-green-600 text-white text-sm font-medium rounded-xl transition-all duration-200 flex items-center gap-2 shadow-sm hover:shadow-md"
+            >
+              <Download className="w-4 h-4" />
+              CSV
+            </button>
+
+            <button
+              onClick={handlePrint}
+              className="px-4 py-2 bg-gray-600 hover:bg-gray-700 dark:bg-gray-500 dark:hover:bg-gray-600 text-white text-sm font-medium rounded-xl transition-all duration-200 flex items-center gap-2 shadow-sm hover:shadow-md"
+            >
+              <Printer className="w-4 h-4" />
+              Print
+            </button>
+
+            <button
+              onClick={handleEmailReport}
+              className="px-4 py-2 bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white text-sm font-medium rounded-xl transition-all duration-200 flex items-center gap-2 shadow-sm hover:shadow-md"
+            >
+              <Mail className="w-4 h-4" />
+              Email
+            </button>
+          </div>
+        </div>
+
+        {/* Tabs */}
+        <div className="mb-6">
+          <div className="border-b border-gray-200 dark:border-gray-700">
+            <nav className="flex flex-wrap gap-2 -mb-px">
+              {[
+                { id: 'summary', label: 'Financial Summary', icon: BarChart3 },
+                { id: 'monthly', label: 'Monthly Reports', icon: Calendar },
+                { id: 'budget', label: 'Budget Reports', icon: Wallet },
+                { id: 'analytics', label: 'Analytics', icon: PieChart },
+              ].map((tab) => {
+                const IconComponent = tab.icon;
+                return (
+                  <button
+                    key={tab.id}
+                    onClick={() => setActiveTab(tab.id)}
+                    className={`flex items-center gap-2 px-4 py-2 text-sm font-medium border-b-2 transition-all duration-200 ${
+                      activeTab === tab.id
+                        ? 'border-blue-600 text-blue-600 dark:border-blue-400 dark:text-blue-400'
+                        : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:border-gray-300'
+                    }`}
+                  >
+                    <IconComponent className="w-4 h-4" />
+                    {tab.label}
+                  </button>
+                );
+              })}
+            </nav>
+          </div>
+        </div>
+
+        {/* Filter Bar */}
+        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-4 mb-6">
+          <div className="flex flex-wrap items-center gap-4">
+            <div className="flex items-center gap-2">
+              <Filter className="w-4 h-4 text-gray-500 dark:text-gray-400" />
+              <span className="text-sm text-gray-600 dark:text-gray-300">Filters:</span>
+            </div>
+
+            <select
+              value={selectedCategory}
+              onChange={(e) => setSelectedCategory(e.target.value)}
+              className="border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="all">All Categories</option>
+              <option value="food">Food</option>
+              <option value="housing">Housing</option>
+              <option value="transport">Transport</option>
+              <option value="shopping">Shopping</option>
+              <option value="entertainment">Entertainment</option>
+              <option value="healthcare">Healthcare</option>
+              <option value="utilities">Utilities</option>
+              <option value="insurance">Insurance</option>
+            </select>
+
+            <button
+              onClick={() => setShowFilterOptions(!showFilterOptions)}
+              className="text-sm text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1"
+            >
+              More Filters
+              {showFilterOptions ? (
+                <ChevronUp className="w-4 h-4" />
+              ) : (
+                <ChevronDown className="w-4 h-4" />
+              )}
+            </button>
+          </div>
+
+          {showFilterOptions && (
+            <div className="mt-4 pt-4 border-t border-gray-100 dark:border-gray-700 grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Min Amount
+                </label>
+                <input
+                  type="number"
+                  placeholder="$0"
+                  className="w-full border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Max Amount
+                </label>
+                <input
+                  type="number"
+                  placeholder="$1000"
+                  className="w-full border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Transaction Type
+                </label>
+                <select className="w-full border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                  <option>All</option>
+                  <option>Income</option>
+                  <option>Expense</option>
+                </select>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Tab Content */}
+        <div className="min-h-[400px]">
+          {activeTab === 'summary' && renderSummary()}
+          {activeTab === 'monthly' && renderMonthlyReports()}
+          {activeTab === 'budget' && renderBudgetReports()}
+          {activeTab === 'analytics' && renderAnalytics()}
+        </div>
+
+        {/* Footer */}
+        <div className="mt-8 text-center text-sm text-gray-500 dark:text-gray-400">
+          <p>Last updated: {new Date().toLocaleString()}</p>
+          <p className="mt-1">Data is automatically synced with your account</p>
+        </div>
+      </div>
+    </Dashboardlayout>
+  );
+};
+
+export default Reports;

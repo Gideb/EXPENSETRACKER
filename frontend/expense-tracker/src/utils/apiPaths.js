@@ -20,16 +20,16 @@ export const API_PATHS = {
     GET_ALL_INCOME: '/api/v1/income/get',
     UPDATE_INCOME: (incomeId) => `/api/v1/income/${incomeId}`,
     DELETE_INCOME: (incomeId) => `/api/v1/income/${incomeId}`,
-    DOWNLOAD_INCOME: '/api/v1/income/downloadexcel',
-    EXPORT_PDF: '/api/v1/income/exportPDF',
+    DOWNLOAD_INCOME: '/api/v1/income/download-excel',
+    EXPORT_PDF: '/api/v1/income/export-pdf',
   },
   EXPENSE: {
     ADD_EXPENSE: '/api/v1/expense/add',
     GET_ALL_EXPENSES: '/api/v1/expense/get',
     UPDATE_EXPENSE: (expenseId) => `/api/v1/expense/${expenseId}`,
     DELETE_EXPENSE: (expenseId) => `/api/v1/expense/${expenseId}`,
-    DOWNLOAD_EXPENSES: '/api/v1/expense/downloadexcel',
-    EXPORT_PDF: '/api/v1/expense/exportPDF',
+    DOWNLOAD_EXPENSES: '/api/v1/expense/download-excel',
+    EXPORT_PDF: '/api/v1/expense/export-pdf',
   },
   BUDGET: {
     ADD_BUDGET: '/api/v1/budget/add',
@@ -45,8 +45,15 @@ export const API_PATHS = {
   TRANSACTIONS: {
     GET_ALL: '/api/v1/transactions',
     DELETE: (type, id) => `/api/v1/transactions/${type}/${id}`,
-    EXPORT_EXCEL: '/api/v1/transactions/downloadexcel',
-    EXPORT_PDF: '/api/v1/transactions/exportpdf',
+    EXPORT_EXCEL: '/api/v1/transactions/download-excel',
+    EXPORT_PDF: '/api/v1/transactions/export-pdf',
+  },
+  REPORTS: {
+    FINANCIAL: '/api/v1/reports/financial',
+    MONTHLY: '/api/v1/reports/monthly',
+    YEARLY: '/api/v1/reports/yearly',
+    CATEGORY_ANALYSIS: '/api/v1/reports/category-analysis',
+    BUDGET_PERFORMANCE: '/api/v1/reports/budget-performance',
   },
   SETTINGS: {},
   IMAGE: {

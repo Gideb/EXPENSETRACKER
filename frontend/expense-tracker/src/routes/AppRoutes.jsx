@@ -13,6 +13,7 @@ import Transactions from '../pages/Dashboard/Transactions';
 import Budget from '../pages/Dashboard/Budget';
 
 import Settings from '../pages/Dashboard/Settings';
+import Reports from '../pages/Dashboard/Reports';
 
 const AppRoutes = () => {
   return (
@@ -33,6 +34,7 @@ const AppRoutes = () => {
         <Route path="/income" element={<Income />} />
         <Route path="/transactions" element={<Transactions />} />
         <Route path="/budget" element={<Budget />} />
+        <Route path="/reports" element={<Reports />} />
         <Route path="/settings" element={<Settings />} />
       </Routes>
     </Router>

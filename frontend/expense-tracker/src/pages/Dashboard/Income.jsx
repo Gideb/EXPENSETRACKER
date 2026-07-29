@@ -4,11 +4,11 @@ import IncomeOverview from '../../components/Income/IncomeOverview';
 import { useUserAuth } from '../../hooks/useUserAuth';
 import axiosInstance from '../../utils/axiosInstance';
 import { API_PATHS } from '../../utils/apiPaths';
-import Modal from '../../components/Modal';
+import Modal from '../../components/Modals/Modal';
 import AddIncomeForm from '../../components/Income/AddIncomeForm';
 import { toast } from 'react-hot-toast';
 import IncomeList from '../../components/Income/IncomeList';
-import DeleteAlert from '../../components/DeleteAlert';
+import DeleteAlert from '../../components/Modals/DeleteAlert';
 
 const Income = () => {
   useUserAuth();
@@ -22,6 +22,8 @@ const Income = () => {
   });
   const [openAddIncomeModal, setOpenAddIncomeModal] = useState(false);
   const [editingIncome, setEditingIncome] = useState(null);
+
+  
 
   // get all Income Details
 

@@ -3,8 +3,8 @@ import { toast } from 'react-hot-toast';
 
 import Dashboardlayout from '../../components/layouts/Dashboardlayout';
 import TransactionList from '../../components/Transaction/TransactionList';
-import DeleteAlert from '../../components/DeleteAlert';
-import Modal from '../../components/Modal';
+import DeleteAlert from '../../components/Modals/DeleteAlert';
+import Modal from '../../components/Modals/Modal';
 
 import axiosInstance from '../../utils/axiosInstance';
 import { API_PATHS } from '../../utils/apiPaths';
