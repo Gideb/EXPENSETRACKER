@@ -1,6 +1,6 @@
-const Income = require("../models/Income");
-const xlsx = require("xlsx");
-
+const Income = require('../models/Income');
+//const xlsx = require('xlsx');
+const ExcelJS = require('exceljs');
 
 //add income source
 exports.addIncome = async (req, res) => {
@@ -12,13 +12,13 @@ exports.addIncome = async (req, res) => {
     // Prevent future dates
     if (new Date(date) > new Date()) {
       return res.status(400).json({
-        message: "Future dates are not allowed",
+        message: 'Future dates are not allowed',
       });
     }
 
     //validation: check for missing fields
     if (!source || !amount || !date) {
-      return res.status(400).json({ message: "All fields are required" });
+      return res.status(400).json({ message: 'All fields are required' });
     }
 
     const newIncome = new Income({
@@ -32,8 +32,8 @@ exports.addIncome = async (req, res) => {
     await newIncome.save();
     res.status(200).json(newIncome);
   } catch (error) {
-    console.error("Error adding income:", error);
-    res.status(500).json({ message: "Server Error", error: error.message });
+    console.error('Error adding income:', error);
+    res.status(500).json({ message: 'Server Error', error: error.message });
   }
 };
 
@@ -46,12 +46,12 @@ exports.updateIncome = async (req, res) => {
         userId: req.user.id,
       },
       req.body,
-      { returnDocument: "after" },
+      { returnDocument: 'after' }
     );
 
     if (!updatedIncome) {
       return res.status(404).json({
-        message: "Income not found",
+        message: 'Income not found',
       });
     }
 
@@ -71,8 +71,8 @@ exports.getAllIncome = async (req, res) => {
     const incomes = await Income.find({ userId }).sort({ date: -1 });
     res.status(200).json(incomes);
   } catch (error) {
-    console.error("Error fetching incomes:", error);
-    res.status(500).json({ message: "Server Error", error: error.message });
+    console.error('Error fetching incomes:', error);
+    res.status(500).json({ message: 'Server Error', error: error.message });
   }
 };
 
@@ -83,18 +83,18 @@ exports.deleteIncome = async (req, res) => {
     const income = await Income.findByIdAndDelete(id);
 
     if (!income) {
-      return res.status(404).json({ message: "Income not found" });
+      return res.status(404).json({ message: 'Income not found' });
     }
 
-    res.status(200).json({ message: "Income deleted successfully" });
+    res.status(200).json({ message: 'Income deleted successfully' });
   } catch (error) {
-    console.error("Error deleting income:", error);
-    res.status(500).json({ message: "Server Error", error: error.message });
+    console.error('Error deleting income:', error);
+    res.status(500).json({ message: 'Server Error', error: error.message });
   }
 };
 
 //download excel
-exports.downloadIncomeExcel = async (req, res) => {
+/* exports.downloadIncomeExcel = async (req, res) => {
   const userId = req.user.id;
 
   try {
@@ -129,6 +129,115 @@ exports.downloadIncomeExcel = async (req, res) => {
     console.error("Error downloading excel:", error);
     res.status(500).json({ message: "Server Error", error: error.message });
   }
+}; */
+
+exports.downloadIncomeExcel = async (req, res) => {
+  const userId = req.user.id;
+
+  try {
+    const incomes = await Income.find({ userId }).sort({ date: -1 }).lean();
+
+    if (incomes.length === 0) {
+      return res.status(400).json({
+        message: 'No incomes to download',
+      });
+    }
+
+    const workbook = new ExcelJS.Workbook();
+
+    workbook.creator = 'Expense Tracker';
+    workbook.created = new Date();
+
+    const worksheet = workbook.addWorksheet('Income');
+
+    worksheet.columns = [
+      {
+        header: 'Source',
+        key: 'source',
+        width: 30,
+      },
+      {
+        header: 'Amount',
+        key: 'amount',
+        width: 20,
+      },
+      {
+        header: 'Date',
+        key: 'date',
+        width: 18,
+      },
+      {
+        header: 'Icon',
+        key: 'icon',
+        width: 15,
+      },
+    ];
+
+    // Header styling
+    const headerRow = worksheet.getRow(1);
+
+    headerRow.font = {
+      bold: true,
+      color: {
+        argb: 'FFFFFFFF',
+      },
+    };
+
+    headerRow.fill = {
+      type: 'pattern',
+      pattern: 'solid',
+      fgColor: {
+        argb: '16A34A', // green income color
+      },
+    };
+
+    headerRow.alignment = {
+      horizontal: 'center',
+      vertical: 'middle',
+    };
+
+    // Add income rows
+    incomes.forEach((income) => {
+      worksheet.addRow({
+        source: income.source,
+        amount: income.amount,
+        date: income.date ? new Date(income.date).toLocaleDateString() : '',
+        icon: income.icon || '',
+      });
+    });
+
+    // Currency formatting
+    worksheet.getColumn('amount').numFmt = '#,##0.00';
+
+    // Alternate row colors
+    worksheet.eachRow((row, rowNumber) => {
+      if (rowNumber > 1 && rowNumber % 2 === 0) {
+        row.fill = {
+          type: 'pattern',
+          pattern: 'solid',
+          fgColor: {
+            argb: 'F8FAFC',
+          },
+        };
+      }
+    });
+
+    res.setHeader(
+      'Content-Type',
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    );
+
+    res.setHeader('Content-Disposition', `attachment; filename=income-${Date.now()}.xlsx`);
+
+    await workbook.xlsx.write(res);
+
+    res.end();
+  } catch (error) {
+    console.error('Error downloading income excel:', error);
+
+    res.status(500).json({
+      message: 'Failed to export income Excel',
+      error: error.message,
+    });
+  }
 };
-
-

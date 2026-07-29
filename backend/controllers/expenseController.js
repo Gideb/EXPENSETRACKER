@@ -1,7 +1,7 @@
-const Expense = require("../models/Expense");
-const xlsx = require("xlsx");
-const updateBudgetOnExpense = require("../utils/budgetHelper");
-const Budget = require("../models/Budget");
+const Expense = require('../models/Expense');
+const xlsx = require('xlsx');
+const updateBudgetOnExpense = require('../utils/budgetHelper');
+const Budget = require('../models/Budget');
 
 //add expense source
 exports.addExpense = async (req, res) => {
@@ -13,13 +13,13 @@ exports.addExpense = async (req, res) => {
     // Prevent future dates
     if (new Date(date) > new Date()) {
       return res.status(400).json({
-        message: "Future dates are not allowed",
+        message: 'Future dates are not allowed',
       });
     }
 
     // validation
     if (!category || !amount || !date) {
-      return res.status(400).json({ message: "All fields are required" });
+      return res.status(400).json({ message: 'All fields are required' });
     }
 
     const newExpense = new Expense({
@@ -50,12 +50,10 @@ exports.addExpense = async (req, res) => {
       exceededCategory: budgetStatus?.category || null,
     });
   } catch (error) {
-    console.error("Error adding expense:", error);
-    res.status(500).json({ message: "Server Error", error: error.message });
+    console.error('Error adding expense:', error);
+    res.status(500).json({ message: 'Server Error', error: error.message });
   }
 };
-
-
 
 //get all expense source
 exports.getAllExpense = async (req, res) => {
@@ -65,8 +63,8 @@ exports.getAllExpense = async (req, res) => {
     const expenses = await Expense.find({ userId }).sort({ date: -1 });
     res.status(200).json(expenses);
   } catch (error) {
-    console.error("Error fetching expenses:", error);
-    res.status(500).json({ message: "Server Error", error: error.message });
+    console.error('Error fetching expenses:', error);
+    res.status(500).json({ message: 'Server Error', error: error.message });
   }
 };
 
@@ -79,7 +77,7 @@ exports.updateExpense = async (req, res) => {
     });
 
     if (!expense) {
-      return res.status(404).json({ message: "Expense not found" });
+      return res.status(404).json({ message: 'Expense not found' });
     }
 
     // 🧠 OLD VALUES (for budget correction)
@@ -123,8 +121,8 @@ exports.updateExpense = async (req, res) => {
       budgetStatus: newBudgetStatus,
     });
   } catch (error) {
-    console.error("Error updating expense:", error);
-    res.status(500).json({ message: "Server Error", error: error.message });
+    console.error('Error updating expense:', error);
+    res.status(500).json({ message: 'Server Error', error: error.message });
   }
 };
 
@@ -137,7 +135,7 @@ exports.deleteExpense = async (req, res) => {
     });
 
     if (!expense) {
-      return res.status(404).json({ message: "Expense not found" });
+      return res.status(404).json({ message: 'Expense not found' });
     }
 
     const month = new Date(expense.date).toISOString().slice(0, 7);
@@ -157,17 +155,16 @@ exports.deleteExpense = async (req, res) => {
     }
 
     res.status(200).json({
-      message: "Expense deleted successfully",
+      message: 'Expense deleted successfully',
     });
   } catch (error) {
-    console.error("Error deleting expense:", error);
-    res.status(500).json({ message: "Server Error", error: error.message });
+    console.error('Error deleting expense:', error);
+    res.status(500).json({ message: 'Server Error', error: error.message });
   }
 };
 
-
 //download excel
-exports.downloadExpenseExcel = async (req, res) => {
+/* exports.downloadExpenseExcel = async (req, res) => {
   const userId = req.user.id;
 
   try {
@@ -205,5 +202,124 @@ exports.downloadExpenseExcel = async (req, res) => {
   } catch (error) {
     console.error("Error downloading excel:", error);
     res.status(500).json({ message: "Server Error", error: error.message });
+  }
+}; */
+
+const ExcelJS = require('exceljs');
+
+exports.downloadExpenseExcel = async (req, res) => {
+  const userId = req.user.id;
+
+  try {
+    const expenses = await Expense.find({ userId }).sort({ date: -1 }).lean();
+
+    if (expenses.length === 0) {
+      return res.status(400).json({
+        message: 'No expenses to download',
+      });
+    }
+
+    const workbook = new ExcelJS.Workbook();
+
+    workbook.creator = 'Expense Tracker';
+    workbook.created = new Date();
+
+    const worksheet = workbook.addWorksheet('Expense');
+
+    worksheet.columns = [
+      {
+        header: 'Category',
+        key: 'category',
+        width: 30,
+      },
+      {
+        header: 'Amount',
+        key: 'amount',
+        width: 20,
+      },
+      {
+        header: 'Date',
+        key: 'date',
+        width: 18,
+      },
+      {
+        header: 'Description',
+        key: 'description',
+        width: 40,
+      },
+      {
+        header: 'Icon',
+        key: 'icon',
+        width: 15,
+      },
+    ];
+
+    // Header styling
+    const headerRow = worksheet.getRow(1);
+
+    headerRow.font = {
+      bold: true,
+      color: {
+        argb: 'FFFFFFFF',
+      },
+    };
+
+    headerRow.fill = {
+      type: 'pattern',
+      pattern: 'solid',
+      fgColor: {
+        argb: 'DC2626', // red expense color
+      },
+    };
+
+    headerRow.alignment = {
+      horizontal: 'center',
+      vertical: 'middle',
+    };
+
+    // Add expense rows
+    expenses.forEach((expense) => {
+      worksheet.addRow({
+        category: expense.category,
+        amount: expense.amount,
+        date: expense.date ? new Date(expense.date).toLocaleDateString() : '',
+        description: expense.description || '',
+        icon: expense.icon || '',
+      });
+    });
+
+    // Format amount column
+    worksheet.getColumn('amount').numFmt = '#,##0.00';
+
+    // Alternate row colors
+    worksheet.eachRow((row, rowNumber) => {
+      if (rowNumber > 1 && rowNumber % 2 === 0) {
+        row.fill = {
+          type: 'pattern',
+          pattern: 'solid',
+          fgColor: {
+            argb: 'F8FAFC',
+          },
+        };
+      }
+    });
+
+    res.setHeader(
+      'Content-Type',
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    );
+
+    res.setHeader('Content-Disposition', `attachment; filename=expense-${Date.now()}.xlsx`);
+
+    await workbook.xlsx.write(res);
+
+    res.end();
+  } catch (error) {
+    console.error('Error downloading expense excel:', error);
+
+    res.status(500).json({
+      message: 'Failed to export expense Excel',
+      error: error.message,
+    });
   }
 };

@@ -1,4 +1,3 @@
-
 const PDFDocument = require('pdfkit-table');
 const path = require('path');
 
@@ -15,15 +14,15 @@ const COLORS = {
   muted: '#6B7280',
 
   white: '#FFFFFF',
+  amber: '#cc5500',
 };
 
 //CURRENCY FORMATTER
-const formatCurrency = (amount = 0) => {
-  return new Intl.NumberFormat('en-GH', {
-    style: 'currency',
-    currency: 'GHS',
-    currencyDisplay: 'symbol',
-  }).format(amount);
+const formatCurrency = (amount) => {
+  return `GHS ${Number(amount || 0).toLocaleString('en-GH', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  })}`;
 };
 
 //DATE FORMATTER
@@ -37,9 +36,7 @@ const formatDate = (date) => {
   });
 };
 
-/**
- * Prevent undefined errors
- */
+//Prevent undefined errors
 const safeText = (value) => {
   if (value === undefined || value === null || value === '') {
     return '-';
@@ -48,13 +45,19 @@ const safeText = (value) => {
   return String(value);
 };
 
-/**
- * Draw section title
- */
+// Draw section title
+
 const drawSectionTitle = (doc, title) => {
   doc.fontSize(15).fillColor(COLORS.primary).font('Helvetica-Bold').text(title);
 
-  doc.moveDown(0.5);
+  doc
+    .moveTo(50, doc.y)
+    .lineTo(doc.page.width - 50, doc.y)
+    .strokeColor(COLORS.primary)
+    .lineWidth(1)
+    .stroke();
+
+  doc.moveDown();
 };
 
 //////////////////////////////////////////////////////
@@ -98,7 +101,7 @@ const drawHeader = (doc, { title = 'Financial Report', logo = null, companyName 
 
   // Reset cursor
 
-  doc.fillColor(COLORS.dark).moveDown(3);
+  doc.fillColor(COLORS.dark).moveDown(2);
 };
 
 //////////////////////////////////////////////////////
@@ -108,16 +111,13 @@ const drawHeader = (doc, { title = 'Financial Report', logo = null, companyName 
 const addFooter = (doc) => {
   const range = doc.bufferedPageRange();
 
-  for (let i = 0; i < range.count; i++) {
+  for (let i = range.start; i < range.start + range.count; i++) {
     doc.switchToPage(i);
 
-    const footerY = doc.page.height - 45;
-
     doc
-      .fontSize(6)
-      .fillColor(COLORS.muted)
-      .font('Helvetica')
-      .text(`Page ${i + 1} of ${range.count}`, 50, footerY, {
+      .fontSize(9)
+      .fillColor('#666666')
+      .text(`Page ${i + 1} of ${range.count}`, 50, doc.page.height - 40, {
         align: 'center',
         width: doc.page.width - 100,
       });
@@ -157,16 +157,23 @@ const drawUserInformation = (doc, user = {}, period = {}) => {
   doc
     .fontSize(11)
     .fillColor(COLORS.dark)
-    .text(`Name: ${safeText(user?.fullName)}`)
-    .text(`Email: ${safeText(user?.email)}`)
-    .text(
-      `Report Period: ${period.start ? formatDate(period.start) : '-'} - ${period.end ? formatDate(period.end) : '-'}`
-    )
-    .text(`Generated:${formatDate(new Date())}`);
 
-  doc.moveDown();
+    .text(`Prepared For: ${safeText(user.name)}`)
+
+    .text(`Email: ${safeText(user.email)}`)
+
+    .text(`Period: ${formatDate(period.start)} - ${formatDate(period.end)}`)
+
+    .text(`Generated: ${formatDate(new Date())}`);
+
+  doc.moveDown(2);
 };
 
+/* const totalRecords =
+  (data.incomes?.length || 0) + (data.expenses?.length || 0) + (data.transactions?.length || 0);
+
+doc.text(`Records: ${totalRecords}`);
+ */
 //////////////////////////////////////////////////////
 // TABLE GENERATOR
 //////////////////////////////////////////////////////
@@ -174,26 +181,47 @@ const drawUserInformation = (doc, user = {}, period = {}) => {
 const createTable = async (doc, { title, headers, rows }) => {
   drawSectionTitle(doc, title);
 
-  console.log('TABLE:', title);
-  console.log('HEADERS:', headers);
-  console.log('ROWS:', rows);
-  console.log('ROW COUNT:', rows.length);
+  try {
+    await doc.table(
+      { headers, rows },
+      {
+        width: doc.page.width - 100,
 
- try {
-   await doc.table(
-     { headers, rows },
-     {
-       width: doc.page.width - 100,
-       prepareHeader: () => {
-         doc.font('Helvetica-Bold').fontSize(10);
-       },
-     }
-   );
+        columnsSize: [90, 80, 150, 90],
 
-   console.log('TABLE FINISHED');
- } catch (err) {
-   console.error('TABLE ERROR:', err);
- }
+        padding: 5,
+        columnSpacing: 5,
+
+        prepareHeader: () => {
+          doc.font('Helvetica-Bold').fontSize(10).fillColor(COLORS.amber);
+        },
+
+        prepareRow: (row, indexColumn, indexRow) => {
+          doc
+            .font('Helvetica')
+            .fontSize(9)
+            .fillColor(indexRow % 2 === 0 ? COLORS.dark : COLORS.muted);
+        },
+
+        divider: {
+          header: {
+            disabled: false,
+            width: 1,
+          },
+          horizontal: {
+            disabled: false,
+            width: 0.4,
+          },
+        },
+
+        // IMPORTANT
+        headerBackground: COLORS.amber,
+      }
+    );
+  } catch (err) {
+    console.error('TABLE ERROR:', err);
+  }
+
   doc.moveDown();
 };
 
@@ -205,8 +233,8 @@ const createTable = async (doc, { title, headers, rows }) => {
 const formatIncomeRows = (incomes = []) => {
   return incomes.map((income) => [
     formatDate(income.date),
-    safeText(income.category),
-    safeText(income.description),
+    safeText('Income'),
+    safeText(income.source),
     formatCurrency(income.amount),
   ]);
 };
@@ -215,8 +243,8 @@ const formatIncomeRows = (incomes = []) => {
 const formatExpenseRows = (expenses = []) => {
   return expenses.map((expense) => [
     formatDate(expense.date),
+    safeText('Expense'),
     safeText(expense.category),
-    safeText(expense.description),
     formatCurrency(expense.amount),
   ]);
 };
@@ -227,7 +255,6 @@ const formatTransactionRows = (transactions = []) => {
     formatDate(transaction.date),
     safeText(transaction.type),
     safeText(transaction.category),
-    safeText(transaction.description),
     formatCurrency(transaction.amount),
   ]);
 };
@@ -243,7 +270,6 @@ const drawEmptyMessage = (doc, message) => {
 //////////////////////////////////////////////////////
 
 const generatePDF = async (res, data = {}) => {
- 
   const doc = new PDFDocument({
     size: 'A4',
     margin: 50,
@@ -265,7 +291,7 @@ const generatePDF = async (res, data = {}) => {
 
   drawHeader(doc, {
     title: data.title || 'Financial Report',
-    logo: data.logo || null,
+    logo: data.profileImageUrl || null,
     companyName: data.fullName || '',
   });
 
@@ -307,11 +333,12 @@ const generatePDF = async (res, data = {}) => {
   }
 
   let cardX = 50;
+  const cardY = doc.y;
 
   cards.forEach((card) => {
     drawSummaryCard(doc, {
       x: cardX,
-      y: doc.y,
+      y: cardY,
       title: card.title,
       amount: card.amount,
       color: card.color,
@@ -320,7 +347,9 @@ const generatePDF = async (res, data = {}) => {
     cardX += 170;
   });
 
-  doc.moveDown(6);
+  // Move cursor below cards
+  doc.y = cardY + 95;
+  doc.moveDown();
 
   //////////////////////////////////////////////////////
   // REPORT TABLES
@@ -331,7 +360,7 @@ const generatePDF = async (res, data = {}) => {
       await createTable(doc, {
         title: 'Income Records',
 
-        headers: ['Date', 'Category', 'Description', 'Amount'],
+        headers: ['Date', 'Type', 'Source', 'Amount'],
 
         rows: formatIncomeRows(data.incomes),
       });
@@ -343,7 +372,7 @@ const generatePDF = async (res, data = {}) => {
       await createTable(doc, {
         title: 'Expense Records',
 
-        headers: ['Date', 'Category', 'Description', 'Amount'],
+        headers: ['Date', 'Type', 'Category', 'Amount'],
 
         rows: formatExpenseRows(data.expenses),
       });
@@ -355,7 +384,7 @@ const generatePDF = async (res, data = {}) => {
       await createTable(doc, {
         title: 'Transaction History',
 
-        headers: ['Date', 'Type', 'Category', 'Description', 'Amount'],
+        headers: ['Date', 'Type', 'Category/Source', 'Amount'],
 
         rows: data.transactions.map((item) => [
           formatDate(item.date),
@@ -372,7 +401,7 @@ const generatePDF = async (res, data = {}) => {
     if (data.incomes?.length) {
       await createTable(doc, {
         title: 'Income Records',
-        headers: ['Date', 'Category', 'Description', 'Amount'],
+        headers: ['Date', 'Type', 'Category/Source', 'Amount'],
         rows: formatIncomeRows(data.incomes),
       });
     }

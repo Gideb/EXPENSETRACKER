@@ -58,7 +58,6 @@ exports.deleteTransaction = async (req, res) => {
 };
 
 //download transaction excel
-
 exports.exportTransactionsExcel = async (req, res) => {
   try {
     const userId = req.user.id;
@@ -71,83 +70,76 @@ exports.exportTransactionsExcel = async (req, res) => {
     const transactions = [
       ...income.map((item) => ({
         ...item._doc,
-        type: "Income",
+        type: 'Income',
       })),
       ...expense.map((item) => ({
         ...item._doc,
-        type: "Expense",
+        type: 'Expense',
       })),
     ].sort((a, b) => new Date(b.date) - new Date(a.date));
 
     const workbook = new ExcelJS.Workbook();
-    workbook.creator = "Expense Tracker";
+    workbook.creator = 'Expense Tracker';
     workbook.created = new Date();
 
-    const worksheet = workbook.addWorksheet("Transactions");
+    const worksheet = workbook.addWorksheet('Transactions');
 
     worksheet.columns = [
-      { header: "Type", key: "type", width: 15 },
-      { header: "Title", key: "title", width: 30 },
-      { header: "Category / Source", key: "categorySource", width: 25 },
-      { header: "Amount", key: "amount", width: 15 },
-      { header: "Date", key: "date", width: 18 },
-      { header: "Description", key: "description", width: 40 },
+      { header: 'Type', key: 'type', width: 15 },
+      { header: 'Title', key: 'title', width: 30 },
+      { header: 'Category / Source', key: 'categorySource', width: 30 },
+      { header: 'Amount', key: 'amount', width: 20 },
+      { header: 'Date', key: 'date', width: 18 },
     ];
 
     // Header styling
     worksheet.getRow(1).font = {
       bold: true,
-      color: { argb: "FFFFFFFF" },
+      color: { argb: 'FFFFFFFF' },
     };
 
     worksheet.getRow(1).fill = {
-      type: "pattern",
-      pattern: "solid",
-      fgColor: { argb: "2563EB" },
+      type: 'pattern',
+      pattern: 'solid',
+      fgColor: { argb: '2563EB' },
     };
 
     worksheet.getRow(1).alignment = {
-      horizontal: "center",
-      vertical: "middle",
+      horizontal: 'center',
+      vertical: 'middle',
     };
 
     transactions.forEach((item) => {
       worksheet.addRow({
         type: item.type,
-        title: item.type === "Expense" ? item.category : item.source,
-        categorySource:
-          item.type === "Expense" ? item.category : item.source,
+        title: item.type === 'Expense' ? item.category : item.source,
+        categorySource: item.type === 'Expense' ? item.category : item.source,
         amount: item.amount,
-        date: item.date
-          ? new Date(item.date).toLocaleDateString()
-          : "",
-        description: item.description || "",
+        date: item.date ? new Date(item.date).toLocaleDateString() : '',
+        description: item.description || '',
       });
     });
 
     // Format amount column
-    worksheet.getColumn("amount").numFmt = '#,##0.00';
+    worksheet.getColumn('amount').numFmt = '#,##0.00';
 
     // Alternate row colors
     worksheet.eachRow((row, rowNumber) => {
       if (rowNumber > 1 && rowNumber % 2 === 0) {
         row.fill = {
-          type: "pattern",
-          pattern: "solid",
-          fgColor: { argb: "F8FAFC" },
+          type: 'pattern',
+          pattern: 'solid',
+          fgColor: { argb: 'F8FAFC' },
         };
       }
     });
 
     res.setHeader(
-      "Content-Type",
-      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+      'Content-Type',
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
     );
 
-    res.setHeader(
-      "Content-Disposition",
-      `attachment; filename=transactions-${Date.now()}.xlsx`
-    );
+    res.setHeader('Content-Disposition', `attachment; filename=transactions-${Date.now()}.xlsx`);
 
     await workbook.xlsx.write(res);
 
@@ -156,7 +148,7 @@ exports.exportTransactionsExcel = async (req, res) => {
     console.error(error);
 
     res.status(500).json({
-      message: "Failed to export Excel",
+      message: 'Failed to export Excel',
       error: error.message,
     });
   }

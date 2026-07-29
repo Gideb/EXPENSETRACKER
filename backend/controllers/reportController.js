@@ -1,26 +1,21 @@
-const Income = require("../models/Income");
-const Expense = require("../models/Expense");
-const User = require("../models/User");
+const Income = require('../models/Income');
+const Expense = require('../models/Expense');
+const User = require('../models/User');
 
-const generatePDF = require("../utils/generatePDF");
+const generatePDF = require('../utils/generatePDF');
 
-/**
- * Build user information and report period
- */
+// Build user information and report period
 const getCommonReportData = async (userId, incomes = [], expenses = []) => {
-  const user = await User.findById(userId).select("name email");
+  const user = await User.findById(userId).select('name email');
 
-  const dates = [
-    ...incomes.map((item) => item.date),
-    ...expenses.map((item) => item.date),
-  ]
+  const dates = [...incomes.map((item) => item.date), ...expenses.map((item) => item.date)]
     .filter(Boolean)
     .sort((a, b) => new Date(a) - new Date(b));
 
   return {
     user: {
-      name: user?.name || "User",
-      email: user?.email || "user@exp.com",
+      name: user?.fullName || 'User',
+      email: user?.email || 'user@exp.com',
     },
 
     period: {
@@ -44,26 +39,16 @@ const exportPDF = async (req, res) => {
 
     const expenses = await Expense.find({ userId }).sort({ date: 1 });
 
-    const totalIncome = incomes.reduce(
-      (sum, item) => sum + item.amount,
-      0
-    );
+    const totalIncome = incomes.reduce((sum, item) => sum + item.amount, 0);
 
-    const totalExpense = expenses.reduce(
-      (sum, item) => sum + item.amount,
-      0
-    );
+    const totalExpense = expenses.reduce((sum, item) => sum + item.amount, 0);
 
     const balance = totalIncome - totalExpense;
 
-    const commonData = await getCommonReportData(
-      userId,
-      incomes,
-      expenses
-    );
+    const commonData = await getCommonReportData(userId, incomes, expenses);
 
     await generatePDF(res, {
-      title: "Financial Report",
+      title: 'Financial Report',
 
       ...commonData,
 
@@ -81,7 +66,7 @@ const exportPDF = async (req, res) => {
     console.error(error);
 
     res.status(500).json({
-      message: "Failed to generate financial report.",
+      message: 'Failed to generate financial report.',
     });
   }
 };
@@ -96,16 +81,9 @@ const exportIncomePDF = async (req, res) => {
 
     const incomes = await Income.find({ userId }).sort({ date: 1 });
 
-    const totalIncome = incomes.reduce(
-      (sum, item) => sum + item.amount,
-      0
-    );
+    const totalIncome = incomes.reduce((sum, item) => sum + item.amount, 0);
 
-    const commonData = await getCommonReportData(
-      userId,
-      incomes,
-      []
-    );
+    const commonData = await getCommonReportData(userId, incomes, []);
 
     await generatePDF(res, {
       reportType: 'income',
@@ -124,7 +102,7 @@ const exportIncomePDF = async (req, res) => {
     console.error(error);
 
     res.status(500).json({
-      message: "Failed to export income report.",
+      message: 'Failed to export income report.',
     });
   }
 };
@@ -139,16 +117,9 @@ const exportExpensePDF = async (req, res) => {
 
     const expenses = await Expense.find({ userId }).sort({ date: 1 });
 
-    const totalExpense = expenses.reduce(
-      (sum, item) => sum + item.amount,
-      0
-    );
+    const totalExpense = expenses.reduce((sum, item) => sum + item.amount, 0);
 
-    const commonData = await getCommonReportData(
-      userId,
-      [],
-      expenses
-    );
+    const commonData = await getCommonReportData(userId, [], expenses);
 
     await generatePDF(res, {
       reportType: 'expense',
@@ -167,7 +138,7 @@ const exportExpensePDF = async (req, res) => {
     console.error(error);
 
     res.status(500).json({
-      message: "Failed to export expense report.",
+      message: 'Failed to export expense report.',
     });
   }
 };
@@ -187,7 +158,7 @@ const exportTransactionPDF = async (req, res) => {
     const transactions = [
       ...incomes.map((item) => ({
         date: item.date,
-        type: "Income",
+        type: 'Income',
         category: item.source || item.category,
         description: item.description || item.source,
         amount: item.amount,
@@ -195,28 +166,18 @@ const exportTransactionPDF = async (req, res) => {
 
       ...expenses.map((item) => ({
         date: item.date,
-        type: "Expense",
+        type: 'Expense',
         category: item.category,
         description: item.description || item.category,
         amount: item.amount,
       })),
     ].sort((a, b) => new Date(a.date) - new Date(b.date));
 
-    const totalIncome = incomes.reduce(
-      (sum, item) => sum + item.amount,
-      0
-    );
+    const totalIncome = incomes.reduce((sum, item) => sum + item.amount, 0);
 
-    const totalExpense = expenses.reduce(
-      (sum, item) => sum + item.amount,
-      0
-    );
+    const totalExpense = expenses.reduce((sum, item) => sum + item.amount, 0);
 
-    const commonData = await getCommonReportData(
-      userId,
-      incomes,
-      expenses
-    );
+    const commonData = await getCommonReportData(userId, incomes, expenses);
 
     await generatePDF(res, {
       reportType: 'transaction',
@@ -237,7 +198,7 @@ const exportTransactionPDF = async (req, res) => {
     console.error(error);
 
     res.status(500).json({
-      message: "Failed to export transaction report.",
+      message: 'Failed to export transaction report.',
     });
   }
 };
