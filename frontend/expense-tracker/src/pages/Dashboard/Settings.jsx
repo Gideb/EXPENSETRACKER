@@ -337,14 +337,14 @@ const Settings = ({ handleProfileUpdate, handlePasswordChange }) => {
 
             {passwordError && (
               <div className="mt-4 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl flex items-center gap-2 text-red-600 dark:text-red-400 text-sm">
-                <AlertCircle className="w-4 h-4 flex-shrink-0" />
+                <AlertCircle className="w-4 h-4 shrink-0" />
                 {passwordError}
               </div>
             )}
 
             {passwordSuccess && (
               <div className="mt-4 p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-xl flex items-center gap-2 text-green-600 dark:text-green-400 text-sm">
-                <CheckCircle className="w-4 h-4 flex-shrink-0" />
+                <CheckCircle className="w-4 h-4 shrink-0" />
                 Password changed successfully!
               </div>
             )}

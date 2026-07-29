@@ -39,9 +39,7 @@ export const API_PATHS = {
     GET_BUDGET_SUMMARY: '/api/v1/budget/summary',
     GET_BUDGET_SUMMARY_BY_MONTH: (month) => `/api/v1/budget/summary/${month}`,
   },
-  REPORTS: {
-    EXPORT_PDF: '/api/v1/reports/exportPDF',
-  },
+ 
   TRANSACTIONS: {
     GET_ALL: '/api/v1/transactions',
     DELETE: (type, id) => `/api/v1/transactions/${type}/${id}`,
