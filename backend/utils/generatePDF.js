@@ -1,4 +1,5 @@
-const PDFDocument = require('pdfkit');
+
+const PDFDocument = require('pdfkit-table');
 const path = require('path');
 
 const COLORS = {
@@ -173,40 +174,26 @@ const drawUserInformation = (doc, user = {}, period = {}) => {
 const createTable = async (doc, { title, headers, rows }) => {
   drawSectionTitle(doc, title);
 
-  await doc.table(
-    { headers, rows },
-    {
-      width: doc.page.width - 100,
-      prepareHeader: () => {
-        doc.font('Helvetica-Bold').fontSize(10).fillColor(COLORS.white);
-      },
+  console.log('TABLE:', title);
+  console.log('HEADERS:', headers);
+  console.log('ROWS:', rows);
+  console.log('ROW COUNT:', rows.length);
 
-      prepareRow: (row, indexColumn, indexRow) => {
-        doc.font('Helvetica').fontSize(9);
+ try {
+   await doc.table(
+     { headers, rows },
+     {
+       width: doc.page.width - 100,
+       prepareHeader: () => {
+         doc.font('Helvetica-Bold').fontSize(10);
+       },
+     }
+   );
 
-        if (indexRow % 2 === 0) {
-          doc.fillColor(COLORS.dark);
-        } else {
-          doc.fillColor(COLORS.muted);
-        }
-      },
-      divider: {
-        header: {
-          disabled: false,
-          width: 1,
-          opacity: 0.7,
-        },
-        horizontal: {
-          disabled: false,
-          width: 0.5,
-          opacity: 0.3,
-        },
-      },
-      padding: 6,
-      columnSpacing: 5,
-    }
-  );
-
+   console.log('TABLE FINISHED');
+ } catch (err) {
+   console.error('TABLE ERROR:', err);
+ }
   doc.moveDown();
 };
 
@@ -256,6 +243,7 @@ const drawEmptyMessage = (doc, message) => {
 //////////////////////////////////////////////////////
 
 const generatePDF = async (res, data = {}) => {
+ 
   const doc = new PDFDocument({
     size: 'A4',
     margin: 50,
@@ -278,7 +266,7 @@ const generatePDF = async (res, data = {}) => {
   drawHeader(doc, {
     title: data.title || 'Financial Report',
     logo: data.logo || null,
-    companyName: data.name || '',
+    companyName: data.fullName || '',
   });
 
   // USER INFORMATION
