@@ -1,6 +1,7 @@
 const Income = require("../models/Income");
 const xlsx = require("xlsx");
 
+
 //add income source
 exports.addIncome = async (req, res) => {
   const userId = req.user.id;
@@ -129,3 +130,5 @@ exports.downloadIncomeExcel = async (req, res) => {
     res.status(500).json({ message: "Server Error", error: error.message });
   }
 };
+
+

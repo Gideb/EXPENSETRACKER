@@ -19,8 +19,8 @@ const getCommonReportData = async (userId, incomes = [], expenses = []) => {
 
   return {
     user: {
-      name: user?.name || "-",
-      email: user?.email || "-",
+      name: user?.name || "User",
+      email: user?.email || "user@exp.com",
     },
 
     period: {
@@ -28,7 +28,7 @@ const getCommonReportData = async (userId, incomes = [], expenses = []) => {
       end: dates.length ? dates[dates.length - 1] : new Date(),
     },
 
-    companyName: "Gideb Finance",
+    companyName: process.env.COMPANY_NAME || 'Expense Tracker',
   };
 };
 
@@ -108,7 +108,9 @@ const exportIncomePDF = async (req, res) => {
     );
 
     await generatePDF(res, {
-      title: "Income Report",
+      reportType: 'income',
+
+      title: 'Income Report',
 
       ...commonData,
 
@@ -149,7 +151,9 @@ const exportExpensePDF = async (req, res) => {
     );
 
     await generatePDF(res, {
-      title: "Expense Report",
+      reportType: 'expense',
+
+      title: 'Expense Report',
 
       ...commonData,
 
@@ -215,7 +219,9 @@ const exportTransactionPDF = async (req, res) => {
     );
 
     await generatePDF(res, {
-      title: "Transaction Report",
+      reportType: 'transaction',
+
+      title: 'Transaction Report',
 
       ...commonData,
 
