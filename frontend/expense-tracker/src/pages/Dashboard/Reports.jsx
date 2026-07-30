@@ -207,6 +207,8 @@ const Reports = () => {
   };
 
   // Tab content components
+
+  //SUMMARY
   const renderSummary = () => (
     <div className="space-y-6">
       {/* Quick Stats */}
@@ -347,171 +349,192 @@ const Reports = () => {
     </div>
   );
 
-  const renderMonthlyReports = () => (
-    <div className="space-y-6">
-      {/* Month Selector */}
-      <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-gray-700">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
-          <div className="flex items-center gap-3">
-            <Calendar className="w-5 h-5 text-gray-500 dark:text-gray-400" />
-            <select
-              value={selectedMonth}
-              onChange={(e) => setSelectedMonth(parseInt(e.target.value))}
-              className="border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-amber-500"
-            >
-              {months.map((month, index) => (
-                <option key={index} value={index}>
-                  {month}
-                </option>
-              ))}
-            </select>
-            <select
-              value={selectedYear}
-              onChange={(e) => setSelectedYear(parseInt(e.target.value))}
-              className="border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-amber-500"
-            >
-              {[2024, 2025, 2026].map((year) => (
-                <option key={year} value={year}>
-                  {year}
-                </option>
-              ))}
-            </select>
-          </div>
-          <button
-            onClick={() => setShowDateRange(!showDateRange)}
-            className="text-sm text-amber-600 dark:text-amber-400 hover:underline"
-          >
-            {showDateRange ? 'Hide Date Range' : 'Custom Date Range'}
-          </button>
-        </div>
 
-        {showDateRange && (
-          <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                Start Date
-              </label>
-              <input
-                type="date"
-                value={dateRange.start.toISOString().split('T')[0]}
-                onChange={(e) => setDateRange({ ...dateRange, start: new Date(e.target.value) })}
-                className="w-full border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-amber-500"
-              />
+  //MONTHLY REPORT
+
+
+
+  const renderMonthlyReports = () => {
+    const monthlyData = financialData?.monthlyData || [];
+
+    const maxValue = Math.max(
+      ...monthlyData.flatMap((m) => [m.income, m.expenses]),
+      1
+    );
+
+    return (
+      <div className="space-y-6">
+        {/* Month Selector */}
+        <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-gray-700">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+            <div className="flex items-center gap-3">
+              <Calendar className="w-5 h-5 text-gray-500 dark:text-gray-400" />
+              <select
+                value={selectedMonth}
+                onChange={(e) => setSelectedMonth(parseInt(e.target.value))}
+                className="border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-amber-500"
+              >
+                {months.map((month, index) => (
+                  <option key={index} value={index}>
+                    {month}
+                  </option>
+                ))}
+              </select>
+              <select
+                value={selectedYear}
+                onChange={(e) => setSelectedYear(parseInt(e.target.value))}
+                className="border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-amber-500"
+              >
+                {[2024, 2025, 2026, 2027].map((year) => (
+                  <option key={year} value={year}>
+                    {year}
+                  </option>
+                ))}
+              </select>
             </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                End Date
-              </label>
-              <input
-                type="date"
-                value={dateRange.end.toISOString().split('T')[0]}
-                onChange={(e) => setDateRange({ ...dateRange, end: new Date(e.target.value) })}
-                className="w-full border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-amber-500"
-              />
-            </div>
+            <button
+              onClick={() => setShowDateRange(!showDateRange)}
+              className="text-sm text-amber-600 dark:text-amber-400 hover:underline"
+            >
+              {showDateRange ? 'Hide Date Range' : 'Custom Date Range'}
+            </button>
           </div>
-        )}
-      </div>
 
-      {/* Monthly Chart - Bar Chart Visualization */}
-
-      <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-6">
-        <h3 className="font-semibold text-gray-900 dark:text-white mb-4">Monthly Overview</h3>
-        <div className="h-64 flex items-end gap-2">
-          {financialData?.monthlyData?.map((data, index) => (
-            <div key={index} className="flex-1 flex flex-col items-center gap-2">
-              <div className="w-full flex flex-col items-center gap-1">
-                <div
-                  className="w-full bg-green-500 dark:bg-green-400 rounded-t transition-all duration-500 hover:opacity-80"
-                  style={{ height: `${(data.income / maxAmount) * 100}%`, minHeight: '4px' }}
-                />
-                <div
-                  className="w-full bg-red-500 dark:bg-red-400 rounded-b transition-all duration-500 hover:opacity-80"
-                  style={{ height: `${(data.expenses / maxAmount) * 100}%`, minHeight: '4px' }}
+          {showDateRange && (
+            <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Start Date
+                </label>
+                <input
+                  type="date"
+                  value={dateRange.start.toISOString().split('T')[0]}
+                  onChange={(e) => setDateRange({ ...dateRange, start: new Date(e.target.value) })}
+                  className="w-full border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-amber-500"
                 />
               </div>
-              <span className="text-xs text-gray-600 dark:text-gray-400">{data.month}</span>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  End Date
+                </label>
+                <input
+                  type="date"
+                  value={dateRange.end.toISOString().split('T')[0]}
+                  onChange={(e) => setDateRange({ ...dateRange, end: new Date(e.target.value) })}
+                  className="w-full border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-amber-500"
+                />
+              </div>
             </div>
-          ))}
+          )}
         </div>
-        <div className="mt-4 flex justify-center gap-6">
-          <div className="flex items-center gap-2">
-            <div className="w-3 h-3 bg-green-500 dark:bg-green-400 rounded"></div>
-            <span className="text-sm text-gray-600 dark:text-gray-400">Income</span>
+
+        {/* Monthly Chart - Bar Chart Visualization */}
+      
+        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-6">
+          <h3 className="font-semibold text-gray-900 dark:text-white mb-4">Monthly Overview</h3>
+          <div className="h-64 flex items-end gap-2">
+            {financialData?.monthlyData?.map((data, index) => (
+              <div key={index} className="flex-1 flex flex-col items-center gap-2">
+                <div className="w-full flex flex-col items-center gap-1">
+                  <div
+                    className="w-full bg-green-500 dark:bg-green-400 rounded-t transition-all duration-500 hover:opacity-80"
+                    style={{
+                      height: `${(data.income / maxValue) * 180}px`,
+                      minHeight: '4px',
+                    }}
+                  />
+                  <div
+                    className="w-full bg-red-500 dark:bg-red-400 rounded-b transition-all duration-500 hover:opacity-80"
+                    style={{
+                      height: `${(data.expenses / maxValue) * 180}px`,
+                      minHeight: '4px',
+                    }}
+                  />
+                </div>
+                <span className="text-xs text-gray-600 dark:text-gray-400">{data.month}</span>
+              </div>
+            ))}
           </div>
-          <div className="flex items-center gap-2">
-            <div className="w-3 h-3 bg-red-500 dark:bg-red-400 rounded"></div>
-            <span className="text-sm text-gray-600 dark:text-gray-400">Expenses</span>
+          <div className="mt-4 flex justify-center gap-6">
+            <div className="flex items-center gap-2">
+              <div className="w-3 h-3 bg-green-500 dark:bg-green-400 rounded"></div>
+              <span className="text-sm text-gray-600 dark:text-gray-400">Income</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-3 h-3 bg-red-500 dark:bg-red-400 rounded"></div>
+              <span className="text-sm text-gray-600 dark:text-gray-400">Expenses</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Monthly Details Table */}
+        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead className="bg-gray-50 dark:bg-gray-700/50">
+                <tr>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                    Month
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                    Income
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                    Expenses
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                    Savings
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                    Status
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
+                {financialData?.monthlyData?.map((data, index) => {
+                  const savings = data.income - data.expenses;
+                  return (
+                    <tr
+                      key={index}
+                      className="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
+                    >
+                      <td className="px-6 py-4 text-sm font-medium text-gray-900 dark:text-white">
+                        {data.month}
+                      </td>
+                      <td className="px-6 py-4 text-sm text-green-600 dark:text-green-400">
+                        GHS {data.income}
+                      </td>
+                      <td className="px-6 py-4 text-sm text-red-600 dark:text-red-400">
+                        GHS {data.expenses}
+                      </td>
+                      <td className="px-6 py-4 text-sm text-amber-600 dark:text-amber-400">
+                        GHS {savings}
+                      </td>
+                      <td className="px-6 py-4">
+                        {savings > 0 ? (
+                          <span className="inline-flex items-center gap-1 px-2 py-1 text-xs font-medium text-green-700 dark:text-green-300 bg-green-100 dark:bg-green-900/30 rounded-full">
+                            <CheckCircle className="w-3 h-3" />
+                            Positive
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center gap-1 px-2 py-1 text-xs font-medium text-red-700 dark:text-red-300 bg-red-100 dark:bg-red-900/30 rounded-full">
+                            <AlertCircle className="w-3 h-3" />
+                            Deficit
+                          </span>
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
           </div>
         </div>
       </div>
+    )
+  };
 
-      {/* Monthly Details Table */}
-      <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead className="bg-gray-50 dark:bg-gray-700/50">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                  Month
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                  Income
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                  Expenses
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                  Savings
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                  Status
-                </th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
-              {financialData?.monthlyData?.map((data, index) => {
-                const savings = data.income - data.expenses;
-                return (
-                  <tr
-                    key={index}
-                    className="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
-                  >
-                    <td className="px-6 py-4 text-sm font-medium text-gray-900 dark:text-white">
-                      {data.month}
-                    </td>
-                    <td className="px-6 py-4 text-sm text-green-600 dark:text-green-400">
-                      ${data.income}
-                    </td>
-                    <td className="px-6 py-4 text-sm text-red-600 dark:text-red-400">
-                      ${data.expenses}
-                    </td>
-                    <td className="px-6 py-4 text-sm text-amber-600 dark:text-amber-400">
-                      ${savings}
-                    </td>
-                    <td className="px-6 py-4">
-                      {savings > 0 ? (
-                        <span className="inline-flex items-center gap-1 px-2 py-1 text-xs font-medium text-green-700 dark:text-green-300 bg-green-100 dark:bg-green-900/30 rounded-full">
-                          <CheckCircle className="w-3 h-3" />
-                          Positive
-                        </span>
-                      ) : (
-                        <span className="inline-flex items-center gap-1 px-2 py-1 text-xs font-medium text-red-700 dark:text-red-300 bg-red-100 dark:bg-red-900/30 rounded-full">
-                          <AlertCircle className="w-3 h-3" />
-                          Deficit
-                        </span>
-                      )}
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-  );
-
+  //BUDGET
   const renderBudgetReports = () => (
     <div className="space-y-6">
       {/* Budget Overview */}
@@ -521,7 +544,7 @@ const Reports = () => {
             <div>
               <p className="text-sm text-gray-500 dark:text-gray-400">Total Budget</p>
               <p className="text-2xl font-bold text-gray-900 dark:text-white">
-                ${financialData?.budgetData?.reduce((sum, b) => sum + b.budget, 0)}
+                GHS {financialData?.budgetData?.reduce((sum, b) => sum + b.budget, 0)}
               </p>
             </div>
             <div className="p-3 bg-indigo-50 dark:bg-indigo-900/30 rounded-xl">
@@ -535,7 +558,7 @@ const Reports = () => {
             <div>
               <p className="text-sm text-gray-500 dark:text-gray-400">Total Spent</p>
               <p className="text-2xl font-bold text-red-600 dark:text-red-400">
-                ${financialData?.budgetData?.reduce((sum, b) => sum + b.spent, 0)}
+                GHS {financialData?.budgetData?.reduce((sum, b) => sum + b.spent, 0)}
               </p>
             </div>
             <div className="p-3 bg-red-50 dark:bg-red-900/30 rounded-xl">
@@ -549,7 +572,7 @@ const Reports = () => {
             <div>
               <p className="text-sm text-gray-500 dark:text-gray-400">Remaining</p>
               <p className="text-2xl font-bold text-green-600 dark:text-green-400">
-                ${financialData?.budgetData?.reduce((sum, b) => sum + b.remaining, 0)}
+                GHS {financialData?.budgetData?.reduce((sum, b) => sum + b.remaining, 0)}
               </p>
             </div>
             <div className="p-3 bg-green-50 dark:bg-green-900/30 rounded-xl">
@@ -579,7 +602,7 @@ const Reports = () => {
                 <div>
                   <h4 className="font-medium text-gray-900 dark:text-white">{budget.category}</h4>
                   <p className="text-sm text-gray-500 dark:text-gray-400">
-                    ${budget.spent} of ${budget.budget} spent
+                    GHS {budget.spent} of GHS {budget.budget} spent
                   </p>
                 </div>
               </div>
@@ -612,7 +635,7 @@ const Reports = () => {
             </div>
 
             <div className="mt-2 flex justify-between text-xs text-gray-500 dark:text-gray-400">
-              <span>${budget.remaining} remaining</span>
+              <span>GHS {budget.remaining} remaining</span>
               <span>{budget.category}</span>
             </div>
           </div>
@@ -621,6 +644,8 @@ const Reports = () => {
     </div>
   );
 
+
+  //ANALYTICS
   const generateInsights = () => {
     const insights = [];
     const summary = financialData?.summary;
@@ -757,7 +782,7 @@ const Reports = () => {
                 <div key={index} className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <span className="text-sm font-medium text-gray-500 dark:text-gray-400">
-                      #{index + 1}
+                      #{index + 1}.
                     </span>
                     <span className="text-sm text-gray-700 dark:text-gray-300">
                       {category.category}
