@@ -71,6 +71,192 @@ const exportPDF = async (req, res) => {
 };
 
 /* ======================================================
+    FINANCIAL SUMMARY REPORT
+====================================================== */
+
+const getFinancialReport = async (req, res) => {
+  try {
+    const userId = req.user.id;
+
+    const incomes = await Income.find({ userId });
+
+    const expenses = await Expense.find({ userId });
+
+    const totalIncome = incomes.reduce((sum, item) => sum + item.amount, 0);
+
+    const totalExpense = expenses.reduce((sum, item) => sum + item.amount, 0);
+
+    res.json({
+      summary: {
+        totalIncome,
+        totalExpense,
+        balance: totalIncome - totalExpense,
+        savingsRate: totalIncome
+          ? (((totalIncome - totalExpense) / totalIncome) * 100).toFixed(1)
+          : 0,
+      },
+
+      transactions: [
+        ...incomes.map((i) => ({
+          date: i.date,
+          category: i.source || 'Income',
+          amount: i.amount,
+          type: 'income',
+        })),
+
+        ...expenses.map((e) => ({
+          date: e.date,
+          category: e.category,
+          amount: e.amount,
+          type: 'expense',
+        })),
+      ].sort((a, b) => new Date(b.date) - new Date(a.date)),
+    });
+  } catch (error) {
+    console.log(error);
+
+    res.status(500).json({
+      message: 'Failed loading report',
+    });
+  }
+};
+
+/* ======================================================
+    MONTHLY REPORT
+====================================================== */
+
+const getMonthlyReport = async (req, res) => {
+  try {
+    const userId = req.user.id;
+
+    const incomes = await Income.find({ userId });
+
+    const expenses = await Expense.find({ userId });
+
+    const monthly = {};
+
+    incomes.forEach((item) => {
+      const month = new Date(item.date).toLocaleString('default', { month: 'short' });
+
+      if (!monthly[month])
+        monthly[month] = {
+          income: 0,
+          expenses: 0,
+        };
+
+      monthly[month].income += item.amount;
+    });
+
+    expenses.forEach((item) => {
+      const month = new Date(item.date).toLocaleString('default', { month: 'short' });
+
+      if (!monthly[month])
+        monthly[month] = {
+          income: 0,
+          expenses: 0,
+        };
+
+      monthly[month].expenses += item.amount;
+    });
+
+    res.json(
+      Object.keys(monthly).map((month) => ({
+        month,
+        ...monthly[month],
+      }))
+    );
+  } catch (error) {
+    res.status(500).json({
+      message: 'Monthly report failed',
+    });
+  }
+};
+
+/* ======================================================
+    CATEGORY ANALYSIS REPORT
+====================================================== */
+
+const getCategoryAnalysis = async (req, res) => {
+  try {
+    const userId = req.user.id;
+
+    const expenses = await Expense.find({ userId });
+
+    const categories = {};
+
+    expenses.forEach((exp) => {
+      if (!categories[exp.category]) categories[exp.category] = 0;
+
+      categories[exp.category] += exp.amount;
+    });
+
+    const result = Object.entries(categories).map(([category, amount]) => ({
+      category,
+      amount,
+    }));
+
+    res.json(result);
+  } catch (error) {
+    res.status(500).json({
+      message: 'Category analysis failed',
+    });
+  }
+};
+
+/* ======================================================
+   BUDGET PERFORMANCE REPORT
+====================================================== */
+
+const getBudgetPerformance = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const budgets = await Budget.find({ userId });
+    const expenses = await Expense.find({ userId });
+    const performance = budgets.map((budget) => {
+      const categoryExpenses = expenses
+        .filter((expense) => expense.category.toLowerCase() === budget.category.toLowerCase())
+        .reduce((sum, expense) => sum + expense.amount, 0);
+
+      const percentage =
+        budget.limitAmount > 0 ? ((categoryExpenses / budget.limitAmount) * 100).toFixed(1) : 0;
+
+      return {
+        category: budget.category,
+        budgetAmount: budget.limitAmount,
+        spentAmount: categoryExpenses,
+        remaining: budget.limitAmount - categoryExpenses,
+        percentageUsed: Number(percentage),
+        status:
+          categoryExpenses > budget.limitAmount
+            ? 'Over Budget'
+            : categoryExpenses >= budget.limitAmount * 0.8
+              ? 'Near Limit'
+              : 'Healthy',
+      };
+    });
+
+    const summary = {
+      totalBudget: performance.reduce((sum, item) => sum + item.budgetAmount, 0),
+
+      totalSpent: performance.reduce((sum, item) => sum + item.spentAmount, 0),
+
+      totalRemaining: performance.reduce((sum, item) => sum + item.remaining, 0),
+
+      overBudgetCategories: performance.filter((item) => item.status === 'Over Budget').length,
+    };
+    res.json({
+      summary,
+      performance,
+    });
+  } catch (error) {
+    console.error('Budget performance error:', error);
+    res.status(500).json({
+      message: 'Failed to generate budget performance report',
+    });
+  }
+};
+
+/* ======================================================
    INCOME REPORT
 ====================================================== */
 
@@ -207,4 +393,9 @@ module.exports = {
   exportIncomePDF,
   exportExpensePDF,
   exportTransactionPDF,
+
+  getFinancialReport,
+  getMonthlyReport,
+  getCategoryAnalysis,
+  getBudgetPerformance,
 };
