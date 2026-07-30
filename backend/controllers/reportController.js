@@ -192,43 +192,47 @@ const getMonthlyReport = async (req, res) => {
   try {
     const userId = req.user.id;
 
-    const incomes = await Income.find({ userId });
+    const incomes = await Income.find({ userId }).lean();
+    const expenses = await Expense.find({ userId }).lean();
 
-    const expenses = await Expense.find({ userId });
+    const monthNames = [
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
+    ];
 
-    const monthly = {};
+    // Initialize every month
+    const monthly = monthNames.map((month) => ({
+      month,
+      income: 0,
+      expenses: 0,
+    }));
 
+    // Add income
     incomes.forEach((item) => {
-      const month = new Date(item.date).toLocaleString('default', { month: 'short' });
-
-      if (!monthly[month])
-        monthly[month] = {
-          income: 0,
-          expenses: 0,
-        };
-
-      monthly[month].income += item.amount;
+      const monthIndex = new Date(item.date).getMonth();
+      monthly[monthIndex].income += item.amount;
     });
 
+    // Add expenses
     expenses.forEach((item) => {
-      const month = new Date(item.date).toLocaleString('default', { month: 'short' });
-
-      if (!monthly[month])
-        monthly[month] = {
-          income: 0,
-          expenses: 0,
-        };
-
-      monthly[month].expenses += item.amount;
+      const monthIndex = new Date(item.date).getMonth();
+      monthly[monthIndex].expenses += item.amount;
     });
 
-    res.json(
-      Object.keys(monthly).map((month) => ({
-        month,
-        ...monthly[month],
-      }))
-    );
+    res.json(monthly);
   } catch (error) {
+    console.error(error);
+
     res.status(500).json({
       message: 'Monthly report failed',
     });
@@ -242,23 +246,19 @@ const getMonthlyReport = async (req, res) => {
 const getCategoryAnalysis = async (req, res) => {
   try {
     const userId = req.user.id;
-
     const expenses = await Expense.find({ userId });
-
     const categories = {};
 
     let totalExpense = 0;
 
     expenses.forEach((exp) => {
       totalExpense += exp.amount;
-
       if (!categories[exp.category]) {
         categories[exp.category] = 0;
       }
 
       categories[exp.category] += exp.amount;
     });
-
     const result = Object.entries(categories)
       .map(([category, amount]) => ({
         category,
