@@ -33,11 +33,11 @@ import {
   CheckCircle,
   Clock,
 } from 'lucide-react';
+import RecentTransactions from '../../components/Dashboard/RecentTransactions';
 
 const Reports = () => {
   useUserAuth();
 
-  // State management
   const [activeTab, setActiveTab] = useState('summary');
   const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth());
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
@@ -49,10 +49,7 @@ const Reports = () => {
   });
   const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
   const [showFilterOptions, setShowFilterOptions] = useState(false);
-
   const [financialData, setFinancialData] = useState(null);
-  const [monthlyData, setMonthlyData] = useState([]);
-  const [categoryData, setCategoryData] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -60,17 +57,15 @@ const Reports = () => {
       try {
         const [financial, monthly, category] = await Promise.all([
           axiosInstance.get(API_PATHS.REPORTS.FINANCIAL),
-
           axiosInstance.get(API_PATHS.REPORTS.MONTHLY),
-
           axiosInstance.get(API_PATHS.REPORTS.CATEGORY_ANALYSIS),
         ]);
 
-        setFinancialData(financial.data);
-
-        setMonthlyData(monthly.data);
-
-        setCategoryData(category.data);
+        setFinancialData({
+          ...financial.data,
+          monthlyData: monthly.data,
+          categorySpending: category.data,
+        });
       } catch (error) {
         console.log(error);
       } finally {
@@ -221,7 +216,7 @@ const Reports = () => {
             <div>
               <p className="text-sm text-gray-500 dark:text-gray-400">Total Income</p>
               <p className="text-2xl font-bold text-green-600 dark:text-green-400">
-                ${financialData?.summary?.totalIncome}
+                {`GHS ${financialData?.summary?.totalIncome}`}
               </p>
             </div>
             <div className="p-3 bg-green-50 dark:bg-green-900/30 rounded-xl">
@@ -239,7 +234,7 @@ const Reports = () => {
             <div>
               <p className="text-sm text-gray-500 dark:text-gray-400">Total Expenses</p>
               <p className="text-2xl font-bold text-red-600 dark:text-red-400">
-                ${financialData.summary.totalExpenses}
+                {`GHS ${financialData?.summary?.totalExpenses}`}
               </p>
             </div>
             <div className="p-3 bg-red-50 dark:bg-red-900/30 rounded-xl">
@@ -257,7 +252,7 @@ const Reports = () => {
             <div>
               <p className="text-sm text-gray-500 dark:text-gray-400">Balance</p>
               <p className="text-2xl font-bold text-amber-600 dark:text-amber-400">
-                ${financialData.summary.balance}
+                {`GHS ${financialData?.summary?.balance}`}
               </p>
             </div>
             <div className="p-3 bg-amber-50 dark:bg-amber-900/30 rounded-xl">
@@ -271,7 +266,7 @@ const Reports = () => {
             <div>
               <p className="text-sm text-gray-500 dark:text-gray-400">Savings Rate</p>
               <p className="text-2xl font-bold text-purple-600 dark:text-purple-400">
-                {financialData.summary.savingsRate}%
+                {`${financialData?.summary?.savingsRate}%`}
               </p>
             </div>
             <div className="p-3 bg-purple-50 dark:bg-purple-900/30 rounded-xl">
@@ -281,14 +276,16 @@ const Reports = () => {
           <div className="mt-2 w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
             <div
               className="bg-purple-600 dark:bg-purple-400 h-2 rounded-full transition-all duration-500"
-              style={{ width: `${financialData.summary.savingsRate}%` }}
+              style={{
+                width: `${financialData?.summary?.savingsRate || 0}%`,
+              }}
             />
           </div>
         </div>
       </div>
 
       {/* Recent Transactions */}
-      <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
+      {/*    <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
         <div className="px-6 py-4 border-b border-gray-100 dark:border-gray-700 flex items-center justify-between">
           <h3 className="font-semibold text-gray-900 dark:text-white">Recent Transactions</h3>
           <button className="text-sm text-amber-600 dark:text-amber-400 hover:underline">
@@ -296,50 +293,56 @@ const Reports = () => {
           </button>
         </div>
         <div className="divide-y divide-gray-100 dark:divide-gray-700">
-          {financialData?.transactions ||
-            [].slice(0, 5).map((transaction) => {
-              const IconComponent = getCategoryIcon(transaction.category);
-              return (
-                <div
-                  key={transaction.id}
-                  className="px-6 py-4 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
-                >
-                  <div className="flex items-center gap-3">
-                    <div
-                      className={`p-2 rounded-lg ${
-                        transaction.type === 'income'
-                          ? 'bg-green-50 dark:bg-green-900/30'
-                          : 'bg-red-50 dark:bg-red-900/30'
-                      }`}
-                    >
-                      <IconComponent
-                        className={`w-5 h-5 ${
-                          transaction.type === 'income'
-                            ? 'text-green-600 dark:text-green-400'
-                            : 'text-red-600 dark:text-red-400'
-                        }`}
-                      />
-                    </div>
-                    <div>
-                      <p className="font-medium text-gray-900 dark:text-white">
-                        {transaction.category}
-                      </p>
-                      <p className="text-sm text-gray-500 dark:text-gray-400">{transaction.date}</p>
-                    </div>
-                  </div>
+          {(financialData?.transactions || []).slice(0, 5).map((transaction) => {
+            const IconComponent = getCategoryIcon(transaction.category);
+            return (
+              <div
+                key={`${transaction.type}-${transaction.date}-${transaction.amount}`}
+                className="px-6 py-4 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
+              >
+                <div className="flex items-center gap-3">
                   <div
-                    className={`font-semibold ${
+                    className={`p-2 rounded-lg ${
                       transaction.type === 'income'
-                        ? 'text-green-600 dark:text-green-400'
-                        : 'text-red-600 dark:text-red-400'
+                        ? 'bg-green-50 dark:bg-green-900/30'
+                        : 'bg-red-50 dark:bg-red-900/30'
                     }`}
                   >
-                    {transaction.type === 'income' ? '+' : '-'}${transaction.amount}
+                    <IconComponent
+                      className={`w-5 h-5 ${
+                        transaction.type === 'income'
+                          ? 'text-green-600 dark:text-green-400'
+                          : 'text-red-600 dark:text-red-400'
+                      }`}
+                    />
+                  </div>
+                  <div>
+                    <p className="font-medium text-gray-900 dark:text-white">
+                      {transaction.category}
+                    </p>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">{transaction.date}</p>
                   </div>
                 </div>
-              );
-            })}
+                <div
+                  className={`font-semibold ${
+                    transaction.type === 'income'
+                      ? 'text-green-600 dark:text-green-400'
+                      : 'text-red-600 dark:text-red-400'
+                  }`}
+                >
+                  {transaction.type === 'income' ? '+' : '-'}GHS {transaction.amount}
+                </div>
+              </div>
+            );
+          })}
         </div>
+      </div> */}
+
+      <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
+        <RecentTransactions
+          transactions={financialData?.transactions}
+          onSeeMore={() => navigate('/transactions')}
+        />
       </div>
     </div>
   );
@@ -411,19 +414,20 @@ const Reports = () => {
       </div>
 
       {/* Monthly Chart - Bar Chart Visualization */}
+
       <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-6">
         <h3 className="font-semibold text-gray-900 dark:text-white mb-4">Monthly Overview</h3>
         <div className="h-64 flex items-end gap-2">
-          {financialData.monthlyData.map((data, index) => (
+          {financialData?.monthlyData?.map((data, index) => (
             <div key={index} className="flex-1 flex flex-col items-center gap-2">
               <div className="w-full flex flex-col items-center gap-1">
                 <div
                   className="w-full bg-green-500 dark:bg-green-400 rounded-t transition-all duration-500 hover:opacity-80"
-                  style={{ height: `${(data.income / 5000) * 100}%`, minHeight: '4px' }}
+                  style={{ height: `${(data.income / maxAmount) * 100}%`, minHeight: '4px' }}
                 />
                 <div
                   className="w-full bg-red-500 dark:bg-red-400 rounded-b transition-all duration-500 hover:opacity-80"
-                  style={{ height: `${(data.expenses / 5000) * 100}%`, minHeight: '4px' }}
+                  style={{ height: `${(data.expenses / maxAmount) * 100}%`, minHeight: '4px' }}
                 />
               </div>
               <span className="text-xs text-gray-600 dark:text-gray-400">{data.month}</span>
@@ -466,7 +470,7 @@ const Reports = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
-              {financialData.monthlyData.map((data, index) => {
+              {financialData?.monthlyData?.map((data, index) => {
                 const savings = data.income - data.expenses;
                 return (
                   <tr
@@ -517,7 +521,7 @@ const Reports = () => {
             <div>
               <p className="text-sm text-gray-500 dark:text-gray-400">Total Budget</p>
               <p className="text-2xl font-bold text-gray-900 dark:text-white">
-                ${financialData.budgetData.reduce((sum, b) => sum + b.budget, 0)}
+                ${financialData?.budgetData?.reduce((sum, b) => sum + b.budget, 0)}
               </p>
             </div>
             <div className="p-3 bg-indigo-50 dark:bg-indigo-900/30 rounded-xl">
@@ -531,7 +535,7 @@ const Reports = () => {
             <div>
               <p className="text-sm text-gray-500 dark:text-gray-400">Total Spent</p>
               <p className="text-2xl font-bold text-red-600 dark:text-red-400">
-                ${financialData.budgetData.reduce((sum, b) => sum + b.spent, 0)}
+                ${financialData?.budgetData?.reduce((sum, b) => sum + b.spent, 0)}
               </p>
             </div>
             <div className="p-3 bg-red-50 dark:bg-red-900/30 rounded-xl">
@@ -545,7 +549,7 @@ const Reports = () => {
             <div>
               <p className="text-sm text-gray-500 dark:text-gray-400">Remaining</p>
               <p className="text-2xl font-bold text-green-600 dark:text-green-400">
-                ${financialData.budgetData.reduce((sum, b) => sum + b.remaining, 0)}
+                ${financialData?.budgetData?.reduce((sum, b) => sum + b.remaining, 0)}
               </p>
             </div>
             <div className="p-3 bg-green-50 dark:bg-green-900/30 rounded-xl">
@@ -556,7 +560,7 @@ const Reports = () => {
       </div>
 
       {/* Budget Progress */}
-      {financialData.budgetData.map((budget, index) => {
+      {financialData?.budgetData?.map((budget, index) => {
         const percentage = (budget.spent / budget.budget) * 100;
         const isOverBudget = percentage > 100;
         const isNearLimit = percentage > 80 && percentage <= 100;
@@ -617,38 +621,120 @@ const Reports = () => {
     </div>
   );
 
+  const generateInsights = () => {
+    const insights = [];
+    const summary = financialData?.summary;
+    const categories = financialData?.categorySpending || [];
+    const budgets = financialData?.budgetData || [];
+
+    // Income insight
+    if (summary?.totalIncome > 0) {
+      insights.push({
+        type: 'income',
+        title: 'Income Overview',
+        message: `You have earned GHS ${summary.totalIncome.toLocaleString()} in total income.`,
+        icon: TrendingUp,
+        color: 'amber',
+      });
+    }
+
+    // Highest spending category
+    if (categories.length > 0) {
+      const highestCategory = [...categories].sort((a, b) => b.amount - a.amount)[0];
+
+      insights.push({
+        type: 'expense',
+        title: 'Top Spending Category',
+        message: `${highestCategory.category} is your highest spending category at GHS ${highestCategory.amount.toLocaleString()}.`,
+        icon: AlertCircle,
+        color: 'yellow',
+      });
+    }
+
+    // Budget warning
+    const exceededBudget = budgets.find((budget) => budget.spent > budget.budget);
+
+    const nearLimitBudget = budgets.find((budget) => budget.spent / budget.budget >= 0.8);
+
+    if (exceededBudget) {
+      insights.push({
+        type: 'budget',
+        title: 'Budget Alert',
+        message: `${exceededBudget.category} has exceeded your budget.`,
+        icon: AlertCircle,
+        color: 'red',
+      });
+    } else if (nearLimitBudget) {
+      insights.push({
+        type: 'budget',
+        title: 'Budget Warning',
+        message: `${nearLimitBudget.category} is close to its budget limit.`,
+        icon: AlertCircle,
+        color: 'yellow',
+      });
+    }
+
+    // Savings insight
+    if (summary?.savingsRate >= 20) {
+      insights.push({
+        type: 'saving',
+        title: 'Savings Goal',
+        message: `Great work! You are saving ${summary.savingsRate}% of your income.`,
+        icon: CheckCircle,
+        color: 'green',
+      });
+    } else if (summary) {
+      insights.push({
+        type: 'saving',
+        title: 'Savings Improvement',
+        message: `Your current savings rate is ${summary.savingsRate}%. Try increasing it gradually.`,
+        icon: TrendingDown,
+        color: 'yellow',
+      });
+    }
+
+    return insights.slice(0, 3);
+  };
+
   const renderAnalytics = () => (
     <div className="space-y-6">
       {/* Category Breakdown */}
       <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-6">
         <h3 className="font-semibold text-gray-900 dark:text-white mb-4">Spending by Category</h3>
         <div className="space-y-4">
-          {financialData.categorySpending.map((category, index) => {
+          {financialData?.categorySpending?.map((category, index) => {
             const IconComponent = getCategoryIcon(category.category);
+
             return (
-              <div key={index}>
+              <div key={`${category.category}-${index}`}>
                 <div className="flex items-center justify-between mb-1">
                   <div className="flex items-center gap-3">
                     <div className="p-1.5 bg-gray-50 dark:bg-gray-700 rounded-lg">
                       <IconComponent className="w-4 h-4 text-gray-600 dark:text-gray-400" />
                     </div>
+
                     <span className="text-sm text-gray-700 dark:text-gray-300">
                       {category.category}
                     </span>
                   </div>
+
                   <div className="flex items-center gap-4">
                     <span className="text-sm font-medium text-gray-900 dark:text-white">
-                      ${category.amount}
+                      GHS {category.amount}
                     </span>
+
                     <span className="text-sm text-gray-500 dark:text-gray-400 w-12 text-right">
-                      {category.percentage}%
+                      {category.percentage || 0}%
                     </span>
                   </div>
                 </div>
+
                 <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
                   <div
                     className="bg-linear-to-r from-amber-500 to-purple-500 h-2 rounded-full transition-all duration-500"
-                    style={{ width: `${category.percentage}%` }}
+                    style={{
+                      width: `${category.percentage || 0}%`,
+                    }}
                   />
                 </div>
               </div>
@@ -664,7 +750,7 @@ const Reports = () => {
             Top Spending Categories
           </h4>
           <div className="space-y-3">
-            {financialData.categorySpending
+            {[...(financialData?.categorySpending || [])]
               .sort((a, b) => b.amount - a.amount)
               .slice(0, 5)
               .map((category, index) => (
@@ -678,7 +764,7 @@ const Reports = () => {
                     </span>
                   </div>
                   <span className="text-sm font-medium text-gray-900 dark:text-white">
-                    ${category.amount}
+                    GHS {category.amount}
                   </span>
                 </div>
               ))}
@@ -687,59 +773,70 @@ const Reports = () => {
 
         <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-6">
           <h4 className="font-medium text-gray-900 dark:text-white mb-3">Insights</h4>
+
           <div className="space-y-4">
-            <div className="p-4 bg-amber-50 dark:bg-amber-900/20 rounded-xl">
-              <div className="flex items-start gap-3">
-                <div className="p-1.5 bg-amber-100 dark:bg-amber-800 rounded-lg">
-                  <TrendingUp className="w-4 h-4 text-amber-600 dark:text-amber-400" />
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-amber-900 dark:text-amber-300">
-                    Income Growth
-                  </p>
-                  <p className="text-sm text-amber-700 dark:text-amber-400">
-                    Your income increased by 12.5% this month
-                  </p>
-                </div>
-              </div>
-            </div>
+            {generateInsights().map((insight, index) => {
+              const Icon = insight.icon;
+              const styles = {
+                amber: {
+                  box: 'bg-amber-50 dark:bg-amber-900/20',
+                  icon: 'bg-amber-100 dark:bg-amber-800',
+                  text: 'text-amber-900 dark:text-amber-300',
+                  desc: 'text-amber-700 dark:text-amber-400',
+                },
+                yellow: {
+                  box: 'bg-yellow-50 dark:bg-yellow-900/20',
+                  icon: 'bg-yellow-100 dark:bg-yellow-800',
+                  text: 'text-yellow-900 dark:text-yellow-300',
+                  desc: 'text-yellow-700 dark:text-yellow-400',
+                },
+                green: {
+                  box: 'bg-green-50 dark:bg-green-900/20',
+                  icon: 'bg-green-100 dark:bg-green-800',
+                  text: 'text-green-900 dark:text-green-300',
+                  desc: 'text-green-700 dark:text-green-400',
+                },
+                red: {
+                  box: 'bg-red-50 dark:bg-red-900/20',
+                  icon: 'bg-red-100 dark:bg-red-800',
+                  text: 'text-red-900 dark:text-red-300',
+                  desc: 'text-red-700 dark:text-red-400',
+                },
+              };
 
-            <div className="p-4 bg-yellow-50 dark:bg-yellow-900/20 rounded-xl">
-              <div className="flex items-start gap-3">
-                <div className="p-1.5 bg-yellow-100 dark:bg-yellow-800 rounded-lg">
-                  <AlertCircle className="w-4 h-4 text-yellow-600 dark:text-yellow-400" />
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-yellow-900 dark:text-yellow-300">
-                    Budget Alert
-                  </p>
-                  <p className="text-sm text-yellow-700 dark:text-yellow-400">
-                    Shopping category is at 80% of budget
-                  </p>
-                </div>
-              </div>
-            </div>
+              const style = styles[insight.color];
 
-            <div className="p-4 bg-green-50 dark:bg-green-900/20 rounded-xl">
-              <div className="flex items-start gap-3">
-                <div className="p-1.5 bg-green-100 dark:bg-green-800 rounded-lg">
-                  <CheckCircle className="w-4 h-4 text-green-600 dark:text-green-400" />
+              return (
+                <div key={index} className={`p-4 ${style.box} rounded-xl`}>
+                  <div className="flex items-start gap-3">
+                    <div className={`p-1.5 ${style.icon} rounded-lg`}>
+                      <Icon className="w-4 h-4" />
+                    </div>
+
+                    <div>
+                      <p className={`text-sm font-medium ${style.text}`}>{insight.title}</p>
+
+                      <p className={`text-sm ${style.desc}`}>{insight.message}</p>
+                    </div>
+                  </div>
                 </div>
-                <div>
-                  <p className="text-sm font-medium text-green-900 dark:text-green-300">
-                    Savings Goal
-                  </p>
-                  <p className="text-sm text-green-700 dark:text-green-400">
-                    You're on track to meet your savings goal
-                  </p>
-                </div>
-              </div>
-            </div>
+              );
+            })}
           </div>
         </div>
       </div>
     </div>
   );
+
+  if (loading) {
+    return (
+      <Dashboardlayout activeMenu="Reports">
+        <div className="flex justify-center items-center h-96">
+          <p className="text-gray-500">Loading reports...</p>
+        </div>
+      </Dashboardlayout>
+    );
+  }
 
   return (
     <Dashboardlayout activeMenu="Reports">
