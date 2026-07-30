@@ -197,7 +197,7 @@ const createTable = async (doc, { title, headers, rows }) => {
         x: doc.page.margins.left,
         width: doc.page.width - doc.page.margins.left - doc.page.margins.right,
 
-        columnsSize: [90, 90, 170, 100],
+        columnsSize: [90, 90, 200, 100],
 
         padding: 5,
         columnSpacing: 5,
