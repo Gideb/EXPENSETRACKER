@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import Dashboardlayout from '../../components/layouts/Dashboardlayout';
 import { useUserAuth } from '../../hooks/useUserAuth';
+
 import {
   BarChart3,
   PieChart,
@@ -204,12 +205,12 @@ const Reports = () => {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-gray-500 dark:text-gray-400">Balance</p>
-              <p className="text-2xl font-bold text-blue-600 dark:text-blue-400">
+              <p className="text-2xl font-bold text-amber-600 dark:text-amber-400">
                 ${financialData.summary.balance}
               </p>
             </div>
-            <div className="p-3 bg-blue-50 dark:bg-blue-900/30 rounded-xl">
-              <Wallet className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+            <div className="p-3 bg-amber-50 dark:bg-amber-900/30 rounded-xl">
+              <Wallet className="w-6 h-6 text-amber-600 dark:text-amber-400" />
             </div>
           </div>
         </div>
@@ -239,7 +240,7 @@ const Reports = () => {
       <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
         <div className="px-6 py-4 border-b border-gray-100 dark:border-gray-700 flex items-center justify-between">
           <h3 className="font-semibold text-gray-900 dark:text-white">Recent Transactions</h3>
-          <button className="text-sm text-blue-600 dark:text-blue-400 hover:underline">
+          <button className="text-sm text-amber-600 dark:text-amber-400 hover:underline">
             View All
           </button>
         </div>
@@ -301,7 +302,7 @@ const Reports = () => {
             <select
               value={selectedMonth}
               onChange={(e) => setSelectedMonth(parseInt(e.target.value))}
-              className="border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-amber-500"
             >
               {months.map((month, index) => (
                 <option key={index} value={index}>
@@ -312,7 +313,7 @@ const Reports = () => {
             <select
               value={selectedYear}
               onChange={(e) => setSelectedYear(parseInt(e.target.value))}
-              className="border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-amber-500"
             >
               {[2024, 2025, 2026].map((year) => (
                 <option key={year} value={year}>
@@ -323,7 +324,7 @@ const Reports = () => {
           </div>
           <button
             onClick={() => setShowDateRange(!showDateRange)}
-            className="text-sm text-blue-600 dark:text-blue-400 hover:underline"
+            className="text-sm text-amber-600 dark:text-amber-400 hover:underline"
           >
             {showDateRange ? 'Hide Date Range' : 'Custom Date Range'}
           </button>
@@ -339,7 +340,7 @@ const Reports = () => {
                 type="date"
                 value={dateRange.start.toISOString().split('T')[0]}
                 onChange={(e) => setDateRange({ ...dateRange, start: new Date(e.target.value) })}
-                className="w-full border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-amber-500"
               />
             </div>
             <div>
@@ -350,7 +351,7 @@ const Reports = () => {
                 type="date"
                 value={dateRange.end.toISOString().split('T')[0]}
                 onChange={(e) => setDateRange({ ...dateRange, end: new Date(e.target.value) })}
-                className="w-full border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-amber-500"
               />
             </div>
           </div>
@@ -429,7 +430,7 @@ const Reports = () => {
                     <td className="px-6 py-4 text-sm text-red-600 dark:text-red-400">
                       ${data.expenses}
                     </td>
-                    <td className="px-6 py-4 text-sm text-blue-600 dark:text-blue-400">
+                    <td className="px-6 py-4 text-sm text-amber-600 dark:text-amber-400">
                       ${savings}
                     </td>
                     <td className="px-6 py-4">
@@ -594,7 +595,7 @@ const Reports = () => {
                 </div>
                 <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
                   <div
-                    className="bg-linear-to-r from-blue-500 to-purple-500 h-2 rounded-full transition-all duration-500"
+                    className="bg-linear-to-r from-amber-500 to-purple-500 h-2 rounded-full transition-all duration-500"
                     style={{ width: `${category.percentage}%` }}
                   />
                 </div>
@@ -635,16 +636,16 @@ const Reports = () => {
         <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-6">
           <h4 className="font-medium text-gray-900 dark:text-white mb-3">Insights</h4>
           <div className="space-y-4">
-            <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-xl">
+            <div className="p-4 bg-amber-50 dark:bg-amber-900/20 rounded-xl">
               <div className="flex items-start gap-3">
-                <div className="p-1.5 bg-blue-100 dark:bg-blue-800 rounded-lg">
-                  <TrendingUp className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                <div className="p-1.5 bg-amber-100 dark:bg-amber-800 rounded-lg">
+                  <TrendingUp className="w-4 h-4 text-amber-600 dark:text-amber-400" />
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-blue-900 dark:text-blue-300">
+                  <p className="text-sm font-medium text-amber-900 dark:text-amber-300">
                     Income Growth
                   </p>
-                  <p className="text-sm text-blue-700 dark:text-blue-400">
+                  <p className="text-sm text-amber-700 dark:text-amber-400">
                     Your income increased by 12.5% this month
                   </p>
                 </div>
@@ -706,7 +707,7 @@ const Reports = () => {
             <button
               onClick={handleExportPDF}
               disabled={isGeneratingPDF}
-              className="px-4 py-2 bg-red-600 hover:bg-red-700 dark:bg-red-500 dark:hover:bg-red-600 text-white text-sm font-medium rounded-xl transition-all duration-200 flex items-center gap-2 shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-4 py-2 bg-red-600 hover:bg-red-700 dark:bg-red-500 dark:hover:bg-red-600 text-white text-sm font-medium rounded-xl cursor-pointer transition-all duration-200 flex items-center gap-2 shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isGeneratingPDF ? (
                 <>
@@ -723,7 +724,7 @@ const Reports = () => {
 
             <button
               onClick={handleExportCSV}
-              className="px-4 py-2 bg-green-600 hover:bg-green-700 dark:bg-green-500 dark:hover:bg-green-600 text-white text-sm font-medium rounded-xl transition-all duration-200 flex items-center gap-2 shadow-sm hover:shadow-md"
+              className="px-4 py-2 bg-green-600 hover:bg-green-700 dark:bg-green-500 dark:hover:bg-green-600 text-white text-sm font-medium rounded-xl cursor-pointer transition-all duration-200 flex items-center gap-2 shadow-sm hover:shadow-md"
             >
               <Download className="w-4 h-4" />
               CSV
@@ -731,7 +732,7 @@ const Reports = () => {
 
             <button
               onClick={handlePrint}
-              className="px-4 py-2 bg-gray-600 hover:bg-gray-700 dark:bg-gray-500 dark:hover:bg-gray-600 text-white text-sm font-medium rounded-xl transition-all duration-200 flex items-center gap-2 shadow-sm hover:shadow-md"
+              className="px-4 py-2 bg-gray-600 hover:bg-gray-700 dark:bg-gray-500 dark:hover:bg-gray-600 text-white text-sm font-medium rounded-xl cursor-pointer transition-all duration-200 flex items-center gap-2 shadow-sm hover:shadow-md"
             >
               <Printer className="w-4 h-4" />
               Print
@@ -739,7 +740,7 @@ const Reports = () => {
 
             <button
               onClick={handleEmailReport}
-              className="px-4 py-2 bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white text-sm font-medium rounded-xl transition-all duration-200 flex items-center gap-2 shadow-sm hover:shadow-md"
+              className="px-4 py-2 bg-amber-600 hover:bg-amber-700 dark:bg-amber-500 dark:hover:bg-amber-600 text-white text-sm font-medium rounded-xl cursor-pointer transition-all duration-200 flex items-center gap-2 shadow-sm hover:shadow-md"
             >
               <Mail className="w-4 h-4" />
               Email
@@ -764,7 +765,7 @@ const Reports = () => {
                     onClick={() => setActiveTab(tab.id)}
                     className={`flex items-center gap-2 px-4 py-2 text-sm font-medium border-b-2 transition-all duration-200 ${
                       activeTab === tab.id
-                        ? 'border-blue-600 text-blue-600 dark:border-blue-400 dark:text-blue-400'
+                        ? 'border-amber-600 text-amber-600 dark:border-amber-400 dark:text-amber-400'
                         : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:border-gray-300'
                     }`}
                   >
@@ -788,7 +789,7 @@ const Reports = () => {
             <select
               value={selectedCategory}
               onChange={(e) => setSelectedCategory(e.target.value)}
-              className="border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500"
             >
               <option value="all">All Categories</option>
               <option value="food">Food</option>
@@ -803,7 +804,7 @@ const Reports = () => {
 
             <button
               onClick={() => setShowFilterOptions(!showFilterOptions)}
-              className="text-sm text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1"
+              className="text-sm text-amber-600 dark:text-amber-400 hover:underline flex items-center gap-1"
             >
               More Filters
               {showFilterOptions ? (
@@ -823,7 +824,7 @@ const Reports = () => {
                 <input
                   type="number"
                   placeholder="$0"
-                  className="w-full border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500"
                 />
               </div>
               <div>
@@ -833,14 +834,14 @@ const Reports = () => {
                 <input
                   type="number"
                   placeholder="$1000"
-                  className="w-full border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500"
                 />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                   Transaction Type
                 </label>
-                <select className="w-full border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <select className="w-full border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500">
                   <option>All</option>
                   <option>Income</option>
                   <option>Expense</option>

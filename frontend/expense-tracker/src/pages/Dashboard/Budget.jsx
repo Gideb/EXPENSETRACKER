@@ -143,7 +143,7 @@ const Budget = () => {
   }, []);
 
   return (
-    <Dashboardlayout activeMenu="Budget">
+    <Dashboardlayout activeMenu="Budgets">
       <div className="budget-page ">
         <div className="flex justify-between items-center my-4">
           {/* <button

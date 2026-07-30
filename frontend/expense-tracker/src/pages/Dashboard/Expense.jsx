@@ -182,7 +182,7 @@ const Expense = () => {
   }, []);
 
   return (
-    <Dashboardlayout activeMenu="Expense">
+    <Dashboardlayout activeMenu="Expenses">
       <div className="space-y-6 my-5 mx-auto">
         <div className="grid grid-cols-1 gap-6">
           <div className="">
