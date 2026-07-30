@@ -1,6 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
 import Dashboardlayout from '../../components/layouts/Dashboardlayout';
 import { useUserAuth } from '../../hooks/useUserAuth';
+import axiosInstance from '../../utils/axiosInstance';
+import { API_PATHS } from '../../utils/apiPaths';
 
 import {
   BarChart3,
@@ -48,8 +50,39 @@ const Reports = () => {
   const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
   const [showFilterOptions, setShowFilterOptions] = useState(false);
 
+  const [financialData, setFinancialData] = useState(null);
+  const [monthlyData, setMonthlyData] = useState([]);
+  const [categoryData, setCategoryData] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const loadReports = async () => {
+      try {
+        const [financial, monthly, category] = await Promise.all([
+          axiosInstance.get(API_PATHS.REPORTS.FINANCIAL),
+
+          axiosInstance.get(API_PATHS.REPORTS.MONTHLY),
+
+          axiosInstance.get(API_PATHS.REPORTS.CATEGORY_ANALYSIS),
+        ]);
+
+        setFinancialData(financial.data);
+
+        setMonthlyData(monthly.data);
+
+        setCategoryData(category.data);
+      } catch (error) {
+        console.log(error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadReports();
+  }, []);
+
   // Sample data - Replace with your actual data
-  const financialData = {
+  /* const financialData = {
     summary: {
       totalIncome: 4850,
       totalExpenses: 3240,
@@ -99,7 +132,7 @@ const Reports = () => {
       { category: 'Insurance', amount: 200, percentage: 6 },
       { category: 'Others', amount: 150, percentage: 4 },
     ],
-  };
+  }; */
 
   const months = [
     'Jan',
@@ -135,11 +168,29 @@ const Reports = () => {
   };
 
   const handleExportPDF = async () => {
-    setIsGeneratingPDF(true);
-    // Simulate PDF generation
-    await new Promise((resolve) => setTimeout(resolve, 2000));
-    setIsGeneratingPDF(false);
-    alert('PDF report downloaded!');
+    try {
+      const response = await axiosInstance.get(API_PATHS.REPORTS.EXPORT_PDF, {
+        responseType: 'blob',
+      });
+
+      const blob = new Blob([response.data], {
+        type: 'application/pdf',
+      });
+
+      const url = window.URL.createObjectURL(blob);
+
+      const link = document.createElement('a');
+
+      link.href = url;
+
+      link.download = 'financial-report.pdf';
+
+      link.click();
+
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   const handleExportCSV = () => {
@@ -170,7 +221,7 @@ const Reports = () => {
             <div>
               <p className="text-sm text-gray-500 dark:text-gray-400">Total Income</p>
               <p className="text-2xl font-bold text-green-600 dark:text-green-400">
-                ${financialData.summary.totalIncome}
+                ${financialData?.summary?.totalIncome}
               </p>
             </div>
             <div className="p-3 bg-green-50 dark:bg-green-900/30 rounded-xl">
@@ -245,48 +296,49 @@ const Reports = () => {
           </button>
         </div>
         <div className="divide-y divide-gray-100 dark:divide-gray-700">
-          {financialData.transactions.slice(0, 5).map((transaction) => {
-            const IconComponent = getCategoryIcon(transaction.category);
-            return (
-              <div
-                key={transaction.id}
-                className="px-6 py-4 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
-              >
-                <div className="flex items-center gap-3">
+          {financialData?.transactions ||
+            [].slice(0, 5).map((transaction) => {
+              const IconComponent = getCategoryIcon(transaction.category);
+              return (
+                <div
+                  key={transaction.id}
+                  className="px-6 py-4 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
+                >
+                  <div className="flex items-center gap-3">
+                    <div
+                      className={`p-2 rounded-lg ${
+                        transaction.type === 'income'
+                          ? 'bg-green-50 dark:bg-green-900/30'
+                          : 'bg-red-50 dark:bg-red-900/30'
+                      }`}
+                    >
+                      <IconComponent
+                        className={`w-5 h-5 ${
+                          transaction.type === 'income'
+                            ? 'text-green-600 dark:text-green-400'
+                            : 'text-red-600 dark:text-red-400'
+                        }`}
+                      />
+                    </div>
+                    <div>
+                      <p className="font-medium text-gray-900 dark:text-white">
+                        {transaction.category}
+                      </p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">{transaction.date}</p>
+                    </div>
+                  </div>
                   <div
-                    className={`p-2 rounded-lg ${
+                    className={`font-semibold ${
                       transaction.type === 'income'
-                        ? 'bg-green-50 dark:bg-green-900/30'
-                        : 'bg-red-50 dark:bg-red-900/30'
+                        ? 'text-green-600 dark:text-green-400'
+                        : 'text-red-600 dark:text-red-400'
                     }`}
                   >
-                    <IconComponent
-                      className={`w-5 h-5 ${
-                        transaction.type === 'income'
-                          ? 'text-green-600 dark:text-green-400'
-                          : 'text-red-600 dark:text-red-400'
-                      }`}
-                    />
-                  </div>
-                  <div>
-                    <p className="font-medium text-gray-900 dark:text-white">
-                      {transaction.category}
-                    </p>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">{transaction.date}</p>
+                    {transaction.type === 'income' ? '+' : '-'}${transaction.amount}
                   </div>
                 </div>
-                <div
-                  className={`font-semibold ${
-                    transaction.type === 'income'
-                      ? 'text-green-600 dark:text-green-400'
-                      : 'text-red-600 dark:text-red-400'
-                  }`}
-                >
-                  {transaction.type === 'income' ? '+' : '-'}${transaction.amount}
-                </div>
-              </div>
-            );
-          })}
+              );
+            })}
         </div>
       </div>
     </div>
@@ -694,8 +746,8 @@ const Reports = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
-                  <div>
-                      <p className="text-xs font-bold text-red-500 mb-5">*still under works</p>
+          <div>
+            <p className="text-xs font-bold text-red-500 mb-5">*still under works</p>
             <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Reports</h1>
             <p className="text-gray-500 dark:text-gray-400 mt-1">
               Analyze your financial data and track your spending habits

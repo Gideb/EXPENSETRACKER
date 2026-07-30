@@ -79,6 +79,7 @@ const Home = () => {
             <BudgetWidget />
             <HealthScore dashboardData={dashboardData} />
           </div>
+          {/* gilbert debrah - 2026 */}
 
           {/* Right Column - Cards Grid */}
           <div className="flex-1">
@@ -138,25 +139,24 @@ const Home = () => {
         {isNewUser ? (
           <div className="bg-white dark:bg-transparent  border border-gray-300   rounded-xl p-8 shadow-sm text-center">
             <h3 className="text-xl font-semibold text-slate-800 dark:text-slate-200">
-              Welcome to Expense Tracker
+              Welcome to Your Expense Tracker
             </h3>
 
             <p className="text-slate-500 mt-2 text-xs sm:text-sm">
-              You haven't added any income or expenses yet. Start by recording your first
-              transaction.
+              You haven't recorded any income or expense yet. 
             </p>
 
-            <div className="flex justify-center gap-3 mt-5">
+            <div className="flex justify-center gap-3 mt-7">
               <button
                 onClick={() => navigate('/income')}
-                className="px-4 py-2 bg-emerald-600 text-white rounded add-btn"
+                className="px-4 py-2 rounded add-btn"
               >
                 + Add Income
               </button>
 
               <button
                 onClick={() => navigate('/expense')}
-                className="px-4 py-2 bg-red-600! text-white! rounded add-btn border-red-500! hover:bg-red-800!"
+                className="px-4 py-2 rounded add-btn-fill add-btn"
               >
                 + Add Expense
               </button>

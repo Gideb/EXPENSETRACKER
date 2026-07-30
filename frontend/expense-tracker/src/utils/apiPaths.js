@@ -49,9 +49,9 @@ export const API_PATHS = {
   REPORTS: {
     FINANCIAL: '/api/v1/reports/financial',
     MONTHLY: '/api/v1/reports/monthly',
-    YEARLY: '/api/v1/reports/yearly',
     CATEGORY_ANALYSIS: '/api/v1/reports/category-analysis',
     BUDGET_PERFORMANCE: '/api/v1/reports/budget-performance',
+    EXPORT_PDF: 'api/v1/reports/export-pdf'
   },
   SETTINGS: {},
   IMAGE: {
