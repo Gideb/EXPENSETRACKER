@@ -228,29 +228,29 @@ exports.downloadExpenseExcel = async (req, res) => {
 
     worksheet.columns = [
       {
+        header: 'Date',
+        key: 'date',
+        width: 20,
+      },
+      {
         header: 'Category',
         key: 'category',
-        width: 30,
+        width: 35,
       },
       {
         header: 'Amount',
         key: 'amount',
         width: 20,
       },
-      {
-        header: 'Date',
-        key: 'date',
-        width: 18,
-      },
-      {
+      /* {
         header: 'Description',
         key: 'description',
         width: 40,
-      },
+      }, */
       {
         header: 'Icon',
         key: 'icon',
-        width: 15,
+        width: 20,
       },
     ];
 
@@ -280,10 +280,10 @@ exports.downloadExpenseExcel = async (req, res) => {
     // Add expense rows
     expenses.forEach((expense) => {
       worksheet.addRow({
+        date: expense.date ? new Date(expense.date).toLocaleDateString() : '',
         category: expense.category,
         amount: expense.amount,
-        date: expense.date ? new Date(expense.date).toLocaleDateString() : '',
-        description: expense.description || '',
+        //description: expense.description || '',
         icon: expense.icon || '',
       });
     });

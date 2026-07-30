@@ -85,11 +85,11 @@ exports.exportTransactionsExcel = async (req, res) => {
     const worksheet = workbook.addWorksheet('Transactions');
 
     worksheet.columns = [
-      { header: 'Type', key: 'type', width: 15 },
-      { header: 'Title', key: 'title', width: 30 },
-      { header: 'Category / Source', key: 'categorySource', width: 30 },
-      { header: 'Amount', key: 'amount', width: 20 },
-      { header: 'Date', key: 'date', width: 18 },
+      { header: 'Date', key: 'date', width: 20 },
+      { header: 'Type', key: 'type', width: 20 },
+      { header: 'Category / Source', key: 'categorySource', width: 35 },
+      { header: 'Amount', key: 'amount', width: 25 },
+      /* { header: 'Title', key: 'title', width: 30 }, */
     ];
 
     // Header styling
@@ -111,12 +111,11 @@ exports.exportTransactionsExcel = async (req, res) => {
 
     transactions.forEach((item) => {
       worksheet.addRow({
+        date: item.date ? new Date(item.date).toLocaleDateString() : '',
         type: item.type,
-        title: item.type === 'Expense' ? item.category : item.source,
         categorySource: item.type === 'Expense' ? item.category : item.source,
         amount: item.amount,
-        date: item.date ? new Date(item.date).toLocaleDateString() : '',
-        description: item.description || '',
+      
       });
     });
 

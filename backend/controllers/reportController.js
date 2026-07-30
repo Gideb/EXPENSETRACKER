@@ -6,7 +6,7 @@ const generatePDF = require('../utils/generatePDF');
 
 // Build user information and report period
 const getCommonReportData = async (userId, incomes = [], expenses = []) => {
-  const user = await User.findById(userId).select('name email');
+  const user = await User.findById(userId).select('fullName email');
 
   const dates = [...incomes.map((item) => item.date), ...expenses.map((item) => item.date)]
     .filter(Boolean)
@@ -59,7 +59,6 @@ const exportPDF = async (req, res) => {
       },
 
       incomes,
-
       expenses,
     });
   } catch (error) {
@@ -160,7 +159,7 @@ const exportTransactionPDF = async (req, res) => {
         date: item.date,
         type: 'Income',
         category: item.source || item.category,
-        description: item.description || item.source,
+        /* description: item.description || item.source, */
         amount: item.amount,
       })),
 
@@ -168,7 +167,7 @@ const exportTransactionPDF = async (req, res) => {
         date: item.date,
         type: 'Expense',
         category: item.category,
-        description: item.description || item.category,
+        /* description: item.description || item.category, */
         amount: item.amount,
       })),
     ].sort((a, b) => new Date(a.date) - new Date(b.date));

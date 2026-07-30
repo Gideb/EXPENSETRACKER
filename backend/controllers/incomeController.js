@@ -152,9 +152,14 @@ exports.downloadIncomeExcel = async (req, res) => {
 
     worksheet.columns = [
       {
+        header: 'Date',
+        key: 'date',
+        width: 20,
+      },
+      {
         header: 'Source',
         key: 'source',
-        width: 30,
+        width: 35,
       },
       {
         header: 'Amount',
@@ -162,14 +167,9 @@ exports.downloadIncomeExcel = async (req, res) => {
         width: 20,
       },
       {
-        header: 'Date',
-        key: 'date',
-        width: 18,
-      },
-      {
         header: 'Icon',
         key: 'icon',
-        width: 15,
+        width: 20,
       },
     ];
 
@@ -199,9 +199,9 @@ exports.downloadIncomeExcel = async (req, res) => {
     // Add income rows
     incomes.forEach((income) => {
       worksheet.addRow({
+        date: income.date ? new Date(income.date).toLocaleDateString() : '',
         source: income.source,
         amount: income.amount,
-        date: income.date ? new Date(income.date).toLocaleDateString() : '',
         icon: income.icon || '',
       });
     });
