@@ -3,6 +3,8 @@ import Dashboardlayout from '../../components/layouts/Dashboardlayout';
 import { useUserAuth } from '../../hooks/useUserAuth';
 import axiosInstance from '../../utils/axiosInstance';
 import { API_PATHS } from '../../utils/apiPaths';
+import MonthlyBarChart from '../../components/Charts/MonthlyBarChart';
+import { addThousandsSeparator } from '../../utils/helper';
 
 import {
   BarChart3,
@@ -218,7 +220,7 @@ const Reports = () => {
             <div>
               <p className="text-sm text-gray-500 dark:text-gray-400">Total Income</p>
               <p className="text-2xl font-bold text-green-600 dark:text-green-400">
-                {`GHS ${financialData?.summary?.totalIncome}`}
+                {`GHS ${addThousandsSeparator(financialData?.summary?.totalIncome)}`}
               </p>
             </div>
             <div className="p-3 bg-green-50 dark:bg-green-900/30 rounded-xl">
@@ -236,7 +238,7 @@ const Reports = () => {
             <div>
               <p className="text-sm text-gray-500 dark:text-gray-400">Total Expenses</p>
               <p className="text-2xl font-bold text-red-600 dark:text-red-400">
-                {`GHS ${financialData?.summary?.totalExpenses}`}
+                {`GHS ${addThousandsSeparator(financialData?.summary?.totalExpenses)}`}
               </p>
             </div>
             <div className="p-3 bg-red-50 dark:bg-red-900/30 rounded-xl">
@@ -254,7 +256,7 @@ const Reports = () => {
             <div>
               <p className="text-sm text-gray-500 dark:text-gray-400">Balance</p>
               <p className="text-2xl font-bold text-amber-600 dark:text-amber-400">
-                {`GHS ${financialData?.summary?.balance}`}
+                {`GHS ${addThousandsSeparator(financialData?.summary?.balance)}`}
               </p>
             </div>
             <div className="p-3 bg-amber-50 dark:bg-amber-900/30 rounded-xl">
@@ -349,18 +351,11 @@ const Reports = () => {
     </div>
   );
 
-
   //MONTHLY REPORT
-
-
-
   const renderMonthlyReports = () => {
     const monthlyData = financialData?.monthlyData || [];
 
-    const maxValue = Math.max(
-      ...monthlyData.flatMap((m) => [m.income, m.expenses]),
-      1
-    );
+    const maxValue = Math.max(...monthlyData.flatMap((m) => [m.income, m.expenses]), 1);
 
     return (
       <div className="space-y-6">
@@ -429,42 +424,9 @@ const Reports = () => {
         </div>
 
         {/* Monthly Chart - Bar Chart Visualization */}
-      
         <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-6">
           <h3 className="font-semibold text-gray-900 dark:text-white mb-4">Monthly Overview</h3>
-          <div className="h-64 flex items-end gap-2">
-            {financialData?.monthlyData?.map((data, index) => (
-              <div key={index} className="flex-1 flex flex-col items-center gap-2">
-                <div className="w-full flex flex-col items-center gap-1">
-                  <div
-                    className="w-full bg-green-500 dark:bg-green-400 rounded-t transition-all duration-500 hover:opacity-80"
-                    style={{
-                      height: `${(data.income / maxValue) * 180}px`,
-                      minHeight: '4px',
-                    }}
-                  />
-                  <div
-                    className="w-full bg-red-500 dark:bg-red-400 rounded-b transition-all duration-500 hover:opacity-80"
-                    style={{
-                      height: `${(data.expenses / maxValue) * 180}px`,
-                      minHeight: '4px',
-                    }}
-                  />
-                </div>
-                <span className="text-xs text-gray-600 dark:text-gray-400">{data.month}</span>
-              </div>
-            ))}
-          </div>
-          <div className="mt-4 flex justify-center gap-6">
-            <div className="flex items-center gap-2">
-              <div className="w-3 h-3 bg-green-500 dark:bg-green-400 rounded"></div>
-              <span className="text-sm text-gray-600 dark:text-gray-400">Income</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="w-3 h-3 bg-red-500 dark:bg-red-400 rounded"></div>
-              <span className="text-sm text-gray-600 dark:text-gray-400">Expenses</span>
-            </div>
-          </div>
+          <MonthlyBarChart data={financialData?.monthlyData || []} />
         </div>
 
         {/* Monthly Details Table */}
@@ -502,13 +464,13 @@ const Reports = () => {
                         {data.month}
                       </td>
                       <td className="px-6 py-4 text-sm text-green-600 dark:text-green-400">
-                        GHS {data.income}
+                        GHS {addThousandsSeparator(data.income)}
                       </td>
                       <td className="px-6 py-4 text-sm text-red-600 dark:text-red-400">
-                        GHS {data.expenses}
+                        GHS {addThousandsSeparator(data.expenses)}
                       </td>
                       <td className="px-6 py-4 text-sm text-amber-600 dark:text-amber-400">
-                        GHS {savings}
+                        GHS {addThousandsSeparator(savings)}
                       </td>
                       <td className="px-6 py-4">
                         {savings > 0 ? (
@@ -531,7 +493,7 @@ const Reports = () => {
           </div>
         </div>
       </div>
-    )
+    );
   };
 
   //BUDGET
@@ -544,7 +506,10 @@ const Reports = () => {
             <div>
               <p className="text-sm text-gray-500 dark:text-gray-400">Total Budget</p>
               <p className="text-2xl font-bold text-gray-900 dark:text-white">
-                GHS {financialData?.budgetData?.reduce((sum, b) => sum + b.budget, 0)}
+                GHS{' '}
+                {addThousandsSeparator(
+                  financialData?.budgetData?.reduce((sum, b) => sum + b.budget, 0)
+                )}
               </p>
             </div>
             <div className="p-3 bg-indigo-50 dark:bg-indigo-900/30 rounded-xl">
@@ -558,7 +523,10 @@ const Reports = () => {
             <div>
               <p className="text-sm text-gray-500 dark:text-gray-400">Total Spent</p>
               <p className="text-2xl font-bold text-red-600 dark:text-red-400">
-                GHS {financialData?.budgetData?.reduce((sum, b) => sum + b.spent, 0)}
+                GHS{' '}
+                {addThousandsSeparator(
+                  financialData?.budgetData?.reduce((sum, b) => sum + b.spent, 0)
+                )}
               </p>
             </div>
             <div className="p-3 bg-red-50 dark:bg-red-900/30 rounded-xl">
@@ -572,7 +540,10 @@ const Reports = () => {
             <div>
               <p className="text-sm text-gray-500 dark:text-gray-400">Remaining</p>
               <p className="text-2xl font-bold text-green-600 dark:text-green-400">
-                GHS {financialData?.budgetData?.reduce((sum, b) => sum + b.remaining, 0)}
+                GHS{' '}
+                {addThousandsSeparator(
+                  financialData?.budgetData?.reduce((sum, b) => sum + b.remaining, 0)
+                )}
               </p>
             </div>
             <div className="p-3 bg-green-50 dark:bg-green-900/30 rounded-xl">
@@ -602,7 +573,8 @@ const Reports = () => {
                 <div>
                   <h4 className="font-medium text-gray-900 dark:text-white">{budget.category}</h4>
                   <p className="text-sm text-gray-500 dark:text-gray-400">
-                    GHS {budget.spent} of GHS {budget.budget} spent
+                    GHS {addThousandsSeparator(budget.spent)} of GHS{' '}
+                    {addThousandsSeparator(budget.budget)} spent
                   </p>
                 </div>
               </div>
@@ -635,7 +607,7 @@ const Reports = () => {
             </div>
 
             <div className="mt-2 flex justify-between text-xs text-gray-500 dark:text-gray-400">
-              <span>GHS {budget.remaining} remaining</span>
+              <span>GHS {addThousandsSeparator(budget.remaining)} remaining</span>
               <span>{budget.category}</span>
             </div>
           </div>
@@ -643,7 +615,6 @@ const Reports = () => {
       })}
     </div>
   );
-
 
   //ANALYTICS
   const generateInsights = () => {
@@ -789,7 +760,7 @@ const Reports = () => {
                     </span>
                   </div>
                   <span className="text-sm font-medium text-gray-900 dark:text-white">
-                    GHS {category.amount}
+                    GHS {addThousandsSeparator(category.amount)}
                   </span>
                 </div>
               ))}
