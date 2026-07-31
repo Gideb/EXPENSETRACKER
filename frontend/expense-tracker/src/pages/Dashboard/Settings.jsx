@@ -1,6 +1,12 @@
-import { useState } from 'react';
-import Dashboardlayout from '../../components/layouts/Dashboardlayout';
-import { useUserAuth } from '../../hooks/useUserAuth';
+import { useContext, useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import Dashboardlayout from "../../components/layouts/Dashboardlayout";
+import { useUserAuth } from "../../hooks/useUserAuth";
+import { UserContext } from "../../context/UserContext";
+import ProfilePhotoSelector from "../../components/Inputs/ProfilePhotoSelector";
+import uploadImage from "../../utils/uploadImage";
+import axiosInstance from "../../utils/axiosInstance";
+import { API_PATHS } from "../../utils/apiPaths";
 import {
   User,
   Mail,
@@ -13,23 +19,24 @@ import {
   Key,
   Shield,
   LogOut,
-  Moon,
-  Sun,
-  Monitor,
-} from 'lucide-react';
+} from "lucide-react";
+import toast from "react-hot-toast";
 
-const Settings = ({ handleProfileUpdate, handlePasswordChange }) => {
+const Settings = () => {
   useUserAuth();
+  const navigate = useNavigate();
+  const { user, updateUser, clearUser } = useContext(UserContext);
 
+  const [profilePic, setProfilePic] = useState(null);
   const [profileData, setProfileData] = useState({
-    fullName: '',
-    email: '',
+    fullName: "",
+    email: "",
   });
 
   const [passwordData, setPasswordData] = useState({
-    current: '',
-    new: '',
-    confirm: '',
+    current: "",
+    new: "",
+    confirm: "",
   });
 
   const [showPassword, setShowPassword] = useState({
@@ -40,52 +47,135 @@ const Settings = ({ handleProfileUpdate, handlePasswordChange }) => {
 
   const [profileSuccess, setProfileSuccess] = useState(false);
   const [passwordSuccess, setPasswordSuccess] = useState(false);
-  const [profileError, setProfileError] = useState('');
-  const [passwordError, setPasswordError] = useState('');
+  const [profileError, setProfileError] = useState("");
+  const [passwordError, setPasswordError] = useState("");
+  const [profileLoading, setProfileLoading] = useState(false);
+  const [passwordLoading, setPasswordLoading] = useState(false);
+
+  // Pre-populate profile data from user context
+  useEffect(() => {
+    if (user) {
+      setProfileData({
+        fullName: user.fullName || "",
+        email: user.email || "",
+      });
+      // Set the current profile image URL for preview
+      if (user.profileImageUrl) {
+        setProfilePic(user.profileImageUrl);
+      }
+    }
+  }, [user]);
 
   const handleProfileInputChange = (e) => {
     const { name, value } = e.target;
     setProfileData((prev) => ({ ...prev, [name]: value }));
     setProfileSuccess(false);
-    setProfileError('');
+    setProfileError("");
   };
 
   const handlePasswordInputChange = (e) => {
     const { name, value } = e.target;
     setPasswordData((prev) => ({ ...prev, [name]: value }));
     setPasswordSuccess(false);
-    setPasswordError('');
+    setPasswordError("");
   };
 
-  const handleProfileSubmit = (e) => {
+  const handleProfileSubmit = async (e) => {
     e.preventDefault();
+
     if (!profileData.fullName.trim() || !profileData.email.trim()) {
-      setProfileError('All fields are required');
+      setProfileError("All fields are required");
       return;
     }
-    handleProfileUpdate(profileData);
-    setProfileSuccess(true);
-    setTimeout(() => setProfileSuccess(false), 3000);
+
+    setProfileError("");
+    setProfileLoading(true);
+
+    try {
+      let profileImageUrl = user?.profileImageUrl || null;
+
+      // Upload new profile picture if a file was selected
+      if (profilePic && typeof profilePic !== "string") {
+        try {
+          const uploadResponse = await uploadImage(profilePic);
+          profileImageUrl = uploadResponse.imageUrl;
+        } catch (uploadErr) {
+          setProfileError("Failed to upload profile image. Please try again.");
+          setProfileLoading(false);
+          return;
+        }
+      }
+
+      // Call the backend API to update profile
+      const response = await axiosInstance.put(API_PATHS.AUTH.UPDATE_PROFILE, {
+        fullName: profileData.fullName,
+        email: profileData.email,
+        profileImageUrl,
+      });
+
+      // Update user context with the new data
+      if (response.data?.user) {
+        updateUser(response.data.user);
+      }
+
+      setProfileSuccess(true);
+      toast.success("Profile updated successfully!");
+      setTimeout(() => setProfileSuccess(false), 3000);
+    } catch (error) {
+      const errorMsg =
+        error.response?.data?.message ||
+        "Failed to update profile. Please try again.";
+      setProfileError(errorMsg);
+      toast.error(errorMsg);
+    } finally {
+      setProfileLoading(false);
+    }
   };
 
-  const handlePasswordSubmit = (e) => {
+  const handlePasswordSubmit = async (e) => {
     e.preventDefault();
+
     if (!passwordData.current || !passwordData.new || !passwordData.confirm) {
-      setPasswordError('All fields are required');
+      setPasswordError("All fields are required");
       return;
     }
     if (passwordData.new.length < 6) {
-      setPasswordError('Password must be at least 6 characters');
+      setPasswordError("Password must be at least 6 characters");
       return;
     }
     if (passwordData.new !== passwordData.confirm) {
-      setPasswordError('Passwords do not match');
+      setPasswordError("Passwords do not match");
       return;
     }
-    handlePasswordChange(passwordData);
-    setPasswordSuccess(true);
-    setPasswordData({ current: '', new: '', confirm: '' });
-    setTimeout(() => setPasswordSuccess(false), 3000);
+
+    setPasswordError("");
+    setPasswordLoading(true);
+
+    try {
+      await axiosInstance.put(API_PATHS.AUTH.CHANGE_PASSWORD, {
+        currentPassword: passwordData.current,
+        newPassword: passwordData.new,
+      });
+
+      setPasswordSuccess(true);
+      toast.success("Password changed successfully!");
+      setPasswordData({ current: "", new: "", confirm: "" });
+      setTimeout(() => setPasswordSuccess(false), 3000);
+    } catch (error) {
+      const errorMsg =
+        error.response?.data?.message ||
+        "Failed to change password. Please try again.";
+      setPasswordError(errorMsg);
+      toast.error(errorMsg);
+    } finally {
+      setPasswordLoading(false);
+    }
+  };
+
+  const handleLogout = () => {
+    localStorage.clear();
+    clearUser();
+    navigate("/login");
   };
 
   const togglePasswordVisibility = (field) => {
@@ -97,63 +187,13 @@ const Settings = ({ handleProfileUpdate, handlePasswordChange }) => {
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         {/* Header */}
         <div className="mb-8">
-          <p className="text xs font-bold text-red-600 mb-5">*still under maintenance</p>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Settings</h1>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+            Settings
+          </h1>
           <p className="text-gray-500 dark:text-gray-400 mt-1">
             Manage your account settings and preferences
           </p>
         </div>
-
-        {/* Theme Preference Section */}
-       {/*  <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden mb-6">
-          <div className="px-6 py-4 border-b border-gray-100 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-800/50">
-            <div className="flex items-center gap-3">
-              <div className="p-2 bg-indigo-50 dark:bg-indigo-900/30 rounded-lg">
-                <Monitor className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
-              </div>
-              <div>
-                <h3 className="font-semibold text-gray-900 dark:text-white">Theme Preference</h3>
-                <p className="text-sm text-gray-500 dark:text-gray-400">
-                  Choose your preferred theme
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <div className="p-6">
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              <button
-                onClick={() => document.documentElement.classList.remove('dark')}
-                className="flex flex-col items-center gap-3 p-4 rounded-xl border-2 border-gray-200 dark:border-gray-600 hover:border-indigo-500 dark:hover:border-indigo-400 transition-all duration-200 bg-white dark:bg-gray-800"
-              >
-                <Sun className="w-8 h-8 text-yellow-500" />
-                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Light</span>
-              </button>
-
-              <button
-                onClick={() => document.documentElement.classList.add('dark')}
-                className="flex flex-col items-center gap-3 p-4 rounded-xl border-2 border-gray-200 dark:border-gray-600 hover:border-indigo-500 dark:hover:border-indigo-400 transition-all duration-200 bg-white dark:bg-gray-800"
-              >
-                <Moon className="w-8 h-8 text-indigo-500" />
-                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Dark</span>
-              </button>
-
-              <button
-                onClick={() => {
-                  if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
-                    document.documentElement.classList.add('dark');
-                  } else {
-                    document.documentElement.classList.remove('dark');
-                  }
-                }}
-                className="flex flex-col items-center gap-3 p-4 rounded-xl border-2 border-gray-200 dark:border-gray-600 hover:border-indigo-500 dark:hover:border-indigo-400 transition-all duration-200 bg-white dark:bg-gray-800"
-              >
-                <Monitor className="w-8 h-8 text-gray-500 dark:text-gray-400" />
-                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">System</span>
-              </button>
-            </div>
-          </div>
-        </div> */}
 
         {/* Profile Information */}
         <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden mb-6">
@@ -163,15 +203,20 @@ const Settings = ({ handleProfileUpdate, handlePasswordChange }) => {
                 <User className="w-5 h-5 text-blue-600 dark:text-blue-400" />
               </div>
               <div>
-                <h3 className="font-semibold text-gray-900 dark:text-white">Profile Information</h3>
+                <h3 className="font-semibold text-gray-900 dark:text-white">
+                  Profile Information
+                </h3>
                 <p className="text-sm text-gray-500 dark:text-gray-400">
-                  Update your personal details
+                  Update your personal details and profile photo
                 </p>
               </div>
             </div>
           </div>
 
           <form onSubmit={handleProfileSubmit} className="p-6">
+            {/* Profile Photo Selector */}
+            <ProfilePhotoSelector image={profilePic} setImage={setProfilePic} />
+
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
@@ -224,10 +269,11 @@ const Settings = ({ handleProfileUpdate, handlePasswordChange }) => {
 
             <button
               type="submit"
-              className="mt-6 w-full sm:w-auto bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white font-medium px-6 py-2.5 rounded-xl transition-all duration-200 flex items-center justify-center gap-2 shadow-sm cursor-pointer hover:shadow-md"
+              disabled={profileLoading}
+              className="mt-6 w-full sm:w-auto bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white font-medium px-6 py-2.5 rounded-xl transition-all duration-200 flex items-center justify-center gap-2 shadow-sm cursor-pointer hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <Save className="w-4 h-4" />
-              Save Profile
+              {profileLoading ? "Saving..." : "Save Profile"}
             </button>
           </form>
         </div>
@@ -240,7 +286,9 @@ const Settings = ({ handleProfileUpdate, handlePasswordChange }) => {
                 <Shield className="w-5 h-5 text-purple-600 dark:text-purple-400" />
               </div>
               <div>
-                <h3 className="font-semibold text-gray-900 dark:text-white">Change Password</h3>
+                <h3 className="font-semibold text-gray-900 dark:text-white">
+                  Change Password
+                </h3>
                 <p className="text-sm text-gray-500 dark:text-gray-400">
                   Update your security credentials
                 </p>
@@ -256,7 +304,7 @@ const Settings = ({ handleProfileUpdate, handlePasswordChange }) => {
                 </label>
                 <div className="relative">
                   <input
-                    type={showPassword.current ? 'text' : 'password'}
+                    type={showPassword.current ? "text" : "password"}
                     name="current"
                     value={passwordData.current}
                     onChange={handlePasswordInputChange}
@@ -266,7 +314,7 @@ const Settings = ({ handleProfileUpdate, handlePasswordChange }) => {
                   <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 dark:text-gray-500" />
                   <button
                     type="button"
-                    onClick={() => togglePasswordVisibility('current')}
+                    onClick={() => togglePasswordVisibility("current")}
                     className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
                   >
                     {showPassword.current ? (
@@ -284,7 +332,7 @@ const Settings = ({ handleProfileUpdate, handlePasswordChange }) => {
                 </label>
                 <div className="relative">
                   <input
-                    type={showPassword.new ? 'text' : 'password'}
+                    type={showPassword.new ? "text" : "password"}
                     name="new"
                     value={passwordData.new}
                     onChange={handlePasswordInputChange}
@@ -294,7 +342,7 @@ const Settings = ({ handleProfileUpdate, handlePasswordChange }) => {
                   <Key className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 dark:text-gray-500" />
                   <button
                     type="button"
-                    onClick={() => togglePasswordVisibility('new')}
+                    onClick={() => togglePasswordVisibility("new")}
                     className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
                   >
                     {showPassword.new ? (
@@ -312,7 +360,7 @@ const Settings = ({ handleProfileUpdate, handlePasswordChange }) => {
                 </label>
                 <div className="relative">
                   <input
-                    type={showPassword.confirm ? 'text' : 'password'}
+                    type={showPassword.confirm ? "text" : "password"}
                     name="confirm"
                     value={passwordData.confirm}
                     onChange={handlePasswordInputChange}
@@ -322,7 +370,7 @@ const Settings = ({ handleProfileUpdate, handlePasswordChange }) => {
                   <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 dark:text-gray-500" />
                   <button
                     type="button"
-                    onClick={() => togglePasswordVisibility('confirm')}
+                    onClick={() => togglePasswordVisibility("confirm")}
                     className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
                   >
                     {showPassword.confirm ? (
@@ -351,10 +399,11 @@ const Settings = ({ handleProfileUpdate, handlePasswordChange }) => {
 
             <button
               type="submit"
-              className="mt-6 w-full sm:w-auto bg-purple-600 hover:bg-purple-700 dark:bg-purple-500 dark:hover:bg-purple-600 text-white font-medium px-6 py-2.5 rounded-xl transition-all duration-200 flex items-center justify-center gap-2 shadow-sm hover:shadow-md"
+              disabled={passwordLoading}
+              className="mt-6 w-full sm:w-auto bg-purple-600 hover:bg-purple-700 dark:bg-purple-500 dark:hover:bg-purple-600 text-white font-medium px-6 py-2.5 rounded-xl transition-all duration-200 flex items-center justify-center gap-2 shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <Key className="w-4 h-4" />
-              Change Password
+              {passwordLoading ? "Changing..." : "Change Password"}
             </button>
           </form>
         </div>
@@ -367,7 +416,9 @@ const Settings = ({ handleProfileUpdate, handlePasswordChange }) => {
                 <AlertCircle className="w-5 h-5 text-red-600 dark:text-red-400" />
               </div>
               <div>
-                <h3 className="font-semibold text-red-900 dark:text-red-400">Danger Zone</h3>
+                <h3 className="font-semibold text-red-900 dark:text-red-400">
+                  Danger Zone
+                </h3>
                 <p className="text-sm text-red-600 dark:text-red-400/70">
                   Actions that cannot be undone
                 </p>
@@ -377,10 +428,8 @@ const Settings = ({ handleProfileUpdate, handlePasswordChange }) => {
 
           <div className="p-6">
             <button
-              onClick={() => {
-                /* Handle logout */
-              }}
-              className="w-full sm:w-auto bg-red-600 hover:bg-red-700 dark:bg-red-500 dark:hover:bg-red-600 text-white font-medium px-6 py-2.5 rounded-xl transition-all duration-200 flex items-center justify-center gap-2 shadow-sm hover:shadow-md"
+              onClick={handleLogout}
+              className="w-full sm:w-auto bg-red-600 hover:bg-red-700 dark:bg-red-500 dark:hover:bg-red-600 text-white font-medium px-6 py-2.5 rounded-xl transition-all duration-200 flex items-center justify-center gap-2 shadow-sm hover:shadow-md cursor-pointer"
             >
               <LogOut className="w-4 h-4" />
               Log Out Account
