@@ -72,7 +72,7 @@ const BudgetWidget = () => {
     <div className="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm border border-gray-200 dark:border-gray-700">
       {/* Top Banner */}
       <div className="mb-4 overflow-hidden rounded-lg">
-        <img src={banner} alt="Budget Planning" className="w-full h-28 object-cover" />
+        <img src={banner} alt="Budget Planning" className="w-full h-33 object-cover object-center" />
       </div>
 
       {/* Header with greeting */}

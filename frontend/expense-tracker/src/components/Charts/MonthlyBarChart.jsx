@@ -9,8 +9,8 @@ import {
   YAxis,
 } from 'recharts';
 
-import CustomToolTip from '../Charts/MonthlyToolTip';
-import CustomLegend from '../charts/CustomLegend';
+import CustomToolTip from './MonthlyToolTip';
+import CustomLegend from './CustomLegend';
 
 const MonthlyBarChart = ({ data = [] }) => {
   return (
