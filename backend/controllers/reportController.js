@@ -469,11 +469,112 @@ const exportTransactionPDF = async (req, res) => {
   }
 };
 
+/* ======================================================
+   EXPORT CSV REPORT
+====================================================== */
+
+const exportCSV = async (req, res) => {
+  try {
+    const userId = req.user.id;
+
+    const incomes = await Income.find({ userId }).sort({ date: -1 });
+    const expenses = await Expense.find({ userId }).sort({ date: -1 });
+
+    // Build CSV header
+    const header = 'Date,Type,Category,Amount\n';
+
+    // Build CSV rows
+    const incomeRows = incomes
+      .map((i) => `${new Date(i.date).toISOString().split('T')[0]},Income,${i.source || 'Income'},${i.amount}`)
+      .join('\n');
+
+    const expenseRows = expenses
+      .map((e) => `${new Date(e.date).toISOString().split('T')[0]},Expense,${e.category},${e.amount}`)
+      .join('\n');
+
+    const csvContent = header + incomeRows + '\n' + expenseRows;
+
+    res.setHeader('Content-Type', 'text/csv');
+    res.setHeader('Content-Disposition', 'attachment; filename=financial-report.csv');
+    res.status(200).send(csvContent);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Failed to export CSV report.' });
+  }
+};
+
+/* ======================================================
+   EMAIL REPORT
+====================================================== */
+
+const sendEmailReport = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    const incomes = await Income.find({ userId }).sort({ date: 1 });
+    const expenses = await Expense.find({ userId }).sort({ date: 1 });
+
+    const totalIncome = incomes.reduce((sum, item) => sum + item.amount, 0);
+    const totalExpense = expenses.reduce((sum, item) => sum + item.amount, 0);
+    const balance = totalIncome - totalExpense;
+
+    // Build HTML email content
+    const emailHtml = `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <h2 style="color: #d97706;">Expense Tracker - Financial Report</h2>
+        <p>Hello <strong>${user.fullName}</strong>,</p>
+        <p>Here is your financial summary:</p>
+
+        <table style="width: 100%; border-collapse: collapse; margin: 20px 0;">
+          <tr style="background: #f3f4f6;">
+            <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">Metric</th>
+            <th style="padding: 12px; text-align: right; border: 1px solid #ddd;">Amount</th>
+          </tr>
+          <tr>
+            <td style="padding: 12px; border: 1px solid #ddd;">Total Income</td>
+            <td style="padding: 12px; text-align: right; border: 1px solid #ddd; color: #22c55e;">GHS ${totalIncome.toFixed(2)}</td>
+          </tr>
+          <tr>
+            <td style="padding: 12px; border: 1px solid #ddd;">Total Expenses</td>
+            <td style="padding: 12px; text-align: right; border: 1px solid #ddd; color: #ef4444;">GHS ${totalExpense.toFixed(2)}</td>
+          </tr>
+          <tr>
+            <td style="padding: 12px; border: 1px solid #ddd;">Balance</td>
+            <td style="padding: 12px; text-align: right; border: 1px solid #ddd; color: #d97706;">GHS ${balance.toFixed(2)}</td>
+          </tr>
+        </table>
+
+        <p><strong>Transactions:</strong> ${incomes.length + expenses.length} total</p>
+        <p style="color: #6b7280; font-size: 12px;">This report was generated from your Expense Tracker account.</p>
+      </div>
+    `;
+
+    const sendEmail = require('../utils/sendEmail');
+    await sendEmail(
+      user.email,
+      'Your Financial Report from Expense Tracker',
+      emailHtml
+    );
+
+    res.json({ message: 'Report sent to your email successfully.' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Failed to send email report.' });
+  }
+};
+
 module.exports = {
   exportPDF,
   exportIncomePDF,
   exportExpensePDF,
   exportTransactionPDF,
+  exportCSV,
+  sendEmailReport,
 
   getFinancialReport,
   getMonthlyReport,
