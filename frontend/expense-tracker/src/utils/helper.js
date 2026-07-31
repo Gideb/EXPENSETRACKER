@@ -73,3 +73,26 @@ export const prepareExpenseLineChartData = (data = []) => {
 };
 
 
+
+
+//get months
+export const getAvailableMonths = (records) => {
+  const months = records.map((item) =>
+    new Date(item.date).toLocaleString('default', { month: 'long' })
+  );
+
+  return [...new Set(months)];
+};
+
+export const getAvailablePeriods = (records) => {
+  const periods = records.map((item) => {
+    const date = new Date(item.date);
+
+    return {
+      month: date.toLocaleString('default', { month: 'long' }),
+      year: date.getFullYear(),
+    };
+  });
+
+  return Array.from(new Map(periods.map((p) => [`${p.month}-${p.year}`, p])).values());
+};

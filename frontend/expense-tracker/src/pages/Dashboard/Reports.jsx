@@ -5,7 +5,7 @@ import { useUserAuth } from '../../hooks/useUserAuth';
 import axiosInstance from '../../utils/axiosInstance';
 import { API_PATHS } from '../../utils/apiPaths';
 import MonthlyBarChart from '../../components/Charts/MonthlyBarChart';
-import { addThousandsSeparator } from '../../utils/helper';
+import { addThousandsSeparator, getAvailableMonths, getAvailablePeriods } from '../../utils/helper';
 import { toast } from 'react-hot-toast';
 
 import {
@@ -38,6 +38,7 @@ import {
   Clock,
 } from 'lucide-react';
 import RecentTransactions from '../../components/Dashboard/RecentTransactions';
+import ExpenseTransactions from '../../components/Dashboard/ExpenseTransactions';
 
 const Reports = () => {
   useUserAuth();
@@ -62,6 +63,33 @@ const Reports = () => {
   const [minAmount, setMinAmount] = useState('');
   const [maxAmount, setMaxAmount] = useState('');
   const [transactionType, setTransactionType] = useState('all');
+  const [categories, setCategories] = useState([]);
+  const [availablePeriods, setAvailablePeriods] = useState([]);
+
+
+  useEffect(() => {
+    const fetchPeriods = async () => {
+      const res = await axiosInstance.get(API_PATHS.REPORTS.AVAILABLE_PERIODS);
+
+      setAvailablePeriods(res.data);
+    };
+
+    fetchPeriods();
+  }, []);
+
+useEffect(() => {
+  const fetchCategories = async () => {
+    try {
+      const response = await axiosInstance.get(API_PATHS.REPORTS.CATEGORIES);
+
+      setCategories(response.data);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  fetchCategories();
+}, []);
 
   useEffect(() => {
     const loadReports = async () => {
@@ -69,7 +97,7 @@ const Reports = () => {
         const [financial, monthly, category] = await Promise.all([
           axiosInstance.get(`${API_PATHS.REPORTS.FINANCIAL}?year=${selectedYear}`),
           axiosInstance.get(`${API_PATHS.REPORTS.MONTHLY}?year=${selectedYear}`),
-          axiosInstance.get(`${ API_PATHS.REPORTS.CATEGORY_ANALYSIS }?year=${selectedYear}`),
+          axiosInstance.get(`${API_PATHS.REPORTS.CATEGORY_ANALYSIS}?year=${selectedYear}`),
         ]);
 
         setFinancialData({
@@ -87,23 +115,8 @@ const Reports = () => {
     loadReports();
   }, [selectedYear]);
 
-  const months = [
-    'Jan',
-    'Feb',
-    'Mar',
-    'Apr',
-    'May',
-    'Jun',
-    'Jul',
-    'Aug',
-    'Sep',
-    'Oct',
-    'Nov',
-    'Dec',
-  ];
   //years
   const currentYear = new Date().getFullYear();
-
   const years = Array.from({ length: 6 }, (_, i) => currentYear - i);
 
   // Category icon mapping
@@ -318,22 +331,12 @@ const Reports = () => {
     return (
       <div className="space-y-6">
         {/* Month Selector */}
-        <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-gray-700">
+        {/* <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-gray-700">
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
             <div className="flex items-center gap-3">
               <Calendar className="w-5 h-5 text-gray-500 dark:text-gray-400" />
-              {/* <select
-                value={selectedMonth}
-                onChange={(e) => setSelectedMonth(parseInt(e.target.value))}
-                className="border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-amber-500"
-              >
-                {months.map((month, index) => (
-                  <option key={index} value={index}>
-                    {month}
-                  </option>
-                ))}
-              </select> */}
-              <select
+             
+               <select
                 value={selectedYear}
                 onChange={(e) => setSelectedYear(Number(e.target.value))}
                 className="border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-amber-500"
@@ -343,53 +346,13 @@ const Reports = () => {
                     {year}
                   </option>
                 ))}
-              </select>
+              </select> 
             </div>
-            {/* <button
-              onClick={() => setShowDateRange(!showDateRange)}
-              className="text-sm text-amber-600 dark:text-amber-400 hover:underline"
-            >
-              {showDateRange ? 'Hide Date Range' : 'Custom Date Range'}
-            </button> */}
+            
           </div>
 
-          {/*  {showDateRange && (
-            <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Start Date
-                </label>
-                <input
-                  type="date"
-                  value={dateRange.start.toISOString().split('T')[0]}
-                  onChange={(e) =>
-                    setDateRange({
-                      ...dateRange,
-                      start: new Date(e.target.value),
-                    })
-                  }
-                  className="w-full border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-amber-500"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  End Date
-                </label>
-                <input
-                  type="date"
-                  value={dateRange.end.toISOString().split('T')[0]}
-                  onChange={(e) =>
-                    setDateRange({
-                      ...dateRange,
-                      end: new Date(e.target.value),
-                    })
-                  }
-                  className="w-full border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-amber-500"
-                />
-              </div>
-            </div>
-          )} */}
-        </div>
+        
+        </div> */}
 
         {/* Monthly Chart - Bar Chart Visualization */}
         <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-6">
@@ -819,7 +782,7 @@ const Reports = () => {
             <button
               onClick={handleExportPDF}
               disabled={isGeneratingPDF}
-              className="px-4 py-2 bg-red-600 hover:bg-red-700 dark:bg-red-500 dark:hover:bg-red-600 text-white text-sm font-medium rounded-xl cursor-pointer transition-all duration-200 flex items-center gap-2 shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-4 py-2 bg-gray-600 hover:bg-gray-700 dark:bg-gray-500 dark:hover:bg-gray-600 text-white text-sm font-medium rounded-xl cursor-pointer transition-all duration-200 flex items-center gap-2 shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isGeneratingPDF ? (
                 <>
@@ -836,7 +799,7 @@ const Reports = () => {
 
             <button
               onClick={handleExportCSV}
-              className="px-4 py-2 bg-green-600 hover:bg-green-700 dark:bg-green-500 dark:hover:bg-green-600 text-white text-sm font-medium rounded-xl cursor-pointer transition-all duration-200 flex items-center gap-2 shadow-sm hover:shadow-md"
+              className="px-4 py-2 bg-gray-600 hover:bg-gray-700 dark:bg-gray-500 dark:hover:bg-gray-600 text-white text-sm font-medium rounded-xl cursor-pointer transition-all duration-200 flex items-center gap-2 shadow-sm hover:shadow-md"
             >
               <Download className="w-4 h-4" />
               CSV
@@ -852,7 +815,7 @@ const Reports = () => {
 
             <button
               onClick={handleEmailReport}
-              className="px-4 py-2 bg-amber-600 hover:bg-amber-700 dark:bg-amber-500 dark:hover:bg-amber-600 text-white text-sm font-medium rounded-xl cursor-pointer transition-all duration-200 flex items-center gap-2 shadow-sm hover:shadow-md"
+              className="px-4 py-2 bg-gray-600 hover:bg-gray-700 dark:bg-gray-500 dark:hover:bg-gray-600 text-white text-sm font-medium rounded-xl cursor-pointer transition-all duration-200 flex items-center gap-2 shadow-sm hover:shadow-md"
             >
               <Mail className="w-4 h-4" />
               Email
@@ -898,21 +861,34 @@ const Reports = () => {
               <span className="text-sm text-gray-600 dark:text-gray-300">Filters:</span>
             </div>
 
+            {/*  year */}
             <select
-              value={selectedCategory}
-              onChange={(e) => setSelectedCategory(e.target.value)}
-              className="border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500"
+              value={selectedYear}
+              onChange={(e) => setSelectedYear(Number(e.target.value))}
+              className="border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-amber-500"
             >
-              <option value="all">All Categories</option>
-              <option value="food">Food</option>
-              <option value="housing">Housing</option>
-              <option value="transport">Transport</option>
-              <option value="shopping">Shopping</option>
-              <option value="entertainment">Entertainment</option>
-              <option value="healthcare">Healthcare</option>
-              <option value="utilities">Utilities</option>
-              <option value="insurance">Insurance</option>
+              {years.map((year) => (
+                <option key={year} value={year}>
+                  {year}
+                </option>
+              ))}
             </select>
+
+            {activeTab === 'summary' && (
+              <select
+                value={selectedCategory}
+                onChange={(e) => setSelectedCategory(e.target.value)}
+                className="border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500"
+              >
+                <option value="all">All Categories</option>
+
+                {categories.map((category) => (
+                  <option key={category} value={category}>
+                    {category}
+                  </option>
+                ))}
+              </select>
+            )}
 
             <button
               onClick={() => setShowFilterOptions(!showFilterOptions)}
@@ -982,7 +958,7 @@ const Reports = () => {
         {/* Footer */}
         <div className="mt-8 text-center text-sm text-gray-500 dark:text-gray-400">
           <p>Last updated: {new Date().toLocaleString()}</p>
-          <p className="mt-1">Data is automatically synced with your account</p>
+          <p className="mt-1">Data synced </p>
         </div>
       </div>
     </Dashboardlayout>

@@ -22,6 +22,22 @@ const Budget = () => {
     data: null,
   });
   const [loading, setLoading] = useState(false);
+  const [categories, setCategories] = useState([]);
+  
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const response = await axiosInstance.get(API_PATHS.BUDGETS.CATEGORIES);
+
+        setCategories(response.data);
+      } catch (error) {
+        console.log('Category fetch error', error);
+      }
+    };
+
+    fetchCategories();
+  }, []);
 
   // get all Budget Details
   const fetchBudgets = async () => {
@@ -72,6 +88,7 @@ const Budget = () => {
         category,
         limitAmount: Number(limitAmount),
         month,
+        year: new Date().getFullYear(),
         icon: icon || '',
       });
 
@@ -102,6 +119,7 @@ const Budget = () => {
         category: budget.category,
         limitAmount: Number(budget.limitAmount),
         month: budget.month,
+        year: budget.year,
         icon: budget.icon,
       });
 
@@ -145,14 +163,7 @@ const Budget = () => {
   return (
     <Dashboardlayout activeMenu="Budgets">
       <div className="budget-page ">
-        <div className="flex justify-between items-center my-4">
-          {/* <button
-          className=" add-btn add-bnt-fill"
-          onClick={() => setOpenAddBudgetModal(true)}
-        >
-          Add Budget
-        </button> */}
-        </div>
+        <div className="flex justify-between items-center my-4"></div>
 
         <BudgetSummary
           setOpenAddBudgetModal={setOpenAddBudgetModal}
@@ -176,6 +187,7 @@ const Budget = () => {
           title={editingBudget ? 'Edit Budget' : 'Add Budget'}
         >
           <AddBudgetForm
+            categories={categories}
             onBudgetAdded={handleAddBudget}
             onUpdateBudget={handleUpdateBudget}
             editData={editingBudget}

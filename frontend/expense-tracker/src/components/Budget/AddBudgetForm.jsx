@@ -2,12 +2,13 @@ import { useState, useEffect } from 'react';
 import Input from '../Inputs/Input';
 import EmojiPickerPopup from '../EmojiPickerPopup';
 
-const AddBudgetForm = ({ onBudgetAdded, onUpdateBudget, editData }) => {
+const AddBudgetForm = ({ categories = [], onBudgetAdded, onUpdateBudget, editData }) => {
   const [budget, setBudget] = useState({
     category: '',
     limitAmount: '',
     month: '',
     icon: '',
+    year: new Date().getFullYear(),
   });
 
   useEffect(() => {
@@ -21,6 +22,7 @@ const AddBudgetForm = ({ onBudgetAdded, onUpdateBudget, editData }) => {
           ? editData.limitAmount
           : '',
       month: editData.month || '',
+      year: editData.year || new Date().getFullYear(),
       icon: editData.icon || '',
     }));
   }, [editData]);
@@ -47,13 +49,36 @@ const AddBudgetForm = ({ onBudgetAdded, onUpdateBudget, editData }) => {
         onSelect={(selectedIcon) => handleChange('icon', selectedIcon)}
       />
 
-      <Input
+      {/* <Input
         value={budget.category}
         onChange={({ target }) => handleChange('category', target.value)}
         label="Category"
         placeholder="Food, Transport, Clothing"
         type="text"
-      />
+      /> */}
+      <div className="mt-4">
+        <label className="block text-sm font-medium mb-2">Category</label>
+
+        <select
+          value={budget.category}
+          onChange={(e) => handleChange('category', e.target.value)}
+          className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-amber-500"
+        >
+          <option value="">Select Category</option>
+
+          {categories.map((item) => (
+            <option key={item} value={item}>
+              {item}
+            </option>
+          ))}
+        </select>
+
+        {categories.length === 0 && (
+          <p className="text-xs text-gray-500 mt-2">
+            Add an expense first to create budget categories.
+          </p>
+        )}
+      </div>
 
       <Input
         value={budget.limitAmount}
@@ -65,13 +90,29 @@ const AddBudgetForm = ({ onBudgetAdded, onUpdateBudget, editData }) => {
         step="0.01"
       />
 
-      <Input
+      {/* <Input
         label="Month"
         placeholder="Select month"
         type="month"
         min={currentMonth}
         value={budget.month}
         onChange={({ target }) => handleChange('month', target.value)}
+      /> */}
+
+      <Input
+        label="Month"
+        type="month"
+        min={currentMonth}
+        value={`${budget.year}-${budget.month}`}
+        onChange={({ target }) => {
+          const [year, month] = target.value.split('-');
+
+          setBudget({
+            ...budget,
+            year: Number(year),
+            month,
+          });
+        }}
       />
 
       <div className="flex justify-end mt-6">
