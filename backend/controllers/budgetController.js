@@ -1,35 +1,6 @@
 const Budget = require('../models/Budget');
 const Expense = require('../models/Expense');
 
-//add budget
-/* const addBudget = async (req, res) => {
-  try {
-    const userId = req.user.id;
-    const { icon, category, limitAmount, month } = req.body;
-
-    //prevent duplicate budget per category/month
-    const existing = await Budget.findOne({ userId, category, month });
-
-    if (existing) {
-      return res
-        .status(400)
-        .json({ message: "Budget already exists for this category and month" });
-    }
-
-    const budget = await Budget.create({
-      userId,
-      icon,
-      category,
-      limitAmount,
-      month,
-    });
-
-    return res.status(201).json(budget);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-}; */
-
 // add budget
 const addBudget = async (req, res) => {
   try {

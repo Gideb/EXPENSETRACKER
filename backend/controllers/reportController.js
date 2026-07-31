@@ -790,4 +790,6 @@ module.exports = {
   getMonthlyReport,
   getCategoryAnalysis,
   getBudgetPerformance,
+  getCategories,
+  getAvailablePeriods,
 };
