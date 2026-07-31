@@ -55,6 +55,12 @@ const Reports = () => {
   const [showFilterOptions, setShowFilterOptions] = useState(false);
   const [financialData, setFinancialData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [isSendingEmail, setIsSendingEmail] = useState(false);
+
+  // Filter state
+  const [minAmount, setMinAmount] = useState("");
+  const [maxAmount, setMaxAmount] = useState("");
+  const [transactionType, setTransactionType] = useState("all");
 
   useEffect(() => {
     const loadReports = async () => {
@@ -192,16 +198,79 @@ const Reports = () => {
     }
   };
 
-  const handleExportCSV = () => {
-    alert("CSV file downloaded!");
+  const handleExportCSV = async () => {
+    try {
+      const response = await axiosInstance.get(API_PATHS.REPORTS.EXPORT_CSV, {
+        responseType: "blob",
+      });
+
+      const blob = new Blob([response.data], {
+        type: "text/csv",
+      });
+
+      const url = window.URL.createObjectURL(blob);
+
+      const link = document.createElement("a");
+
+      link.href = url;
+
+      link.download = "financial-report.csv";
+
+      link.click();
+
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   const handlePrint = () => {
     window.print();
   };
 
-  const handleEmailReport = () => {
-    alert("Report sent to your email!");
+  const handleEmailReport = async () => {
+    try {
+      setIsSendingEmail(true);
+      await axiosInstance.post(API_PATHS.REPORTS.EMAIL_REPORT);
+      alert("Report sent to your email successfully!");
+    } catch (error) {
+      console.log(error);
+      alert(error.response?.data?.message || "Failed to send email report.");
+    } finally {
+      setIsSendingEmail(false);
+    }
+  };
+
+  // Compute filtered transactions
+  const getFilteredTransactions = () => {
+    const transactions = financialData?.transactions || [];
+
+    return transactions.filter((t) => {
+      // Category filter
+      if (selectedCategory !== "all") {
+        const catMatch =
+          t.category?.toLowerCase() === selectedCategory.toLowerCase() ||
+          t.source?.toLowerCase() === selectedCategory.toLowerCase();
+        if (!catMatch) return false;
+      }
+
+      // Transaction type filter
+      if (transactionType !== "all" && t.type !== transactionType) {
+        return false;
+      }
+
+      // Min amount filter
+      if (minAmount && t.amount < Number(minAmount)) {
+        return false;
+      }
+
+      // Max amount filter
+      if (maxAmount && t.amount > Number(maxAmount)) {
+        return false;
+      }
+
+      return true;
+    });
   };
 
   // Helper function to render category icon
@@ -354,7 +423,7 @@ const Reports = () => {
 
       <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
         <RecentTransactions
-          transactions={financialData?.transactions}
+          transactions={getFilteredTransactions()}
           onSeeMore={() => navigate("/transactions")}
         />
       </div>
@@ -1029,7 +1098,9 @@ const Reports = () => {
                 </label>
                 <input
                   type="number"
-                  placeholder="$0"
+                  placeholder="0"
+                  value={minAmount}
+                  onChange={(e) => setMinAmount(e.target.value)}
                   className="w-full border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500"
                 />
               </div>
@@ -1039,7 +1110,9 @@ const Reports = () => {
                 </label>
                 <input
                   type="number"
-                  placeholder="$1000"
+                  placeholder="1000"
+                  value={maxAmount}
+                  onChange={(e) => setMaxAmount(e.target.value)}
                   className="w-full border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500"
                 />
               </div>
@@ -1047,10 +1120,14 @@ const Reports = () => {
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                   Transaction Type
                 </label>
-                <select className="w-full border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500">
-                  <option>All</option>
-                  <option>Income</option>
-                  <option>Expense</option>
+                <select
+                  value={transactionType}
+                  onChange={(e) => setTransactionType(e.target.value)}
+                  className="w-full border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500"
+                >
+                  <option value="all">All</option>
+                  <option value="income">Income</option>
+                  <option value="expense">Expense</option>
                 </select>
               </div>
             </div>
