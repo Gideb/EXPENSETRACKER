@@ -8,20 +8,32 @@ const BudgetSchema = new mongoose.Schema(
       required: true,
       index: true,
     },
-    icon: { type: String },
-    
+   
+    icon: {
+      type: String,
+      default: "💰",
+    },
+
     category: {
       type: String,
       required: true,
       trim: true,
     },
-
     limitAmount: {
       type: Number,
       required: true,
       min: 0,
     },
 
+    month: {
+      type: String,
+      required: true,
+      // Format: 01 - 12
+    },
+    year: {
+      type: Number,
+      required: true,
+    },
     spentAmount: {
       type: Number,
       default: 0,

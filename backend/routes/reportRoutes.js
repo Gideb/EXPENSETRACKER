@@ -1,4 +1,4 @@
-const express = require("express");
+const express = require('express');
 const {
   getFinancialReport,
   getMonthlyReport,
@@ -7,26 +7,28 @@ const {
   exportPDF,
   exportCSV,
   sendEmailReport,
-} = require("../controllers/reportController");
+  getAvailablePeriods,
+  getCategories,
+} = require('../controllers/reportController');
 
-const { protect } = require("../middleware/authMiddleware");
+const { protect } = require('../middleware/authMiddleware');
 
 const router = express.Router();
 
 // JSON DATA REPORTS
-router.get("/financial", protect, getFinancialReport);
-
-router.get("/monthly", protect, getMonthlyReport);
-
-router.get("/category-analysis", protect, getCategoryAnalysis);
-
-router.get("/budget-performance", protect, getBudgetPerformance);
-
+router.get('/financial', protect, getFinancialReport);
+router.get('/monthly', protect, getMonthlyReport);
+router.get('/category-analysis', protect, getCategoryAnalysis);
+router.get('/budget-performance', protect, getBudgetPerformance);
 // EXPORTS
-router.get("/export-pdf", protect, exportPDF);
-router.get("/export-csv", protect, exportCSV);
+router.get('/export-pdf', protect, exportPDF);
+router.get('/export-csv', protect, exportCSV);
 
 // EMAIL
-router.post("/email-report", protect, sendEmailReport);
+router.post('/email-report', protect, sendEmailReport);
+
+//filters
+router.get('/available-periods', protect, getAvailablePeriods);
+router.get('/categories', protect, getCategories);
 
 module.exports = router;

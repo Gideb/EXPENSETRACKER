@@ -1,8 +1,8 @@
-const Budget = require("../models/Budget");
-const Expense = require("../models/Expense");
+const Budget = require('../models/Budget');
+const Expense = require('../models/Expense');
 
 //add budget
-const addBudget = async (req, res) => {
+/* const addBudget = async (req, res) => {
   try {
     const userId = req.user.id;
     const { icon, category, limitAmount, month } = req.body;
@@ -28,6 +28,53 @@ const addBudget = async (req, res) => {
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
+}; */
+
+// add budget
+const addBudget = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { icon, category, limitAmount, month, year } = req.body;
+
+    // Check that category exists in user's expenses
+    const categoryExists = await Expense.findOne({
+      userId,
+      category,
+    });
+
+    if (!categoryExists) {
+      return res.status(400).json({
+        message: 'You can only create budgets for existing expense categories',
+      });
+    }
+
+    // Prevent duplicate budget
+    const existing = await Budget.findOne({
+      userId,
+      category,
+      month,
+      year,
+    });
+
+    if (existing) {
+      return res.status(400).json({
+        message: 'Budget already exists for this category and month',
+      });
+    }
+    const budget = await Budget.create({
+      userId,
+      icon,
+      category,
+      limitAmount,
+      month,
+      year,
+    });
+    res.status(201).json(budget);
+  } catch (error) {
+    res.status(500).json({
+      message: error.message,
+    });
+  }
 };
 
 //get budgets
@@ -35,8 +82,11 @@ const getBudgets = async (req, res) => {
   try {
     const userId = req.user.id;
 
-    const budgets = await Budget.find({ userId }).sort({
-      month: -1, // Changed from date to month for better sorting
+    const budgets = await Budget.find({
+      userId,
+    }).sort({
+      year: -1,
+      month: -1,
     });
 
     res.status(200).json(budgets);
@@ -51,7 +101,7 @@ const updateBudget = async (req, res) => {
     const userId = req.user.id;
     const budgetId = req.params.id;
 
-    const { icon, limitAmount, category, month } = req.body;
+    const { icon, limitAmount, category, month, year } = req.body;
 
     const budget = await Budget.findOne({
       _id: budgetId,
@@ -59,7 +109,7 @@ const updateBudget = async (req, res) => {
     });
 
     if (!budget) {
-      return res.status(404).json({ message: "Budget not found" });
+      return res.status(404).json({ message: 'Budget not found' });
     }
 
     // update fields if provided
@@ -67,6 +117,7 @@ const updateBudget = async (req, res) => {
     if (limitAmount !== undefined) budget.limitAmount = limitAmount;
     if (category) budget.category = category;
     if (month) budget.month = month;
+    if (year) budget.year = year;
 
     await budget.save();
 
@@ -88,10 +139,10 @@ const deleteBudget = async (req, res) => {
     });
 
     if (!budget) {
-      return res.status(404).json({ message: "Budget not found" });
+      return res.status(404).json({ message: 'Budget not found' });
     }
 
-    res.status(200).json({ message: "Budget deleted successfully" });
+    res.status(200).json({ message: 'Budget deleted successfully' });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -102,13 +153,14 @@ const getBudgetSummary = async (req, res) => {
   try {
     const userId = req.user.id;
 
-    // Get current month (YYYY-MM format)
-    const currentMonth = new Date().toISOString().slice(0, 7);
+    const date = new Date();
+    const currentMonth = String(date.getMonth() + 1).padStart(2, '0');
+    const currentYear = date.getFullYear();
 
-    // Get all budgets for current month
     const budgets = await Budget.find({
       userId,
       month: currentMonth,
+      year: currentYear,
     });
 
     // If no budgets for current month, return empty summary
@@ -120,7 +172,7 @@ const getBudgetSummary = async (req, res) => {
         overBudgetCategories: 0,
         categoriesAtRisk: 0,
         percentUtilized: 0,
-        message: "No budgets found for current month",
+        message: 'No budgets found for current month',
       });
     }
 
@@ -142,8 +194,7 @@ const getBudgetSummary = async (req, res) => {
     const spentByCategory = {};
     expenses.forEach((expense) => {
       const category = expense.category;
-      spentByCategory[category] =
-        (spentByCategory[category] || 0) + expense.amount;
+      spentByCategory[category] = (spentByCategory[category] || 0) + expense.amount;
     });
 
     let totalBudget = 0;
@@ -165,8 +216,7 @@ const getBudgetSummary = async (req, res) => {
     });
 
     const remainingBalance = totalBudget - totalSpent;
-    const percentUtilized =
-      totalBudget > 0 ? (totalSpent / totalBudget) * 100 : 0;
+    const percentUtilized = totalBudget > 0 ? (totalSpent / totalBudget) * 100 : 0;
 
     res.status(200).json({
       totalBudget,
@@ -179,9 +229,9 @@ const getBudgetSummary = async (req, res) => {
       totalCategories: budgets.length,
     });
   } catch (error) {
-    console.error("Error in getBudgetSummary:", error);
+    console.error('Error in getBudgetSummary:', error);
     res.status(500).json({
-      message: "Failed to fetch budget summary",
+      message: 'Failed to fetch budget summary',
       error: error.message,
     });
   }
@@ -196,14 +246,16 @@ const getBudgetSummaryByMonth = async (req, res) => {
     // Validate month format
     if (!month || !/^\d{4}-\d{2}$/.test(month)) {
       return res.status(400).json({
-        message: "Invalid month format. Please use YYYY-MM",
+        message: 'Invalid month format. Please use YYYY-MM',
       });
     }
 
-    // Get budgets for specified month
+    const year = month.substring(0, 4);
+    const monthNumber = month.substring(5, 7);
     const budgets = await Budget.find({
       userId,
-      month,
+      year: Number(year),
+      month: monthNumber,
     });
 
     if (budgets.length === 0) {
@@ -215,7 +267,7 @@ const getBudgetSummaryByMonth = async (req, res) => {
         categoriesAtRisk: 0,
         percentUtilized: 0,
         month,
-        message: "No budgets found for this month",
+        message: 'No budgets found for this month',
       });
     }
 
@@ -237,8 +289,7 @@ const getBudgetSummaryByMonth = async (req, res) => {
     const spentByCategory = {};
     expenses.forEach((expense) => {
       const category = expense.category;
-      spentByCategory[category] =
-        (spentByCategory[category] || 0) + expense.amount;
+      spentByCategory[category] = (spentByCategory[category] || 0) + expense.amount;
     });
 
     let totalBudget = 0;
@@ -259,8 +310,7 @@ const getBudgetSummaryByMonth = async (req, res) => {
     });
 
     const remainingBalance = totalBudget - totalSpent;
-    const percentUtilized =
-      totalBudget > 0 ? (totalSpent / totalBudget) * 100 : 0;
+    const percentUtilized = totalBudget > 0 ? (totalSpent / totalBudget) * 100 : 0;
 
     res.status(200).json({
       totalBudget,
@@ -273,10 +323,26 @@ const getBudgetSummaryByMonth = async (req, res) => {
       totalCategories: budgets.length,
     });
   } catch (error) {
-    console.error("Error in getBudgetSummaryByMonth:", error);
+    console.error('Error in getBudgetSummaryByMonth:', error);
     res.status(500).json({
-      message: "Failed to fetch budget summary for specified month",
+      message: 'Failed to fetch budget summary for specified month',
       error: error.message,
+    });
+  }
+};
+
+// Get categories available for budgets
+const getBudgetCategories = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const categories = await Expense.distinct('category', {
+      userId,
+    });
+
+    res.status(200).json(categories);
+  } catch (error) {
+    res.status(500).json({
+      message: error.message,
     });
   }
 };
@@ -287,5 +353,6 @@ module.exports = {
   updateBudget,
   deleteBudget,
   getBudgetSummary,
-  getBudgetSummaryByMonth, 
+  getBudgetSummaryByMonth,
+  getBudgetCategories,
 };

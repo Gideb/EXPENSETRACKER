@@ -3,6 +3,8 @@ const Expense = require('../models/Expense');
 const Budget = require('../models/Budget');
 const User = require('../models/User');
 
+const { getYearDateRange } = require('../utils/dateRange');
+
 const generatePDF = require('../utils/generatePDF');
 
 // Build user information and report period
@@ -28,19 +30,102 @@ const getCommonReportData = async (userId, incomes = [], expenses = []) => {
   };
 };
 
-const getYearDateRange = (year) => {
-  const selectedYear = Number(year) || new Date().getFullYear();
+//available periods
+const getAvailablePeriods = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const incomes = await Income.find({ userId }).select('date').lean();
+    const expenses = await Expense.find({ userId }).select('date').lean();
+    const records = [...incomes, ...expenses];
 
-  return {
-    startDate: new Date(selectedYear, 0, 1),
-    endDate: new Date(selectedYear, 11, 31, 23, 59, 59, 999),
-  };
+    // No records
+    if (!records.length) {
+      return res.json({
+        years: [],
+        months: [],
+      });
+    }
+
+    const years = [...new Set(records.map((item) => new Date(item.date).getFullYear()))].sort(
+      (a, b) => b - a
+    );
+
+    const monthMap = new Map();
+
+    records.forEach((item) => {
+      const date = new Date(item.date);
+      const monthNumber = date.getMonth();
+      const year = date.getFullYear();
+      const key = `${year}-${monthNumber}`;
+
+      if (!monthMap.has(key)) {
+        monthMap.set(key, {
+          year,
+
+          monthNumber,
+
+          month: date.toLocaleString('default', {
+            month: 'short',
+          }),
+        });
+      }
+    });
+
+    const months = [...monthMap.values()].sort((a, b) => {
+      if (a.year !== b.year) {
+        return b.year - a.year;
+      }
+
+      return a.monthNumber - b.monthNumber;
+    });
+
+    res.json({
+      years,
+      months,
+    });
+  } catch (error) {
+    console.error(error);
+
+    res.status(500).json({
+      message: 'Failed to load available periods.',
+    });
+  }
+};
+
+//get available categories
+const getCategories = async (req, res) => {
+  try {
+    const userId = req.user.id;
+
+    const incomes = await Income.find({ userId }).select('source').lean();
+    const expenses = await Expense.find({ userId }).select('category').lean();
+    const incomeCategories = [
+      ...new Set(incomes.map((item) => item.source).filter(Boolean)),
+    ].sort();
+
+    const expenseCategories = [
+      ...new Set(expenses.map((item) => item.category).filter(Boolean)),
+    ].sort();
+
+    const allCategories = [...new Set([...incomeCategories, ...expenseCategories])].sort();
+
+    res.json({
+      income: incomeCategories,
+      expense: expenseCategories,
+      all: allCategories,
+    });
+  } catch (error) {
+    console.error(error);
+
+    res.status(500).json({
+      message: 'Failed to load categories.',
+    });
+  }
 };
 
 /* ======================================================
    FULL FINANCIAL REPORT
 ====================================================== */
-
 const exportPDF = async (req, res) => {
   try {
     const userId = req.user.id;
@@ -83,7 +168,6 @@ const exportPDF = async (req, res) => {
 /* ======================================================
     FINANCIAL SUMMARY REPORT
 ====================================================== */
-
 const getFinancialReport = async (req, res) => {
   try {
     const userId = req.user.id;
@@ -96,7 +180,7 @@ const getFinancialReport = async (req, res) => {
         $gte: startDate,
         $lte: endDate,
       },
-    });
+    }).sort({ date: 1 });
 
     const expenses = await Expense.find({
       userId,
@@ -104,110 +188,97 @@ const getFinancialReport = async (req, res) => {
         $gte: startDate,
         $lte: endDate,
       },
+    }).sort({ date: 1 });
+
+    const totalIncome = incomes.reduce((sum, item) => sum + Number(item.amount), 0);
+
+    const totalExpense = expenses.reduce((sum, item) => sum + Number(item.amount), 0);
+
+    const balance = totalIncome - totalExpense;
+
+    // Monthly breakdown
+    const monthly = {};
+
+    incomes.forEach((income) => {
+      const month = new Date(income.date).toLocaleString('default', {
+        month: 'short',
+      });
+
+      if (!monthly[month]) {
+        monthly[month] = {
+          income: 0,
+          expense: 0,
+        };
+      }
+
+      monthly[month].income += Number(income.amount);
     });
 
-    const budgets = await Budget.find({ userId });
-
-    // SUMMARY
-    const totalIncome = incomes.reduce((sum, item) => sum + item.amount, 0);
-    const totalExpenses = expenses.reduce((sum, item) => sum + item.amount, 0);
-    const balance = totalIncome - totalExpenses;
-    const savingsRate = totalIncome ? Number(((balance / totalIncome) * 100).toFixed(1)) : 0;
-
-    // TRANSACTIONS
-    const transactions = [
-      ...incomes.map((i) => ({
-        _id: i._id,
-        date: i.date,
-        source: i.source,
-        category: i.source || 'Income',
-        amount: i.amount,
-        icon: i.icon,
-        type: 'income',
-      })),
-
-      ...expenses.map((e) => ({
-        _id: e._id,
-        date: e.date,
-        category: e.category,
-        amount: e.amount,
-        icon: e.icon,
-        type: 'expense',
-      })),
-    ].sort((a, b) => new Date(b.date) - new Date(a.date));
-
-    // MONTHLY REPORT
-    const monthlyData = [];
-    const selectedYear = Number(req.query.year) || new Date().getFullYear();
-
-    for (let month = 0; month < 12; month++) {
-      const monthIncome = incomes
-        .filter((item) => new Date(item.date).getMonth() === month)
-        .reduce((sum, item) => sum + item.amount, 0);
-
-      const monthExpense = expenses
-        .filter((item) => new Date(item.date).getMonth() === month)
-        .reduce((sum, item) => sum + item.amount, 0);
-
-      monthlyData.push({
-        month: new Date(selectedYear, month).toLocaleString('default', { month: 'short' }),
-        income: monthIncome,
-        expenses: monthExpense,
+    expenses.forEach((expense) => {
+      const month = new Date(expense.date).toLocaleString('default', {
+        month: 'short',
       });
-    }
 
-    // CATEGORY ANALYSIS
+      if (!monthly[month]) {
+        monthly[month] = {
+          income: 0,
+          expense: 0,
+        };
+      }
+
+      monthly[month].expense += Number(expense.amount);
+    });
+
+    const monthlyReport = Object.keys(monthly).map((month) => ({
+      month,
+      income: monthly[month].income,
+      expense: monthly[month].expense,
+      balance: monthly[month].income - monthly[month].expense,
+    }));
+
+    // Category spending dynamically
     const categoryMap = {};
 
     expenses.forEach((expense) => {
-      if (!categoryMap[expense.category]) {
-        categoryMap[expense.category] = 0;
+      const category = expense.category;
+
+      if (!categoryMap[category]) {
+        categoryMap[category] = 0;
       }
 
-      categoryMap[expense.category] += expense.amount;
+      categoryMap[category] += Number(expense.amount);
     });
 
-    const categorySpending = Object.keys(categoryMap)
-      .map((category) => ({
-        category,
-        amount: categoryMap[category],
-        percentage: totalExpenses
-          ? Number(((categoryMap[category] / totalExpenses) * 100).toFixed(1))
-          : 0,
-      }))
-      .sort((a, b) => b.amount - a.amount);
+    const categories = Object.keys(categoryMap).map((category) => ({
+      category,
+      amount: categoryMap[category],
+    }));
 
-    //budget analysis
-    const budgetData = budgets.map((budget) => {
-      const spent = expenses
-        .filter((expense) => expense.category.toLowerCase() === budget.category.toLowerCase())
-        .reduce((sum, expense) => sum + expense.amount, 0);
+    res.status(200).json({
+      success: true,
+      year: req.query.year || new Date().getFullYear(),
 
-      return {
-        category: budget.category,
-        budget: budget.limitAmount,
-        spent,
-        remaining: budget.limitAmount - spent,
-      };
-    });
-
-    res.json({
       summary: {
         totalIncome,
-        totalExpenses,
+        totalExpense,
         balance,
-        savingsRate,
       },
-      transactions,
-      monthlyData,
-      categorySpending,
-      budgetData,
+
+      monthlyReport,
+
+      categories,
+
+      transactions: {
+        incomes,
+        expenses,
+      },
     });
   } catch (error) {
-    console.log(error);
+    console.error('Financial Report Error:', error);
 
     res.status(500).json({
-      message: 'Failed loading report',
+      success: false,
+      message: error.message,
     });
   }
 };
@@ -215,7 +286,6 @@ const getFinancialReport = async (req, res) => {
 /* ======================================================
     MONTHLY REPORT
 ====================================================== */
-
 const getMonthlyReport = async (req, res) => {
   try {
     const userId = req.user.id;
@@ -228,7 +298,9 @@ const getMonthlyReport = async (req, res) => {
         $gte: startDate,
         $lte: endDate,
       },
-    }).lean();
+    })
+      .select('amount date')
+      .lean();
 
     const expenses = await Expense.find({
       userId,
@@ -236,41 +308,55 @@ const getMonthlyReport = async (req, res) => {
         $gte: startDate,
         $lte: endDate,
       },
-    }).lean();
+    })
+      .select('amount date')
+      .lean();
 
-    const monthNames = [
-      'Jan',
-      'Feb',
-      'Mar',
-      'Apr',
-      'May',
-      'Jun',
-      'Jul',
-      'Aug',
-      'Sep',
-      'Oct',
-      'Nov',
-      'Dec',
-    ];
+    const monthlyMap = new Map();
 
-    // Initialize every month
-    const monthly = monthNames.map((month) => ({
-      month,
-      income: 0,
-      expenses: 0,
-    }));
+    // Process incomes
+    incomes.forEach((income) => {
+      const date = new Date(income.date);
 
-    // Add income
-    incomes.forEach((item) => {
-      const monthIndex = new Date(item.date).getMonth();
-      monthly[monthIndex].income += item.amount;
+      const monthNumber = date.getMonth();
+
+      if (!monthlyMap.has(monthNumber)) {
+        monthlyMap.set(monthNumber, {
+          month: date.toLocaleString('default', {
+            month: 'short',
+          }),
+          monthNumber,
+          income: 0,
+          expenses: 0,
+        });
+      }
+
+      monthlyMap.get(monthNumber).income += income.amount;
     });
 
-    // Add expenses
-    expenses.forEach((item) => {
-      const monthIndex = new Date(item.date).getMonth();
-      monthly[monthIndex].expenses += item.amount;
+    // Process expenses
+    expenses.forEach((expense) => {
+      const date = new Date(expense.date);
+
+      const monthNumber = date.getMonth();
+
+      if (!monthlyMap.has(monthNumber)) {
+        monthlyMap.set(monthNumber, {
+          month: date.toLocaleString('default', {
+            month: 'short',
+          }),
+          monthNumber,
+          income: 0,
+          expenses: 0,
+        });
+      }
+
+      monthlyMap.get(monthNumber).expenses += expense.amount;
     });
+
+    const monthly = [...monthlyMap.values()]
+      .sort((a, b) => a.monthNumber - b.monthNumber)
+      .map(({ monthNumber, ...rest }) => rest);
 
     res.json(monthly);
   } catch (error) {
@@ -285,12 +371,10 @@ const getMonthlyReport = async (req, res) => {
 /* ======================================================
     CATEGORY ANALYSIS REPORT
 ====================================================== */
-
 const getCategoryAnalysis = async (req, res) => {
   try {
     const userId = req.user.id;
     const { startDate, endDate } = getYearDateRange(req.query.year);
-
     const expenses = await Expense.find({
       userId,
       date: {
@@ -298,32 +382,93 @@ const getCategoryAnalysis = async (req, res) => {
         $lte: endDate,
       },
     });
-    const categories = {};
 
-    let totalExpense = 0;
+    const incomes = await Income.find({
+      userId,
+      date: {
+        $gte: startDate,
+        $lte: endDate,
+      },
+    });
 
-    expenses.forEach((exp) => {
-      totalExpense += exp.amount;
-      if (!categories[exp.category]) {
-        categories[exp.category] = 0;
+    // ============================
+    // Expense Category Analysis
+    // ============================
+
+    const categoryMap = {};
+
+    expenses.forEach((expense) => {
+      const category = expense.category;
+
+      if (!categoryMap[category]) {
+        categoryMap[category] = {
+          category,
+          totalAmount: 0,
+          count: 0,
+        };
       }
 
-      categories[exp.category] += exp.amount;
+      categoryMap[category].totalAmount += Number(expense.amount);
+      categoryMap[category].count += 1;
     });
-    const result = Object.entries(categories)
-      .map(([category, amount]) => ({
-        category,
-        amount,
-        percentage: totalExpense ? Number(((amount / totalExpense) * 100).toFixed(1)) : 0,
-      }))
-      .sort((a, b) => b.amount - a.amount);
 
-    res.json(result);
+    const expenseCategories = Object.values(categoryMap);
+    const totalExpense = expenseCategories.reduce((sum, item) => sum + item.totalAmount, 0);
+    const categoryAnalysis = expenseCategories.map((item) => ({
+      category: item.category,
+      amount: item.totalAmount,
+      transactions: item.count,
+      percentage:
+        totalExpense > 0 ? Number(((item.totalAmount / totalExpense) * 100).toFixed(2)) : 0,
+    }));
+
+    // Sort highest spending first
+
+    categoryAnalysis.sort((a, b) => b.amount - a.amount);
+
+    // ============================
+    // Income Sources
+    // ============================
+
+    const incomeMap = {};
+
+    incomes.forEach((income) => {
+      const source = income.source || 'Other';
+
+      if (!incomeMap[source]) {
+        incomeMap[source] = {
+          source,
+          amount: 0,
+          count: 0,
+        };
+      }
+
+      incomeMap[source].amount += Number(income.amount);
+      incomeMap[source].count += 1;
+    });
+
+    const incomeAnalysis = Object.values(incomeMap);
+
+    res.status(200).json({
+      success: true,
+
+      year: req.query.year || new Date().getFullYear(),
+
+      expenses: {
+        total: totalExpense,
+        categories: categoryAnalysis,
+      },
+
+      income: {
+        categories: incomeAnalysis,
+      },
+    });
   } catch (error) {
-    console.log(error);
+    console.error('Category Analysis Error:', error);
 
     res.status(500).json({
-      message: 'Category analysis failed',
+      success: false,
+      message: error.message,
     });
   }
 };
@@ -331,13 +476,23 @@ const getCategoryAnalysis = async (req, res) => {
 /* ======================================================
    BUDGET PERFORMANCE REPORT
 ====================================================== */
-
 const getBudgetPerformance = async (req, res) => {
   try {
     const userId = req.user.id;
-    const { startDate, endDate } = getYearDateRange(req.query.year);
+    const selectedYear = Number(req.query.year || new Date().getFullYear());
+    const selectedMonth = req.query.month || null;
+    const { startDate, endDate } = getYearDateRange(selectedYear);
 
-    const budgets = await Budget.find({ userId });
+    const budgetQuery = {
+      userId,
+      year: selectedYear,
+    };
+
+    if (selectedMonth) {
+      budgetQuery.month = selectedMonth;
+    }
+
+    const budgets = await Budget.find(budgetQuery);
 
     const expenses = await Expense.find({
       userId,
@@ -346,48 +501,51 @@ const getBudgetPerformance = async (req, res) => {
         $lte: endDate,
       },
     });
+
+    const expenseMap = {};
+    expenses.forEach((expense) => {
+      const category = expense.category;
+      if (!expenseMap[category]) {
+        expenseMap[category] = 0;
+      }
+      expenseMap[category] += Number(expense.amount);
+    });
+
     const performance = budgets.map((budget) => {
-      const categoryExpenses = expenses
-        .filter((expense) => expense.category.toLowerCase() === budget.category.toLowerCase())
-        .reduce((sum, expense) => sum + expense.amount, 0);
-
-      const percentage =
-        budget.limitAmount > 0
-          ? Number(((categoryExpenses / budget.limitAmount) * 100).toFixed(1))
-          : 0;
-
+      const spent = expenseMap[budget.category] || 0;
+      const limit = Number(budget.limitAmount);
+      const percentage = limit > 0 ? Number(((spent / limit) * 100).toFixed(2)) : 0;
+      let status = 'Good';
+      if (percentage >= 100) {
+        status = 'Exceeded';
+      } else if (percentage >= 80) {
+        status = 'Warning';
+      }
       return {
+        id: budget._id,
+        icon: budget.icon,
         category: budget.category,
-        budgetAmount: budget.limitAmount,
-        spentAmount: categoryExpenses,
-        remaining: budget.limitAmount - categoryExpenses,
-        percentageUsed: Number(percentage),
-        status:
-          categoryExpenses > budget.limitAmount
-            ? 'Over Budget'
-            : categoryExpenses >= budget.limitAmount * 0.8
-              ? 'Near Limit'
-              : 'Healthy',
+        month: budget.month,
+        year: budget.year,
+        budgetLimit: limit,
+        spent,
+        remaining: limit - spent,
+        percentage,
+        status,
       };
     });
 
-    const summary = {
-      totalBudget: performance.reduce((sum, item) => sum + item.budgetAmount, 0),
-
-      totalSpent: performance.reduce((sum, item) => sum + item.spentAmount, 0),
-
-      totalRemaining: performance.reduce((sum, item) => sum + item.remaining, 0),
-
-      overBudgetCategories: performance.filter((item) => item.status === 'Over Budget').length,
-    };
-    res.json({
-      summary,
+    res.status(200).json({
+      success: true,
+      year: selectedYear,
+      month: selectedMonth,
       performance,
     });
   } catch (error) {
-    console.error('Budget performance error:', error);
+    console.error('Budget Performance Error:', error);
     res.status(500).json({
-      message: 'Failed to generate budget performance report',
+      success: false,
+      message: error.message,
     });
   }
 };
@@ -395,7 +553,6 @@ const getBudgetPerformance = async (req, res) => {
 /* ======================================================
    INCOME REPORT
 ====================================================== */
-
 const exportIncomePDF = async (req, res) => {
   try {
     const userId = req.user.id;
@@ -431,7 +588,6 @@ const exportIncomePDF = async (req, res) => {
 /* ======================================================
    EXPENSE REPORT
 ====================================================== */
-
 const exportExpensePDF = async (req, res) => {
   try {
     const userId = req.user.id;
@@ -467,7 +623,6 @@ const exportExpensePDF = async (req, res) => {
 /* ======================================================
    TRANSACTION REPORT
 ====================================================== */
-
 const exportTransactionPDF = async (req, res) => {
   try {
     const userId = req.user.id;
@@ -527,7 +682,6 @@ const exportTransactionPDF = async (req, res) => {
 /* ======================================================
    EXPORT CSV REPORT
 ====================================================== */
-
 const exportCSV = async (req, res) => {
   try {
     const userId = req.user.id;
