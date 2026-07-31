@@ -1,10 +1,11 @@
-import { useState, useEffect, useRef } from 'react';
-import Dashboardlayout from '../../components/layouts/Dashboardlayout';
-import { useUserAuth } from '../../hooks/useUserAuth';
-import axiosInstance from '../../utils/axiosInstance';
-import { API_PATHS } from '../../utils/apiPaths';
-import MonthlyBarChart from '../../components/Charts/MonthlyBarChart';
-import { addThousandsSeparator } from '../../utils/helper';
+import { useState, useEffect, useRef } from "react";
+import { useNavigate } from "react-router-dom";
+import Dashboardlayout from "../../components/layouts/Dashboardlayout";
+import { useUserAuth } from "../../hooks/useUserAuth";
+import axiosInstance from "../../utils/axiosInstance";
+import { API_PATHS } from "../../utils/apiPaths";
+import MonthlyBarChart from "../../components/Charts/MonthlyBarChart";
+import { addThousandsSeparator } from "../../utils/helper";
 
 import {
   BarChart3,
@@ -34,21 +35,22 @@ import {
   AlertCircle,
   CheckCircle,
   Clock,
-} from 'lucide-react';
-import RecentTransactions from '../../components/Dashboard/RecentTransactions';
+} from "lucide-react";
+import RecentTransactions from "../../components/Dashboard/RecentTransactions";
 
 const Reports = () => {
   useUserAuth();
 
-  const [activeTab, setActiveTab] = useState('summary');
+  const [activeTab, setActiveTab] = useState("summary");
   const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth());
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
-  const [selectedCategory, setSelectedCategory] = useState('all');
+  const [selectedCategory, setSelectedCategory] = useState("all");
   const [showDateRange, setShowDateRange] = useState(false);
   const [dateRange, setDateRange] = useState({
     start: new Date(new Date().getFullYear(), new Date().getMonth(), 1),
     end: new Date(),
   });
+  const navigate = useNavigate();
   const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
   const [showFilterOptions, setShowFilterOptions] = useState(false);
   const [financialData, setFinancialData] = useState(null);
@@ -132,18 +134,18 @@ const Reports = () => {
   }; */
 
   const months = [
-    'Jan',
-    'Feb',
-    'Mar',
-    'Apr',
-    'May',
-    'Jun',
-    'Jul',
-    'Aug',
-    'Sep',
-    'Oct',
-    'Nov',
-    'Dec',
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "May",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec",
   ];
 
   // Category icon mapping
@@ -167,20 +169,20 @@ const Reports = () => {
   const handleExportPDF = async () => {
     try {
       const response = await axiosInstance.get(API_PATHS.REPORTS.EXPORT_PDF, {
-        responseType: 'blob',
+        responseType: "blob",
       });
 
       const blob = new Blob([response.data], {
-        type: 'application/pdf',
+        type: "application/pdf",
       });
 
       const url = window.URL.createObjectURL(blob);
 
-      const link = document.createElement('a');
+      const link = document.createElement("a");
 
       link.href = url;
 
-      link.download = 'financial-report.pdf';
+      link.download = "financial-report.pdf";
 
       link.click();
 
@@ -191,7 +193,7 @@ const Reports = () => {
   };
 
   const handleExportCSV = () => {
-    alert('CSV file downloaded!');
+    alert("CSV file downloaded!");
   };
 
   const handlePrint = () => {
@@ -199,11 +201,11 @@ const Reports = () => {
   };
 
   const handleEmailReport = () => {
-    alert('Report sent to your email!');
+    alert("Report sent to your email!");
   };
 
   // Helper function to render category icon
-  const renderCategoryIcon = (categoryName, className = 'w-5 h-5') => {
+  const renderCategoryIcon = (categoryName, className = "w-5 h-5") => {
     const IconComponent = getCategoryIcon(categoryName);
     return <IconComponent className={className} />;
   };
@@ -218,7 +220,9 @@ const Reports = () => {
         <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-gray-700">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-500 dark:text-gray-400">Total Income</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">
+                Total Income
+              </p>
               <p className="text-2xl font-bold text-green-600 dark:text-green-400">
                 {`GHS ${addThousandsSeparator(financialData?.summary?.totalIncome)}`}
               </p>
@@ -236,7 +240,9 @@ const Reports = () => {
         <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-gray-700">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-500 dark:text-gray-400">Total Expenses</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">
+                Total Expenses
+              </p>
               <p className="text-2xl font-bold text-red-600 dark:text-red-400">
                 {`GHS ${addThousandsSeparator(financialData?.summary?.totalExpenses)}`}
               </p>
@@ -254,7 +260,9 @@ const Reports = () => {
         <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-gray-700">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-500 dark:text-gray-400">Balance</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">
+                Balance
+              </p>
               <p className="text-2xl font-bold text-amber-600 dark:text-amber-400">
                 {`GHS ${addThousandsSeparator(financialData?.summary?.balance)}`}
               </p>
@@ -268,7 +276,9 @@ const Reports = () => {
         <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-gray-700">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-500 dark:text-gray-400">Savings Rate</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">
+                Savings Rate
+              </p>
               <p className="text-2xl font-bold text-purple-600 dark:text-purple-400">
                 {`${financialData?.summary?.savingsRate}%`}
               </p>
@@ -345,7 +355,7 @@ const Reports = () => {
       <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
         <RecentTransactions
           transactions={financialData?.transactions}
-          onSeeMore={() => navigate('/transactions')}
+          onSeeMore={() => navigate("/transactions")}
         />
       </div>
     </div>
@@ -355,7 +365,10 @@ const Reports = () => {
   const renderMonthlyReports = () => {
     const monthlyData = financialData?.monthlyData || [];
 
-    const maxValue = Math.max(...monthlyData.flatMap((m) => [m.income, m.expenses]), 1);
+    const maxValue = Math.max(
+      ...monthlyData.flatMap((m) => [m.income, m.expenses]),
+      1,
+    );
 
     return (
       <div className="space-y-6">
@@ -391,7 +404,7 @@ const Reports = () => {
               onClick={() => setShowDateRange(!showDateRange)}
               className="text-sm text-amber-600 dark:text-amber-400 hover:underline"
             >
-              {showDateRange ? 'Hide Date Range' : 'Custom Date Range'}
+              {showDateRange ? "Hide Date Range" : "Custom Date Range"}
             </button>
           </div>
 
@@ -403,8 +416,13 @@ const Reports = () => {
                 </label>
                 <input
                   type="date"
-                  value={dateRange.start.toISOString().split('T')[0]}
-                  onChange={(e) => setDateRange({ ...dateRange, start: new Date(e.target.value) })}
+                  value={dateRange.start.toISOString().split("T")[0]}
+                  onChange={(e) =>
+                    setDateRange({
+                      ...dateRange,
+                      start: new Date(e.target.value),
+                    })
+                  }
                   className="w-full border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-amber-500"
                 />
               </div>
@@ -414,8 +432,13 @@ const Reports = () => {
                 </label>
                 <input
                   type="date"
-                  value={dateRange.end.toISOString().split('T')[0]}
-                  onChange={(e) => setDateRange({ ...dateRange, end: new Date(e.target.value) })}
+                  value={dateRange.end.toISOString().split("T")[0]}
+                  onChange={(e) =>
+                    setDateRange({
+                      ...dateRange,
+                      end: new Date(e.target.value),
+                    })
+                  }
                   className="w-full border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-amber-500"
                 />
               </div>
@@ -425,7 +448,9 @@ const Reports = () => {
 
         {/* Monthly Chart - Bar Chart Visualization */}
         <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-6">
-          <h3 className="font-semibold text-gray-900 dark:text-white mb-4">Monthly Overview</h3>
+          <h3 className="font-semibold text-gray-900 dark:text-white mb-4">
+            Monthly Overview
+          </h3>
           <MonthlyBarChart data={financialData?.monthlyData || []} />
         </div>
 
@@ -504,11 +529,16 @@ const Reports = () => {
         <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-gray-700">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-500 dark:text-gray-400">Total Budget</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">
+                Total Budget
+              </p>
               <p className="text-2xl font-bold text-gray-900 dark:text-white">
-                GHS{' '}
+                GHS{" "}
                 {addThousandsSeparator(
-                  financialData?.budgetData?.reduce((sum, b) => sum + b.budget, 0)
+                  financialData?.budgetData?.reduce(
+                    (sum, b) => sum + b.budget,
+                    0,
+                  ),
                 )}
               </p>
             </div>
@@ -521,11 +551,16 @@ const Reports = () => {
         <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-gray-700">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-500 dark:text-gray-400">Total Spent</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">
+                Total Spent
+              </p>
               <p className="text-2xl font-bold text-red-600 dark:text-red-400">
-                GHS{' '}
+                GHS{" "}
                 {addThousandsSeparator(
-                  financialData?.budgetData?.reduce((sum, b) => sum + b.spent, 0)
+                  financialData?.budgetData?.reduce(
+                    (sum, b) => sum + b.spent,
+                    0,
+                  ),
                 )}
               </p>
             </div>
@@ -538,11 +573,16 @@ const Reports = () => {
         <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-gray-700">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-500 dark:text-gray-400">Remaining</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">
+                Remaining
+              </p>
               <p className="text-2xl font-bold text-green-600 dark:text-green-400">
-                GHS{' '}
+                GHS{" "}
                 {addThousandsSeparator(
-                  financialData?.budgetData?.reduce((sum, b) => sum + b.remaining, 0)
+                  financialData?.budgetData?.reduce(
+                    (sum, b) => sum + b.remaining,
+                    0,
+                  ),
                 )}
               </p>
             </div>
@@ -571,9 +611,11 @@ const Reports = () => {
                   <IconComponent className="w-5 h-5 text-gray-600 dark:text-gray-400" />
                 </div>
                 <div>
-                  <h4 className="font-medium text-gray-900 dark:text-white">{budget.category}</h4>
+                  <h4 className="font-medium text-gray-900 dark:text-white">
+                    {budget.category}
+                  </h4>
                   <p className="text-sm text-gray-500 dark:text-gray-400">
-                    GHS {addThousandsSeparator(budget.spent)} of GHS{' '}
+                    GHS {addThousandsSeparator(budget.spent)} of GHS{" "}
                     {addThousandsSeparator(budget.budget)} spent
                   </p>
                 </div>
@@ -582,13 +624,13 @@ const Reports = () => {
                 <span
                   className={`text-sm font-semibold ${
                     isOverBudget
-                      ? 'text-red-600 dark:text-red-400'
+                      ? "text-red-600 dark:text-red-400"
                       : isNearLimit
-                        ? 'text-yellow-600 dark:text-yellow-400'
-                        : 'text-green-600 dark:text-green-400'
+                        ? "text-yellow-600 dark:text-yellow-400"
+                        : "text-green-600 dark:text-green-400"
                   }`}
                 >
-                  {isOverBudget ? 'Over Budget' : `${Math.round(percentage)}%`}
+                  {isOverBudget ? "Over Budget" : `${Math.round(percentage)}%`}
                 </span>
               </div>
             </div>
@@ -597,17 +639,19 @@ const Reports = () => {
               <div
                 className={`h-2.5 rounded-full transition-all duration-500 ${
                   isOverBudget
-                    ? 'bg-red-600 dark:bg-red-400'
+                    ? "bg-red-600 dark:bg-red-400"
                     : isNearLimit
-                      ? 'bg-yellow-500 dark:bg-yellow-400'
-                      : 'bg-green-600 dark:bg-green-400'
+                      ? "bg-yellow-500 dark:bg-yellow-400"
+                      : "bg-green-600 dark:bg-green-400"
                 }`}
                 style={{ width: `${Math.min(percentage, 100)}%` }}
               />
             </div>
 
             <div className="mt-2 flex justify-between text-xs text-gray-500 dark:text-gray-400">
-              <span>GHS {addThousandsSeparator(budget.remaining)} remaining</span>
+              <span>
+                GHS {addThousandsSeparator(budget.remaining)} remaining
+              </span>
               <span>{budget.category}</span>
             </div>
           </div>
@@ -626,66 +670,72 @@ const Reports = () => {
     // Income insight
     if (summary?.totalIncome > 0) {
       insights.push({
-        type: 'income',
-        title: 'Income Overview',
+        type: "income",
+        title: "Income Overview",
         message: `You have earned GHS ${summary.totalIncome.toLocaleString()} in total income.`,
         icon: TrendingUp,
-        color: 'amber',
+        color: "amber",
       });
     }
 
     // Highest spending category
     if (categories.length > 0) {
-      const highestCategory = [...categories].sort((a, b) => b.amount - a.amount)[0];
+      const highestCategory = [...categories].sort(
+        (a, b) => b.amount - a.amount,
+      )[0];
 
       insights.push({
-        type: 'expense',
-        title: 'Top Spending Category',
+        type: "expense",
+        title: "Top Spending Category",
         message: `${highestCategory.category} is your highest spending category at GHS ${highestCategory.amount.toLocaleString()}.`,
         icon: AlertCircle,
-        color: 'yellow',
+        color: "yellow",
       });
     }
 
     // Budget warning
-    const exceededBudget = budgets.find((budget) => budget.spent > budget.budget);
+    const exceededBudget = budgets.find(
+      (budget) => budget.spent > budget.budget,
+    );
 
-    const nearLimitBudget = budgets.find((budget) => budget.spent / budget.budget >= 0.8);
+    const nearLimitBudget = budgets.find(
+      (budget) => budget.spent / budget.budget >= 0.8,
+    );
 
     if (exceededBudget) {
       insights.push({
-        type: 'budget',
-        title: 'Budget Alert',
+        type: "budget",
+        title: "Budget Alert",
         message: `${exceededBudget.category} has exceeded your budget.`,
         icon: AlertCircle,
-        color: 'red',
+        color: "red",
       });
     } else if (nearLimitBudget) {
       insights.push({
-        type: 'budget',
-        title: 'Budget Warning',
+        type: "budget",
+        title: "Budget Warning",
         message: `${nearLimitBudget.category} is close to its budget limit.`,
         icon: AlertCircle,
-        color: 'yellow',
+        color: "yellow",
       });
     }
 
     // Savings insight
     if (summary?.savingsRate >= 20) {
       insights.push({
-        type: 'saving',
-        title: 'Savings Goal',
+        type: "saving",
+        title: "Savings Goal",
         message: `Great work! You are saving ${summary.savingsRate}% of your income.`,
         icon: CheckCircle,
-        color: 'green',
+        color: "green",
       });
     } else if (summary) {
       insights.push({
-        type: 'saving',
-        title: 'Savings Improvement',
+        type: "saving",
+        title: "Savings Improvement",
         message: `Your current savings rate is ${summary.savingsRate}%. Try increasing it gradually.`,
         icon: TrendingDown,
-        color: 'yellow',
+        color: "yellow",
       });
     }
 
@@ -696,7 +746,9 @@ const Reports = () => {
     <div className="space-y-6">
       {/* Category Breakdown */}
       <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-6">
-        <h3 className="font-semibold text-gray-900 dark:text-white mb-4">Spending by Category</h3>
+        <h3 className="font-semibold text-gray-900 dark:text-white mb-4">
+          Spending by Category
+        </h3>
         <div className="space-y-4">
           {financialData?.categorySpending?.map((category, index) => {
             const IconComponent = getCategoryIcon(category.category);
@@ -768,35 +820,37 @@ const Reports = () => {
         </div>
 
         <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-6">
-          <h4 className="font-medium text-gray-900 dark:text-white mb-3">Insights</h4>
+          <h4 className="font-medium text-gray-900 dark:text-white mb-3">
+            Insights
+          </h4>
 
           <div className="space-y-4">
             {generateInsights().map((insight, index) => {
               const Icon = insight.icon;
               const styles = {
                 amber: {
-                  box: 'bg-amber-50 dark:bg-amber-900/20',
-                  icon: 'bg-amber-100 dark:bg-amber-800',
-                  text: 'text-amber-900 dark:text-amber-300',
-                  desc: 'text-amber-700 dark:text-amber-400',
+                  box: "bg-amber-50 dark:bg-amber-900/20",
+                  icon: "bg-amber-100 dark:bg-amber-800",
+                  text: "text-amber-900 dark:text-amber-300",
+                  desc: "text-amber-700 dark:text-amber-400",
                 },
                 yellow: {
-                  box: 'bg-yellow-50 dark:bg-yellow-900/20',
-                  icon: 'bg-yellow-100 dark:bg-yellow-800',
-                  text: 'text-yellow-900 dark:text-yellow-300',
-                  desc: 'text-yellow-700 dark:text-yellow-400',
+                  box: "bg-yellow-50 dark:bg-yellow-900/20",
+                  icon: "bg-yellow-100 dark:bg-yellow-800",
+                  text: "text-yellow-900 dark:text-yellow-300",
+                  desc: "text-yellow-700 dark:text-yellow-400",
                 },
                 green: {
-                  box: 'bg-green-50 dark:bg-green-900/20',
-                  icon: 'bg-green-100 dark:bg-green-800',
-                  text: 'text-green-900 dark:text-green-300',
-                  desc: 'text-green-700 dark:text-green-400',
+                  box: "bg-green-50 dark:bg-green-900/20",
+                  icon: "bg-green-100 dark:bg-green-800",
+                  text: "text-green-900 dark:text-green-300",
+                  desc: "text-green-700 dark:text-green-400",
                 },
                 red: {
-                  box: 'bg-red-50 dark:bg-red-900/20',
-                  icon: 'bg-red-100 dark:bg-red-800',
-                  text: 'text-red-900 dark:text-red-300',
-                  desc: 'text-red-700 dark:text-red-400',
+                  box: "bg-red-50 dark:bg-red-900/20",
+                  icon: "bg-red-100 dark:bg-red-800",
+                  text: "text-red-900 dark:text-red-300",
+                  desc: "text-red-700 dark:text-red-400",
                 },
               };
 
@@ -810,9 +864,13 @@ const Reports = () => {
                     </div>
 
                     <div>
-                      <p className={`text-sm font-medium ${style.text}`}>{insight.title}</p>
+                      <p className={`text-sm font-medium ${style.text}`}>
+                        {insight.title}
+                      </p>
 
-                      <p className={`text-sm ${style.desc}`}>{insight.message}</p>
+                      <p className={`text-sm ${style.desc}`}>
+                        {insight.message}
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -840,8 +898,9 @@ const Reports = () => {
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
           <div>
-            <p className="text-xs font-bold text-red-500 mb-5">*still under works</p>
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Reports</h1>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+              Reports
+            </h1>
             <p className="text-gray-500 dark:text-gray-400 mt-1">
               Analyze your financial data and track your spending habits
             </p>
@@ -898,10 +957,10 @@ const Reports = () => {
           <div className="border-b border-gray-200 dark:border-gray-700">
             <nav className="flex flex-wrap gap-2 -mb-px">
               {[
-                { id: 'summary', label: 'Financial Summary', icon: BarChart3 },
-                { id: 'monthly', label: 'Monthly Reports', icon: Calendar },
-                { id: 'budget', label: 'Budget Reports', icon: Wallet },
-                { id: 'analytics', label: 'Analytics', icon: PieChart },
+                { id: "summary", label: "Financial Summary", icon: BarChart3 },
+                { id: "monthly", label: "Monthly Reports", icon: Calendar },
+                { id: "budget", label: "Budget Reports", icon: Wallet },
+                { id: "analytics", label: "Analytics", icon: PieChart },
               ].map((tab) => {
                 const IconComponent = tab.icon;
                 return (
@@ -910,8 +969,8 @@ const Reports = () => {
                     onClick={() => setActiveTab(tab.id)}
                     className={`flex items-center gap-2 px-4 py-2 text-sm font-medium border-b-2 transition-all duration-200 ${
                       activeTab === tab.id
-                        ? 'border-amber-600 text-amber-600 dark:border-amber-400 dark:text-amber-400'
-                        : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:border-gray-300'
+                        ? "border-amber-600 text-amber-600 dark:border-amber-400 dark:text-amber-400"
+                        : "border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:border-gray-300"
                     }`}
                   >
                     <IconComponent className="w-4 h-4" />
@@ -928,7 +987,9 @@ const Reports = () => {
           <div className="flex flex-wrap items-center gap-4">
             <div className="flex items-center gap-2">
               <Filter className="w-4 h-4 text-gray-500 dark:text-gray-400" />
-              <span className="text-sm text-gray-600 dark:text-gray-300">Filters:</span>
+              <span className="text-sm text-gray-600 dark:text-gray-300">
+                Filters:
+              </span>
             </div>
 
             <select
@@ -998,10 +1059,10 @@ const Reports = () => {
 
         {/* Tab Content */}
         <div className="min-h-100">
-          {activeTab === 'summary' && renderSummary()}
-          {activeTab === 'monthly' && renderMonthlyReports()}
-          {activeTab === 'budget' && renderBudgetReports()}
-          {activeTab === 'analytics' && renderAnalytics()}
+          {activeTab === "summary" && renderSummary()}
+          {activeTab === "monthly" && renderMonthlyReports()}
+          {activeTab === "budget" && renderBudgetReports()}
+          {activeTab === "analytics" && renderAnalytics()}
         </div>
 
         {/* Footer */}
