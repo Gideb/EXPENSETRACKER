@@ -28,6 +28,15 @@ const getCommonReportData = async (userId, incomes = [], expenses = []) => {
   };
 };
 
+const getYearDateRange = (year) => {
+  const selectedYear = Number(year) || new Date().getFullYear();
+
+  return {
+    startDate: new Date(selectedYear, 0, 1),
+    endDate: new Date(selectedYear, 11, 31, 23, 59, 59, 999),
+  };
+};
+
 /* ======================================================
    FULL FINANCIAL REPORT
 ====================================================== */
@@ -79,17 +88,30 @@ const getFinancialReport = async (req, res) => {
   try {
     const userId = req.user.id;
 
-    const incomes = await Income.find({ userId });
-    const expenses = await Expense.find({ userId });
+    const { startDate, endDate } = getYearDateRange(req.query.year);
+
+    const incomes = await Income.find({
+      userId,
+      date: {
+        $gte: startDate,
+        $lte: endDate,
+      },
+    });
+
+    const expenses = await Expense.find({
+      userId,
+      date: {
+        $gte: startDate,
+        $lte: endDate,
+      },
+    });
+
     const budgets = await Budget.find({ userId });
 
     // SUMMARY
     const totalIncome = incomes.reduce((sum, item) => sum + item.amount, 0);
-
     const totalExpenses = expenses.reduce((sum, item) => sum + item.amount, 0);
-
     const balance = totalIncome - totalExpenses;
-
     const savingsRate = totalIncome ? Number(((balance / totalIncome) * 100).toFixed(1)) : 0;
 
     // TRANSACTIONS
@@ -116,6 +138,7 @@ const getFinancialReport = async (req, res) => {
 
     // MONTHLY REPORT
     const monthlyData = [];
+    const selectedYear = Number(req.query.year) || new Date().getFullYear();
 
     for (let month = 0; month < 12; month++) {
       const monthIncome = incomes
@@ -127,7 +150,7 @@ const getFinancialReport = async (req, res) => {
         .reduce((sum, item) => sum + item.amount, 0);
 
       monthlyData.push({
-        month: new Date(2026, month).toLocaleString('default', { month: 'short' }),
+        month: new Date(selectedYear, month).toLocaleString('default', { month: 'short' }),
         income: monthIncome,
         expenses: monthExpense,
       });
@@ -197,8 +220,23 @@ const getMonthlyReport = async (req, res) => {
   try {
     const userId = req.user.id;
 
-    const incomes = await Income.find({ userId }).lean();
-    const expenses = await Expense.find({ userId }).lean();
+    const { startDate, endDate } = getYearDateRange(req.query.year);
+
+    const incomes = await Income.find({
+      userId,
+      date: {
+        $gte: startDate,
+        $lte: endDate,
+      },
+    }).lean();
+
+    const expenses = await Expense.find({
+      userId,
+      date: {
+        $gte: startDate,
+        $lte: endDate,
+      },
+    }).lean();
 
     const monthNames = [
       'Jan',
@@ -251,7 +289,15 @@ const getMonthlyReport = async (req, res) => {
 const getCategoryAnalysis = async (req, res) => {
   try {
     const userId = req.user.id;
-    const expenses = await Expense.find({ userId });
+    const { startDate, endDate } = getYearDateRange(req.query.year);
+
+    const expenses = await Expense.find({
+      userId,
+      date: {
+        $gte: startDate,
+        $lte: endDate,
+      },
+    });
     const categories = {};
 
     let totalExpense = 0;
@@ -289,8 +335,17 @@ const getCategoryAnalysis = async (req, res) => {
 const getBudgetPerformance = async (req, res) => {
   try {
     const userId = req.user.id;
+    const { startDate, endDate } = getYearDateRange(req.query.year);
+
     const budgets = await Budget.find({ userId });
-    const expenses = await Expense.find({ userId });
+
+    const expenses = await Expense.find({
+      userId,
+      date: {
+        $gte: startDate,
+        $lte: endDate,
+      },
+    });
     const performance = budgets.map((budget) => {
       const categoryExpenses = expenses
         .filter((expense) => expense.category.toLowerCase() === budget.category.toLowerCase())
@@ -485,11 +540,16 @@ const exportCSV = async (req, res) => {
 
     // Build CSV rows
     const incomeRows = incomes
-      .map((i) => `${new Date(i.date).toISOString().split('T')[0]},Income,${i.source || 'Income'},${i.amount}`)
+      .map(
+        (i) =>
+          `${new Date(i.date).toISOString().split('T')[0]},Income,${i.source || 'Income'},${i.amount}`
+      )
       .join('\n');
 
     const expenseRows = expenses
-      .map((e) => `${new Date(e.date).toISOString().split('T')[0]},Expense,${e.category},${e.amount}`)
+      .map(
+        (e) => `${new Date(e.date).toISOString().split('T')[0]},Expense,${e.category},${e.amount}`
+      )
       .join('\n');
 
     const csvContent = header + incomeRows + '\n' + expenseRows;
@@ -555,11 +615,7 @@ const sendEmailReport = async (req, res) => {
     `;
 
     const sendEmail = require('../utils/sendEmail');
-    await sendEmail(
-      user.email,
-      'Your Financial Report from Expense Tracker',
-      emailHtml
-    );
+    await sendEmail(user.email, 'Your Financial Report from Expense Tracker', emailHtml);
 
     res.json({ message: 'Report sent to your email successfully.' });
   } catch (error) {
