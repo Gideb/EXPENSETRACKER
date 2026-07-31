@@ -26,17 +26,11 @@ const MonthlyBarChart = ({ data = [] }) => {
           }}
         >
           <CartesianGrid strokeDasharray="3 3" opacity={0.15} />
-
           <XAxis dataKey="month" tick={{ fontSize: 12 }} />
-
           <YAxis tick={{ fontSize: 12 }} />
-
           <Tooltip content={<CustomToolTip />} />
-
           <Legend content={<CustomLegend />} />
-
           <Bar dataKey="income" name="Income" fill="#22c55e" radius={[6, 6, 0, 0]} />
-
           <Bar dataKey="expenses" name="Expenses" fill="#ef4444" radius={[6, 6, 0, 0]} />
         </BarChart>
       </ResponsiveContainer>

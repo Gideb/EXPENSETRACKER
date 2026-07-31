@@ -5,6 +5,7 @@ import { API_PATHS } from '../../utils/apiPaths';
 import { useNavigate } from 'react-router-dom';
 import { UserContext } from '../../context/UserContext';
 import banner from '../../assets/images/banner.jpg';
+import banner2 from '../../assets/images/2.jpg';
 
 const BudgetWidget = () => {
   const { user } = useContext(UserContext);
@@ -32,32 +33,25 @@ const BudgetWidget = () => {
 
   if (loading) {
     return (
-      <div className="animate-pulse bg-white dark:bg-gray-800 rounded-lg p-4">
-        <div className="h-16 bg-gray-200 dark:bg-gray-700 rounded"></div>
+      <div className="animate-pulse bg-white dark:bg-slate-800 rounded-lg p-4">
+        <div className="h-16 bg-gray-200 dark:bg-slate-700 rounded" />
       </div>
     );
   }
 
   if (!summary || summary.totalBudget === 0) {
     return (
-      <div className="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm border border-gray-200 dark:border-gray-700">
+      <div className="bg-white dark:bg-slate-800 rounded-lg p-5 shadow-md border border-gray-600">
         {/* Top Banner */}
         <div className="mb-4 overflow-hidden rounded-lg">
-          <img src={banner} alt="Budget Planning" className="w-full h-50 object-cover" />
+          <img src={banner2} alt="Budget Planning" className="w-full h-60 object-cover " />
         </div>
-        {/*  <div className="mb-6 py-20 rounded-lg bg-linear-to-r from-amber-500 via-cream-500 to-yellow-500 p-5">
-          <p className="text-white text-xs uppercase tracking-wide">
-            Budget Dashboard
-          </p>
-          <h3 className="text-white font-semibold text-lg">
-            Manage your finances smarter
-          </h3>
-        </div>  */}
+
         <p className="text-sm my-6 text-gray-500 dark:text-gray-400">
           👋 Welcome {firstName || ''}!{' '}
           <button
             onClick={() => navigate('/budget')}
-            className="text-blue-500 hover:underline cursor-pointer"
+            className="text-amber-500 hover:underline cursor-pointer"
           >
             Create your first budget
           </button>{' '}
@@ -80,14 +74,6 @@ const BudgetWidget = () => {
       <div className="mb-4 overflow-hidden rounded-lg">
         <img src={banner} alt="Budget Planning" className="w-full h-28 object-cover" />
       </div>
-      {/* <div className="mb-3 rounded-lg bg-linear-to-r from-amber-500 via-cream-500 to-yellow-500 p-5">
-        <p className="text-white text-xs uppercase tracking-wide">
-          Budget Dashboard
-        </p>
-        <h3 className="text-white font-semibold text-lg">
-          Manage your finances smarter
-        </h3>
-      </div> */}
 
       {/* Header with greeting */}
       <div className="flex items-center justify-between mb-3 ">

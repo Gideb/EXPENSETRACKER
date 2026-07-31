@@ -15,7 +15,6 @@ const CustomBarChart = ({ data, type, dataKeys=["amount"], }) => {
   const xAxisKey = type === 'income' ? 'month' : 'category';
   const tooltipLabelKey = type === 'income' ? 'source' : 'category';
 
-  //function to alternate colors
   const getBarColor = (index) => {
     return type === 'income'
       ? index % 2 === 0

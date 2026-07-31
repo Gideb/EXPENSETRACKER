@@ -54,17 +54,11 @@ const Home = () => {
   }, [fetchDashboardData]);
 
   const hasAnyIncome = (dashboardData?.totalIncome || 0) > 0;
-
   const hasAnyExpense = (dashboardData?.totalExpense || 0) > 0;
-
   const hasIncomeInLast60Days = dashboardData?.last60DaysIncome?.transactions?.length > 0;
-
   const hasExpenseInLast30Days = dashboardData?.last30DaysExpense?.transactions?.length > 0;
-
   const hasTransactions = dashboardData?.recentTransactions?.length > 0;
-
   const hasFinancialData = hasAnyIncome || hasAnyExpense;
-
   const isNewUser = !hasAnyIncome && !hasAnyExpense;
 
   return (
@@ -124,18 +118,6 @@ const Home = () => {
           </div>
         </div>
 
-        {/*  {isNewUser && (
-          <div className="bg-white rounded-2xl p-8 shadow-sm border border-slate-100 text-center">
-            <h2 className="text-xl font-semibold">
-              Welcome to Expense Tracker
-            </h2>
-
-            <p className="text-slate-500 mt-2">
-              Start by adding your first income or expense.
-            </p>
-          </div>
-        )} */}
-
         {isNewUser ? (
           <div className="bg-white dark:bg-transparent  border border-gray-300   rounded-xl p-8 shadow-sm text-center">
             <h3 className="text-xl font-semibold text-slate-800 dark:text-slate-200">
@@ -143,14 +125,11 @@ const Home = () => {
             </h3>
 
             <p className="text-slate-500 mt-2 text-xs sm:text-sm">
-              You haven't recorded any income or expense yet. 
+              You haven't recorded any income or expense yet.
             </p>
 
             <div className="flex justify-center gap-3 mt-7">
-              <button
-                onClick={() => navigate('/income')}
-                className="px-4 py-2 rounded add-btn"
-              >
+              <button onClick={() => navigate('/income')} className="px-4 py-2 rounded add-btn">
                 + Add Income
               </button>
 
