@@ -95,16 +95,21 @@ const getFinancialReport = async (req, res) => {
     // TRANSACTIONS
     const transactions = [
       ...incomes.map((i) => ({
+        _id: i._id,
         date: i.date,
+        source: i.source,
         category: i.source || 'Income',
         amount: i.amount,
+        icon: i.icon,
         type: 'income',
       })),
 
       ...expenses.map((e) => ({
+        _id: e._id,
         date: e.date,
         category: e.category,
         amount: e.amount,
+        icon: e.icon,
         type: 'expense',
       })),
     ].sort((a, b) => new Date(b.date) - new Date(a.date));
