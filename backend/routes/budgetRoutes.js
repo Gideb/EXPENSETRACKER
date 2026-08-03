@@ -1,4 +1,4 @@
-const express = require("express");
+const express = require('express');
 const router = express.Router();
 
 const {
@@ -11,16 +11,16 @@ const {
   getBudgetCategories,
 } = require('../controllers/budgetController');
 
-const { protect } = require("../middleware/authMiddleware");
+const { protect } = require('../middleware/authMiddleware');
 
 router.use(protect);
 
-router.post("/add", protect, addBudget);
-router.get("/get", protect, getBudgets);
-router.get("/summary", protect, getBudgetSummary);
-router.get("/summary/:month", getBudgetSummaryByMonth);
-router.put("/:id", protect, updateBudget);
-router.delete("/:id", protect, deleteBudget);
-router.get('/categories', protect, getBudgetCategories);
+router.post('/add', addBudget);
+router.get('/get', getBudgets);
+router.get('/summary', getBudgetSummary);
+router.get('/summary/:month', getBudgetSummaryByMonth);
+router.put('/:id', updateBudget);
+router.delete('/:id', deleteBudget);
+router.get('/categories', getBudgetCategories);
 
 module.exports = router;

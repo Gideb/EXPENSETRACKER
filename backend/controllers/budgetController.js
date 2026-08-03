@@ -7,9 +7,24 @@ const addBudget = async (req, res) => {
     const userId = req.user.id;
     const { icon, category, limitAmount, month, year } = req.body;
 
+    if (!category || !category.trim()) {
+      return res.status(400).json({ message: 'Budget category is required' });
+    }
+
+    if (limitAmount === undefined || limitAmount === null || Number(limitAmount) <= 0) {
+      return res.status(400).json({ message: 'Budget amount must be greater than 0' });
+    }
+
+    if (!month) {
+      return res.status(400).json({ message: 'Budget month is required' });
+    }
+
+    const normalizedMonth = String(month).padStart(2, '0');
+    const normalizedYear = Number(year || new Date().getFullYear());
+
     const categoryExists = await Expense.findOne({
       userId,
-      category,
+      category: category.trim(),
     });
 
     if (!categoryExists) {
@@ -20,9 +35,9 @@ const addBudget = async (req, res) => {
 
     const existing = await Budget.findOne({
       userId,
-      category,
-      month,
-      year,
+      category: category.trim(),
+      month: normalizedMonth,
+      year: normalizedYear,
     });
 
     if (existing) {
@@ -30,33 +45,33 @@ const addBudget = async (req, res) => {
         message: 'Budget already exists for this category and month',
       });
     }
-// Calculate total spent for this category in the selected month/year
-    // from existing expenses so the budget reflects prior spending.
-    const startDate = new Date(`${year}-${month}-01T00:00:00.000Z`);
+
+    const startDate = new Date(`${normalizedYear}-${normalizedMonth}-01T00:00:00.000Z`);
     const endDate = new Date(startDate);
     endDate.setMonth(endDate.getMonth() + 1);
 
     const monthExpenses = await Expense.find({
       userId,
-      category,
+      category: category.trim(),
       date: {
         $gte: startDate,
         $lt: endDate,
       },
     });
 
-    const spentAmount = monthExpenses.reduce((sum, e) => sum + Number(e.amount), 0);
+    const spentAmount = monthExpenses.reduce((sum, e) => sum + Number(e.amount || 0), 0);
 
     const budget = await Budget.create({
       userId,
       icon,
-      category,
-      limitAmount,
-      month,
-      year,
+      category: category.trim(),
+      limitAmount: Number(limitAmount),
+      month: normalizedMonth,
+      year: normalizedYear,
       spentAmount,
       isExceeded: spentAmount > Number(limitAmount),
     });
+
     res.status(201).json(budget);
   } catch (error) {
     res.status(500).json({
@@ -100,15 +115,16 @@ const updateBudget = async (req, res) => {
       return res.status(404).json({ message: 'Budget not found' });
     }
 
-// update fields if provided
-    if (icon) budget.icon = icon;
-    if (limitAmount !== undefined) budget.limitAmount = limitAmount;
-    if (category) budget.category = category;
-    if (month) budget.month = month;
-    if (year) budget.year = year;
+    if (limitAmount !== undefined && limitAmount !== null && Number(limitAmount) <= 0) {
+      return res.status(400).json({ message: 'Budget amount must be greater than 0' });
+    }
 
-    // Recalculate spent amount from existing expenses for the (possibly new)
-    // category/month/year so the budget reflects actual spending immediately.
+    if (icon !== undefined) budget.icon = icon;
+    if (limitAmount !== undefined && limitAmount !== null) budget.limitAmount = Number(limitAmount);
+    if (category) budget.category = category.trim();
+    if (month) budget.month = String(month).padStart(2, '0');
+    if (year) budget.year = Number(year);
+
     const finalCategory = budget.category;
     const finalMonth = budget.month;
     const finalYear = budget.year;
@@ -126,7 +142,7 @@ const updateBudget = async (req, res) => {
       },
     });
 
-    const spentAmount = monthExpenses.reduce((sum, e) => sum + Number(e.amount), 0);
+    const spentAmount = monthExpenses.reduce((sum, e) => sum + Number(e.amount || 0), 0);
 
     budget.spentAmount = spentAmount;
     budget.isExceeded = spentAmount > Number(budget.limitAmount);
@@ -206,7 +222,8 @@ const getBudgetSummary = async (req, res) => {
     const spentByCategory = {};
     expenses.forEach((expense) => {
       const category = expense.category;
-      spentByCategory[category] = (spentByCategory[category] || 0) + expense.amount;
+      const amount = Number(expense.amount || 0);
+      spentByCategory[category] = (spentByCategory[category] || 0) + amount;
     });
 
     let totalBudget = 0;
@@ -300,7 +317,8 @@ const getBudgetSummaryByMonth = async (req, res) => {
     const spentByCategory = {};
     expenses.forEach((expense) => {
       const category = expense.category;
-      spentByCategory[category] = (spentByCategory[category] || 0) + expense.amount;
+      const amount = Number(expense.amount || 0);
+      spentByCategory[category] = (spentByCategory[category] || 0) + amount;
     });
 
     let totalBudget = 0;
