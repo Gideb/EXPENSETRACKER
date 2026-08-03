@@ -1,15 +1,15 @@
-require("dotenv").config();
-const express = require("express");
-const cors = require("cors");
-const path = require("path");
-const connectDB = require("./config/db");
-const authRoutes = require("./routes/authRoutes");
-const incomeRoutes = require("./routes/incomeRoutes");
-const expenseRoutes = require("./routes/expenseRoutes");
-const dashboardRoutes = require("./routes/dashboardRoutes");
-const budgetRoutes = require("./routes/budgetRoutes");
-const reportRoutes = require("./routes/reportRoutes");
-const transactionRoutes = require("./routes/transactionRoutes");
+require('dotenv').config();
+const express = require('express');
+const cors = require('cors');
+const path = require('path');
+const connectDB = require('./config/db');
+const authRoutes = require('./routes/authRoutes');
+const incomeRoutes = require('./routes/incomeRoutes');
+const expenseRoutes = require('./routes/expenseRoutes');
+const dashboardRoutes = require('./routes/dashboardRoutes');
+const budgetRoutes = require('./routes/budgetRoutes');
+const reportRoutes = require('./routes/reportRoutes');
+const transactionRoutes = require('./routes/transactionRoutes');
 
 const app = express();
 
@@ -17,28 +17,27 @@ const app = express();
 app.use(
   cors({
     origin: [
-      "http://localhost:5173",
-      "https://gideb-expensetracker.vercel.app",
+      'http://localhost:5173',
+      'http://localhost:5174',
+      'https://gideb-expensetracker.vercel.app',
     ],
-    methods: ["GET", "POST", "PUT", "DELETE"],
-    allowedHeaders: ["Content-Type", "Authorization"],
-  }),
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+  })
 );
 
-app.use(express.json({ limit: "4mb" }));
+app.use(express.json({ limit: '4mb' }));
 
-app.use("/api/v1/auth", authRoutes);
-app.use("/api/v1/income", incomeRoutes);
-app.use("/api/v1/expense", expenseRoutes);
-app.use("/api/v1/dashboard", dashboardRoutes);
-app.use("/api/v1/budget", budgetRoutes);
-app.use("/api/v1/reports", reportRoutes);
-app.use( "/api/v1/transactions", transactionRoutes);
-
-
+app.use('/api/v1/auth', authRoutes);
+app.use('/api/v1/income', incomeRoutes);
+app.use('/api/v1/expense', expenseRoutes);
+app.use('/api/v1/dashboard', dashboardRoutes);
+app.use('/api/v1/budget', budgetRoutes);
+app.use('/api/v1/reports', reportRoutes);
+app.use('/api/v1/transactions', transactionRoutes);
 
 //serve uploads folder.
-app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 const PORT = process.env.PORT || 5000;
 
@@ -47,18 +46,15 @@ connectDB()
     app.listen(PORT, () => console.log(`Server running on Port ${PORT}`));
   })
   .catch((err) => {
-    console.error(
-      "Failed to start server because MongoDB connection failed:",
-      err.message,
-    );
+    console.error('Failed to start server, MongoDB connection failed:', err.message);
     process.exit(1);
   });
 
-process.on("unhandledRejection", (err) => {
-  console.error("Unhandled Rejection:", err);
+process.on('unhandledRejection', (err) => {
+  console.error('Unhandled Rejection:', err);
 });
 
-process.on("uncaughtException", (err) => {
-  console.error("Uncaught Exception:", err);
+process.on('uncaughtException', (err) => {
+  console.error('Uncaught Exception:', err);
   process.exit(1);
 });

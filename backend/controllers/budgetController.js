@@ -7,7 +7,6 @@ const addBudget = async (req, res) => {
     const userId = req.user.id;
     const { icon, category, limitAmount, month, year } = req.body;
 
-    // Check that category exists in user's expenses
     const categoryExists = await Expense.findOne({
       userId,
       category,
@@ -19,7 +18,6 @@ const addBudget = async (req, res) => {
       });
     }
 
-    // Prevent duplicate budget
     const existing = await Budget.findOne({
       userId,
       category,
@@ -148,7 +146,7 @@ const getBudgetSummary = async (req, res) => {
     }
 
     // Calculate date range for current month
-    const startDate = new Date(`${currentMonth}-01T00:00:00.000Z`);
+    const startDate = new Date(`${currentYear}-${currentMonth}-01T00:00:00.000Z`);
     const endDate = new Date(startDate);
     endDate.setMonth(endDate.getMonth() + 1);
 
@@ -208,13 +206,12 @@ const getBudgetSummary = async (req, res) => {
   }
 };
 
-// Optional: Get budget summary for a specific month
+//  Get budget summary for a specific month
 const getBudgetSummaryByMonth = async (req, res) => {
   try {
     const userId = req.user.id;
     const { month } = req.params; // Format: YYYY-MM
 
-    // Validate month format
     if (!month || !/^\d{4}-\d{2}$/.test(month)) {
       return res.status(400).json({
         message: 'Invalid month format. Please use YYYY-MM',

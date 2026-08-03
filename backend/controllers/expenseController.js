@@ -17,7 +17,6 @@ exports.addExpense = async (req, res) => {
       });
     }
 
-    // validation
     if (!category || !amount || !date) {
       return res.status(400).json({ message: 'All fields are required' });
     }
@@ -32,15 +31,16 @@ exports.addExpense = async (req, res) => {
 
     await newExpense.save();
 
-    // 🧠 EXTRACT MONTH (for budget matching)
-    const expenseMonth = new Date(date).toISOString().slice(0, 7);
+    const expenseDate = new Date(date);
+    const expenseMonth = String(expenseDate.getMonth() + 1).padStart(2, '0'); // MM
+    const expenseYear = expenseDate.getFullYear();
 
-    // 💰 UPDATE BUDGET IN REAL TIME
     const budgetStatus = await updateBudgetOnExpense({
       userId,
       category,
       amount,
       month: expenseMonth,
+      year: expenseYear,
     });
 
     return res.status(201).json({
@@ -80,25 +80,26 @@ exports.updateExpense = async (req, res) => {
       return res.status(404).json({ message: 'Expense not found' });
     }
 
-    // 🧠 OLD VALUES (for budget correction)
     const oldAmount = expense.amount;
     const oldCategory = expense.category;
-    const oldMonth = new Date(expense.date).toISOString().slice(0, 7);
+    const oldDate = new Date(expense.date);
+    const oldMonth = String(oldDate.getMonth() + 1).padStart(2, '0'); // MM
+    const oldYear = oldDate.getFullYear();
 
-    // update expense
     Object.assign(expense, req.body);
     await expense.save();
 
-    // 🧠 NEW VALUES
     const newAmount = expense.amount;
     const newCategory = expense.category;
-    const newMonth = new Date(expense.date).toISOString().slice(0, 7);
+    const newDate = new Date(expense.date);
+    const newMonth = String(newDate.getMonth() + 1).padStart(2, '0'); // MM
+    const newYear = newDate.getFullYear();
 
-    // 🔄 STEP 1: REMOVE OLD IMPACT
     const oldBudget = await Budget.findOne({
       userId: req.user.id,
       category: oldCategory,
       month: oldMonth,
+      year: oldYear,
     });
 
     if (oldBudget) {
@@ -107,13 +108,12 @@ exports.updateExpense = async (req, res) => {
       oldBudget.isExceeded = oldBudget.spentAmount > oldBudget.limitAmount;
       await oldBudget.save();
     }
-
-    // 🔄 STEP 2: APPLY NEW IMPACT
     const newBudgetStatus = await updateBudgetOnExpense({
       userId: req.user.id,
       category: newCategory,
       amount: newAmount,
       month: newMonth,
+      year: newYear,
     });
 
     res.status(200).json({
@@ -138,13 +138,15 @@ exports.deleteExpense = async (req, res) => {
       return res.status(404).json({ message: 'Expense not found' });
     }
 
-    const month = new Date(expense.date).toISOString().slice(0, 7);
+    const delDate = new Date(expense.date);
+    const month = String(delDate.getMonth() + 1).padStart(2, '0'); // MM
+    const year = delDate.getFullYear();
 
-    // 🧠 REMOVE FROM BUDGET
     const budget = await Budget.findOne({
       userId: req.user.id,
       category: expense.category,
       month,
+      year,
     });
 
     if (budget) {
@@ -220,12 +222,10 @@ exports.downloadExpenseExcel = async (req, res) => {
     }
 
     const workbook = new ExcelJS.Workbook();
-
     workbook.creator = 'Expense Tracker';
     workbook.created = new Date();
 
     const worksheet = workbook.addWorksheet('Expense');
-
     worksheet.columns = [
       {
         header: 'Date',
@@ -242,11 +242,7 @@ exports.downloadExpenseExcel = async (req, res) => {
         key: 'amount',
         width: 20,
       },
-      /* {
-        header: 'Description',
-        key: 'description',
-        width: 40,
-      }, */
+
       {
         header: 'Icon',
         key: 'icon',

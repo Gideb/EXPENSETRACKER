@@ -1,17 +1,17 @@
-const mongoose = require("mongoose");
+const mongoose = require('mongoose');
 
 const BudgetSchema = new mongoose.Schema(
   {
     userId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
+      ref: 'User',
       required: true,
       index: true,
     },
-   
+
     icon: {
       type: String,
-      default: "💰",
+      default: '💰',
     },
 
     category: {
@@ -29,6 +29,7 @@ const BudgetSchema = new mongoose.Schema(
       type: String,
       required: true,
       // Format: 01 - 12
+      match: /^(0[1-9]|1[0-2])$/,
     },
     year: {
       type: Number,
@@ -40,15 +41,9 @@ const BudgetSchema = new mongoose.Schema(
       min: 0,
     },
 
-    month: {
-      type: String,
-      required: true,
-      match: /^\d{4}-(0[1-9]|1[0-2])$/,
-    },
-
     currency: {
       type: String,
-      default: "GHS",
+      default: 'GHS',
     },
 
     isExceeded: {
@@ -56,9 +51,9 @@ const BudgetSchema = new mongoose.Schema(
       default: false,
     },
   },
-  { timestamps: true },
+  { timestamps: true }
 );
 
-BudgetSchema.index({ userId: 1, category: 1, month: 1 }, { unique: true });
+BudgetSchema.index({ userId: 1, category: 1, month: 1, year: 1 }, { unique: true });
 
-module.exports = mongoose.model("Budget", BudgetSchema);
+module.exports = mongoose.model('Budget', BudgetSchema);

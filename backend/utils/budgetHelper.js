@@ -1,10 +1,11 @@
 const Budget = require("../models/Budget");
 
-const updateBudgetOnExpense = async ({ userId, category, amount, month }) => {
+const updateBudgetOnExpense = async ({ userId, category, amount, month, year }) => {
   const budget = await Budget.findOne({
     userId,
     category,
     month,
+    year,
   });
 
   if (!budget) {
