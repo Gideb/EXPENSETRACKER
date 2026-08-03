@@ -16,7 +16,7 @@ import ExpenseTransactions from '../../components/Dashboard/ExpenseTransactions'
 import Last30DaysExpenses from '../../components/Dashboard/Last30DaysExpenses';
 import RecentIncomeWithChart from '../../components/Dashboard/RecentIncomeWithChart';
 import RecentIncome from '../../components/Dashboard/RecentIncome';
-import HealthScore from '../../components/Cards/HealthScore';
+/* import HealthScore from '../../components/Cards/HealthScore'; */
 
 import BudgetWidget from '../../components/Dashboard/BudgetWidget';
 import EmptyStateCard from '../../components/Common/EmptyStateCard';
@@ -165,11 +165,6 @@ const Home = () => {
             {/* list for Last 30 days expense  */}
             {hasAnyExpense && (
               <>
-                <ExpenseTransactions
-                  transactions={dashboardData?.last30DaysExpense?.transactions || []}
-                  onSeeMore={() => navigate('/expense')}
-                />
-
                 {hasExpenseInLast30Days ? (
                   <Last30DaysExpenses data={dashboardData?.last30DaysExpense?.transactions || []} />
                 ) : (
@@ -177,13 +172,23 @@ const Home = () => {
                     title="No expenses in the last 30 days"
                     description="You have expense records, but none were added during this period."
                   />
-                )}
+                  )}
+                  
+                <ExpenseTransactions
+                  transactions={dashboardData?.last30DaysExpense?.transactions || []}
+                  onSeeMore={() => navigate('/expense')}
+                />
               </>
             )}
 
             {/* pie chart for Last 60 days income */}
             {hasAnyIncome && (
               <>
+                <RecentIncome
+                  transactions={dashboardData?.last60DaysIncome?.transactions || []}
+                  onSeeMore={() => navigate('/income')}
+                  />
+                  
                 {hasIncomeInLast60Days ? (
                   <RecentIncomeWithChart
                     data={dashboardData?.last60DaysIncome?.transactions?.slice(0, 4) || []}
@@ -195,11 +200,6 @@ const Home = () => {
                     description="You have income records, but none were added during this period."
                   />
                 )}
-
-                <RecentIncome
-                  transactions={dashboardData?.last60DaysIncome?.transactions || []}
-                  onSeeMore={() => navigate('/income')}
-                />
               </>
             )}
           </div>

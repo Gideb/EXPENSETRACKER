@@ -839,13 +839,13 @@ const Reports = () => {
               Print
             </button>
 
-            <button
+           {/*  <button
               onClick={handleEmailReport}
               className="px-4 py-2 bg-gray-600 hover:bg-gray-700 dark:bg-gray-500 dark:hover:bg-gray-600 text-white text-sm font-medium rounded-xl cursor-pointer transition-all duration-200 flex items-center gap-2 shadow-sm hover:shadow-md"
             >
               <Mail className="w-4 h-4" />
               Email
-            </button>
+            </button> */}
           </div>
         </div>
 
