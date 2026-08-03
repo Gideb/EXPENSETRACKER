@@ -23,12 +23,12 @@ const Budget = () => {
   });
   const [loading, setLoading] = useState(false);
   const [categories, setCategories] = useState([]);
-  
+  const [refreshKey, setRefreshKey] = useState(0);
 
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const response = await axiosInstance.get(API_PATHS.BUDGETS.CATEGORIES);
+        const response = await axiosInstance.get(API_PATHS.BUDGET.BUDGET_CATEGORIES);
 
         setCategories(response.data);
       } catch (error) {
@@ -48,15 +48,11 @@ const Budget = () => {
       const response = await axiosInstance.get(API_PATHS.BUDGET.GET_ALL_BUDGET);
 
       if (response.data) {
-        // Handle different response structures
         const data = Array.isArray(response.data) ? response.data : response.data.budgets || [];
         setBudgets(data);
       }
     } catch (error) {
-      console.error(
-        'Failed to load Budget details.',
-        error.response?.data?.message || error.message
-      );
+      toast.error('Failed to load Budget details.', error.response?.data?.message || error.message);
       toast.error(error.response?.data?.message || 'Failed to load budgets');
     } finally {
       setLoading(false);
@@ -65,21 +61,20 @@ const Budget = () => {
 
   // handle Add Budget
   const handleAddBudget = async (budget) => {
-    const { category, limitAmount, month, icon } = budget; // Changed from amount/date to limitAmount/month
+    const { category, limitAmount, month, year, icon } = budget;
 
-    // validation checks
     if (!category?.trim()) {
-      toast.error('Please enter a budget category.');
+      setError('Please enter a budget category.');
       return;
     }
 
     if (!limitAmount || isNaN(limitAmount) || Number(limitAmount) <= 0) {
-      toast.error('Please enter a valid amount greater than 0.');
+      setError('Please enter a valid amount greater than 0.');
       return;
     }
 
     if (!month) {
-      toast.error('Please select a month.');
+      setError('Please select a month.');
       return;
     }
 
@@ -88,13 +83,15 @@ const Budget = () => {
         category,
         limitAmount: Number(limitAmount),
         month,
-        year: new Date().getFullYear(),
+        year: year || new Date().getFullYear(),
         icon: icon || '',
       });
 
       setOpenAddBudgetModal(false);
       toast.success('Budget Added Successfully');
-      await fetchBudgets(); // Added await
+
+      await fetchBudgets();
+      setRefreshKey((prev) => prev + 1);
     } catch (error) {
       console.error('Failed to add Budget.', error.response?.data?.message || error.message);
       toast.error(error.response?.data?.message || 'Failed to add budget');
@@ -129,6 +126,7 @@ const Budget = () => {
       setOpenAddBudgetModal(false);
 
       await fetchBudgets();
+      setRefreshKey((prev) => prev + 1);
     } catch (error) {
       console.error('UPDATE ERROR:', error);
       toast.error(error.response?.data?.message || 'Failed to update budget');
@@ -149,13 +147,13 @@ const Budget = () => {
       toast.success(`${budgetData.category || 'Budget'} record deleted successfully!`);
 
       await fetchBudgets();
+      setRefreshKey((prev) => prev + 1);
     } catch (error) {
       console.error(error.response?.data?.message || 'Failed to delete budget entry.');
       toast.error(error.response?.data?.message || 'Failed to delete budget');
     }
   };
 
-  // Initial fetch on component mount
   useEffect(() => {
     fetchBudgets();
   }, []);
@@ -168,6 +166,7 @@ const Budget = () => {
         <BudgetSummary
           setOpenAddBudgetModal={setOpenAddBudgetModal}
           setOpenAddExpenseModal={setOpenAddExpenseModal}
+          refreshKey={refreshKey}
         />
 
         <BudgetList

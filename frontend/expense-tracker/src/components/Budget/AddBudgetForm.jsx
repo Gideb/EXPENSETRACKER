@@ -57,17 +57,19 @@ const AddBudgetForm = ({ categories = [], onBudgetAdded, onUpdateBudget, editDat
         type="text"
       /> */}
       <div className="mt-4">
-        <label className="block text-sm font-medium mb-2">Category</label>
+        <label className="text-[13px] block mb-2 dark:text-white">Category</label>
 
         <select
           value={budget.category}
           onChange={(e) => handleChange('category', e.target.value)}
-          className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-amber-500"
+          className="w-full dark:bg-white input-box"
         >
-          <option value="">Select Category</option>
+          <option value="" className="bg-gray-200 dark:bg-slate-800 dark:text-white ">
+            Select Category
+          </option>
 
           {categories.map((item) => (
-            <option key={item} value={item}>
+            <option key={item} value={item} className="dark:bg-slate-700 dark:text-white ">
               {item}
             </option>
           ))}

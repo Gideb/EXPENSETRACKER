@@ -38,7 +38,7 @@ export const API_PATHS = {
     DELETE_BUDGET: (budgetId) => `/api/v1/budget/${budgetId}`,
     GET_BUDGET_SUMMARY: '/api/v1/budget/summary',
     GET_BUDGET_SUMMARY_BY_MONTH: (month) => `/api/v1/budget/summary/${month}`,
-    BUDGET_CATEGORIES: '/budgets/categories',
+    BUDGET_CATEGORIES: '/api/v1/budget/categories',
   },
 
   TRANSACTIONS: {
@@ -56,6 +56,7 @@ export const API_PATHS = {
     EXPORT_CSV: '/api/v1/reports/export-csv',
     EMAIL_REPORT: '/api/v1/reports/email-report',
     AVAILABLE_PERIODS: 'api/v1/reports/available-periods',
+    CATEGORIES: '/api/v1/reports/categories',
   },
   SETTINGS: {},
   IMAGE: {

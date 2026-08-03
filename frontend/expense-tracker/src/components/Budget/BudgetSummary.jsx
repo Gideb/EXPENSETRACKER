@@ -5,7 +5,7 @@ import axiosInstance from '../../utils/axiosInstance';
 import { API_PATHS } from '../../utils/apiPaths';
 import { toast } from 'react-hot-toast';
 
-const BudgetSummary = ({ setOpenAddBudgetModal }) => {
+const BudgetSummary = ({ setOpenAddBudgetModal, refreshKey }) => {
   const [summary, setSummary] = useState({
     totalBudget: 0,
     totalSpent: 0,
@@ -16,9 +16,9 @@ const BudgetSummary = ({ setOpenAddBudgetModal }) => {
   });
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
+useEffect(() => {
     fetchBudgetSummary();
-  }, []);
+  }, [refreshKey]);
 
   const fetchBudgetSummary = async () => {
     try {

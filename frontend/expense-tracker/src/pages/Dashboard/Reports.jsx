@@ -44,7 +44,9 @@ const Reports = () => {
   useUserAuth();
 
   const [activeTab, setActiveTab] = useState('summary');
-  const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth());
+  const [selectedMonth, setSelectedMonth] = useState(
+    String(new Date().getMonth() + 1).padStart(2, '0')
+  );
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [showDateRange, setShowDateRange] = useState(false);
@@ -66,7 +68,6 @@ const Reports = () => {
   const [categories, setCategories] = useState([]);
   const [availablePeriods, setAvailablePeriods] = useState([]);
 
-
   useEffect(() => {
     const fetchPeriods = async () => {
       const res = await axiosInstance.get(API_PATHS.REPORTS.AVAILABLE_PERIODS);
@@ -77,35 +78,54 @@ const Reports = () => {
     fetchPeriods();
   }, []);
 
-useEffect(() => {
-  const fetchCategories = async () => {
-    try {
-      const response = await axiosInstance.get(API_PATHS.REPORTS.CATEGORIES);
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+const response = await axiosInstance.get(API_PATHS.REPORTS.CATEGORIES);
 
-      setCategories(response.data);
-    } catch (error) {
-      console.error(error);
-    }
-  };
+      setCategories(response.data?.all || []);
+      } catch (error) {
+        console.error(error);
+      }
+    };
 
-  fetchCategories();
-}, []);
+    fetchCategories();
+  }, []);
 
   useEffect(() => {
     const loadReports = async () => {
       try {
-        const [financial, monthly, category] = await Promise.all([
+        const [financial, monthly, category, budgetPerf] = await Promise.all([
           axiosInstance.get(`${API_PATHS.REPORTS.FINANCIAL}?year=${selectedYear}`),
           axiosInstance.get(`${API_PATHS.REPORTS.MONTHLY}?year=${selectedYear}`),
           axiosInstance.get(`${API_PATHS.REPORTS.CATEGORY_ANALYSIS}?year=${selectedYear}`),
+          axiosInstance.get(
+            `${API_PATHS.REPORTS.BUDGET_PERFORMANCE}?year=${selectedYear}&month=${selectedMonth}`
+          ),
         ]);
 
-        setFinancialData({
+       
+        const budgetData = (budgetPerf.data?.performance || []).map((b) => ({
+          id: b.id,
+          icon: b.icon,
+          category: b.category,
+          month: b.month,
+          year: b.year,
+          budget: b.budgetLimit,
+          spent: b.spent,
+          remaining: b.remaining,
+          percentage: b.percentage,
+          status: b.status,
+        }));
+
+setFinancialData({
           ...financial.data,
           monthlyData: monthly.data,
-          categorySpending: category.data,
+          categorySpending: category.data?.expenses?.categories || [],
+          budgetData,
         });
       } catch (error) {
+        toast.error('Failed to load reports.');
         console.log(error);
       } finally {
         setLoading(false);
@@ -113,7 +133,7 @@ useEffect(() => {
     };
 
     loadReports();
-  }, [selectedYear]);
+  }, [selectedYear, selectedMonth]);
 
   //years
   const currentYear = new Date().getFullYear();
@@ -198,9 +218,16 @@ useEffect(() => {
     }
   };
 
-  // Compute filtered transactions
+// Compute filtered transactions
   const getFilteredTransactions = () => {
-    const transactions = financialData?.transactions || [];
+    const transactionsData = financialData?.transactions || {};
+    const incomes = Array.isArray(transactionsData.incomes) ? transactionsData.incomes : [];
+    const expenses = Array.isArray(transactionsData.expenses) ? transactionsData.expenses : [];
+
+    const transactions = [
+      ...incomes.map((item) => ({ ...item, type: 'income' })),
+      ...expenses.map((item) => ({ ...item, type: 'expense' })),
+    ];
 
     return transactions.filter((t) => {
       // Category filter

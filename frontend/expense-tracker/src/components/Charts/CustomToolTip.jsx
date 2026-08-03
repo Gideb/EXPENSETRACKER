@@ -5,7 +5,7 @@ const CustomToolTip = ({ active, payload }) => {
     return (
       <div className="bg-white/50 backdrop-blur-md shadow-md rounded-lg p-2 border border-gray-300">
         <p className="text-xs font-semibold mb-1 text-amber-800">{payload[0].name}</p>
-        <p className="text-sm text-gray-600">
+        <p className="text-sm text-slate-800">
           Amount:{' '}
           <span className="text-sm font-semibold text-gray-900">
             {' '}
