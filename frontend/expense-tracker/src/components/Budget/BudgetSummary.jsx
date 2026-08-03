@@ -22,11 +22,25 @@ const BudgetSummary = ({ setOpenAddBudgetModal, refreshKey }) => {
       const response = await axiosInstance.get(API_PATHS.BUDGET.GET_BUDGET_SUMMARY);
 
       if (response.data) {
-        setSummary(response.data);
+        setSummary({
+          totalBudget: response.data.totalBudget || 0,
+          totalSpent: response.data.totalSpent || 0,
+          remainingBalance: response.data.remainingBalance || 0,
+          overBudgetCategories: response.data.overBudgetCategories || 0,
+          percentUtilized: response.data.percentUtilized || 0,
+          categoriesAtRisk: response.data.categoriesAtRisk || 0,
+        });
       }
     } catch (error) {
       console.error('Failed to load budget summary:', error);
-      toast.error('Failed to load budget summary');
+      setSummary({
+        totalBudget: 0,
+        totalSpent: 0,
+        remainingBalance: 0,
+        overBudgetCategories: 0,
+        percentUtilized: 0,
+        categoriesAtRisk: 0,
+      });
     } finally {
       setLoading(false);
     }

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import AddBudgetForm from '../../components/Budget/AddBudgetForm';
 import Dashboardlayout from '../../components/layouts/Dashboardlayout';
 import { useUserAuth } from '../../hooks/useUserAuth';
@@ -28,7 +28,11 @@ const Budget = () => {
       try {
         const response = await axiosInstance.get(API_PATHS.BUDGET.BUDGET_CATEGORIES);
 
-        setCategories(response.data);
+        const nextCategories = Array.isArray(response.data)
+          ? response.data
+          : response.data?.categories || [];
+
+        setCategories(nextCategories);
       } catch (error) {
         console.log('Category fetch error', error);
       }
@@ -38,7 +42,7 @@ const Budget = () => {
   }, []);
 
   // get all Budget Details
-  const fetchBudgets = async () => {
+  const fetchBudgets = useCallback(async () => {
     if (loading) return;
     setLoading(true);
 
@@ -46,16 +50,18 @@ const Budget = () => {
       const response = await axiosInstance.get(API_PATHS.BUDGET.GET_ALL_BUDGET);
 
       if (response.data) {
-        const data = Array.isArray(response.data) ? response.data : response.data.budgets || [];
+        const data = Array.isArray(response.data)
+          ? response.data
+          : response.data.budgets || response.data.data || [];
         setBudgets(data);
       }
     } catch (error) {
-      toast.error('Failed to load Budget details.', error.response?.data?.message || error.message);
+      console.error('Failed to load budgets:', error);
       toast.error(error.response?.data?.message || 'Failed to load budgets');
     } finally {
       setLoading(false);
     }
-  };
+  }, [loading]);
 
   // handle Add Budget
   const handleAddBudget = async (budget) => {
