@@ -47,11 +47,12 @@ export const API_PATHS = {
     EXPORT_EXCEL: '/api/v1/transactions/download-excel',
     EXPORT_PDF: '/api/v1/transactions/export-pdf',
   },
-  REPORTS: {
+REPORTS: {
     FINANCIAL: '/api/v1/reports/financial',
     MONTHLY: '/api/v1/reports/monthly',
     CATEGORY_ANALYSIS: '/api/v1/reports/category-analysis',
     BUDGET_PERFORMANCE: '/api/v1/reports/budget-performance',
+    FULL: '/api/v1/reports/full',
     EXPORT_PDF: '/api/v1/reports/export-pdf',
     EXPORT_CSV: '/api/v1/reports/export-csv',
     EMAIL_REPORT: '/api/v1/reports/email-report',

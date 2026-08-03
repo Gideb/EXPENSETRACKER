@@ -41,9 +41,8 @@ const Budget = () => {
     fetchCategories();
   }, []);
 
-  // get all Budget Details
+// get all Budget Details
   const fetchBudgets = useCallback(async () => {
-    if (loading) return;
     setLoading(true);
 
     try {
@@ -61,7 +60,7 @@ const Budget = () => {
     } finally {
       setLoading(false);
     }
-  }, [loading]);
+  }, []);
 
   // handle Add Budget
   const handleAddBudget = async (budget) => {

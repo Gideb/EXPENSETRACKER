@@ -33,6 +33,7 @@ const BudgetSummary = ({ setOpenAddBudgetModal, refreshKey }) => {
       }
     } catch (error) {
       console.error('Failed to load budget summary:', error);
+      toast.error(error.response?.data?.message || 'Failed to load budget summary');
       setSummary({
         totalBudget: 0,
         totalSpent: 0,
@@ -94,7 +95,6 @@ const BudgetSummary = ({ setOpenAddBudgetModal, refreshKey }) => {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
         {[...Array(4)].map((_, i) => (
           <div
-            key={i}
             key={i}
             className="bg-white dark:bg-gray-800/50 rounded-2xl p-6 animate-pulse border border-gray-100 dark:border-gray-700"
           >
