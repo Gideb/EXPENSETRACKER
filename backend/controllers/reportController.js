@@ -196,6 +196,8 @@ const getFinancialReport = async (req, res) => {
 
     const balance = totalIncome - totalExpense;
 
+    const savingsRate = totalIncome > 0 ? Number(((balance / totalIncome) * 100).toFixed(2)) : 0;
+
     // Monthly breakdown
     const monthly = {};
 
@@ -258,10 +260,11 @@ const getFinancialReport = async (req, res) => {
       success: true,
       year: req.query.year || new Date().getFullYear(),
 
-      summary: {
+summary: {
         totalIncome,
         totalExpense,
         balance,
+        savingsRate,
       },
 
       monthlyReport,

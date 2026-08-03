@@ -30,6 +30,23 @@ const addBudget = async (req, res) => {
         message: 'Budget already exists for this category and month',
       });
     }
+// Calculate total spent for this category in the selected month/year
+    // from existing expenses so the budget reflects prior spending.
+    const startDate = new Date(`${year}-${month}-01T00:00:00.000Z`);
+    const endDate = new Date(startDate);
+    endDate.setMonth(endDate.getMonth() + 1);
+
+    const monthExpenses = await Expense.find({
+      userId,
+      category,
+      date: {
+        $gte: startDate,
+        $lt: endDate,
+      },
+    });
+
+    const spentAmount = monthExpenses.reduce((sum, e) => sum + Number(e.amount), 0);
+
     const budget = await Budget.create({
       userId,
       icon,
@@ -37,6 +54,8 @@ const addBudget = async (req, res) => {
       limitAmount,
       month,
       year,
+      spentAmount,
+      isExceeded: spentAmount > Number(limitAmount),
     });
     res.status(201).json(budget);
   } catch (error) {
@@ -81,12 +100,36 @@ const updateBudget = async (req, res) => {
       return res.status(404).json({ message: 'Budget not found' });
     }
 
-    // update fields if provided
+// update fields if provided
     if (icon) budget.icon = icon;
     if (limitAmount !== undefined) budget.limitAmount = limitAmount;
     if (category) budget.category = category;
     if (month) budget.month = month;
     if (year) budget.year = year;
+
+    // Recalculate spent amount from existing expenses for the (possibly new)
+    // category/month/year so the budget reflects actual spending immediately.
+    const finalCategory = budget.category;
+    const finalMonth = budget.month;
+    const finalYear = budget.year;
+
+    const startDate = new Date(`${finalYear}-${finalMonth}-01T00:00:00.000Z`);
+    const endDate = new Date(startDate);
+    endDate.setMonth(endDate.getMonth() + 1);
+
+    const monthExpenses = await Expense.find({
+      userId,
+      category: finalCategory,
+      date: {
+        $gte: startDate,
+        $lt: endDate,
+      },
+    });
+
+    const spentAmount = monthExpenses.reduce((sum, e) => sum + Number(e.amount), 0);
+
+    budget.spentAmount = spentAmount;
+    budget.isExceeded = spentAmount > Number(budget.limitAmount);
 
     await budget.save();
 
