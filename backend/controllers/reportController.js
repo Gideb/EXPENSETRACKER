@@ -260,7 +260,7 @@ const getFinancialReport = async (req, res) => {
       success: true,
       year: req.query.year || new Date().getFullYear(),
 
-summary: {
+      summary: {
         totalIncome,
         totalExpense,
         balance,
@@ -469,6 +469,135 @@ const getCategoryAnalysis = async (req, res) => {
   } catch (error) {
     console.error('Category Analysis Error:', error);
 
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+/* ======================================================
+   COMBINED FULL REPORT (single request for Reports page)
+====================================================== */
+const getFullReport = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const selectedYear = Number(req.query.year || new Date().getFullYear());
+    const selectedMonth = req.query.month || String(new Date().getMonth() + 1).padStart(2, '0');
+    const { startDate, endDate } = getYearDateRange(selectedYear);
+
+    // Fetch all required data in parallel with lean() for performance
+    const [incomes, expenses, budgets] = await Promise.all([
+      Income.find({
+        userId,
+        date: { $gte: startDate, $lte: endDate },
+      })
+        .select('amount date source icon')
+        .sort({ date: 1 })
+        .lean(),
+      Expense.find({
+        userId,
+        date: { $gte: startDate, $lte: endDate },
+      })
+        .select('amount date category icon')
+        .sort({ date: 1 })
+        .lean(),
+      Budget.find({
+        userId,
+        year: selectedYear,
+        month: selectedMonth,
+      }).lean(),
+    ]);
+
+    // ---- Summary ----
+    const totalIncome = incomes.reduce((sum, item) => sum + Number(item.amount || 0), 0);
+    const totalExpense = expenses.reduce((sum, item) => sum + Number(item.amount || 0), 0);
+    const balance = totalIncome - totalExpense;
+    const savingsRate = totalIncome > 0 ? Number(((balance / totalIncome) * 100).toFixed(2)) : 0;
+
+    // ---- Monthly breakdown ----
+    const monthlyMap = new Map();
+    const addMonthly = (date, isIncome, amount) => {
+      const d = new Date(date);
+      const monthNumber = d.getMonth();
+      if (!monthlyMap.has(monthNumber)) {
+        monthlyMap.set(monthNumber, {
+          month: d.toLocaleString('default', { month: 'short' }),
+          monthNumber,
+          income: 0,
+          expenses: 0,
+        });
+      }
+      const entry = monthlyMap.get(monthNumber);
+      if (isIncome) entry.income += amount;
+      else entry.expenses += amount;
+    };
+
+    incomes.forEach((item) => addMonthly(item.date, true, Number(item.amount || 0)));
+    expenses.forEach((item) => addMonthly(item.date, false, Number(item.amount || 0)));
+
+    const monthlyData = [...monthlyMap.values()]
+      .sort((a, b) => a.monthNumber - b.monthNumber)
+      .map(({ monthNumber, ...rest }) => rest);
+
+    // ---- Category spending ----
+    const categoryMap = {};
+    expenses.forEach((expense) => {
+      const category = expense.category || 'Other';
+      if (!categoryMap[category]) categoryMap[category] = 0;
+      categoryMap[category] += Number(expense.amount || 0);
+    });
+
+    const categorySpending = Object.keys(categoryMap)
+      .map((category) => ({
+        category,
+        amount: categoryMap[category],
+        percentage:
+          totalExpense > 0 ? Number(((categoryMap[category] / totalExpense) * 100).toFixed(2)) : 0,
+      }))
+      .sort((a, b) => b.amount - a.amount);
+
+    // ---- Budget performance ----
+    const expenseMap = {};
+    expenses.forEach((expense) => {
+      const category = expense.category || 'Other';
+      expenseMap[category] = (expenseMap[category] || 0) + Number(expense.amount || 0);
+    });
+
+    const budgetData = budgets.map((budget) => {
+      const spent = expenseMap[budget.category] || 0;
+      const limit = Number(budget.limitAmount || 0);
+      const percentage = limit > 0 ? Number(((spent / limit) * 100).toFixed(2)) : 0;
+      let status = 'Good';
+      if (percentage >= 100) status = 'Exceeded';
+      else if (percentage >= 80) status = 'Warning';
+
+      return {
+        id: budget._id,
+        icon: budget.icon,
+        category: budget.category,
+        month: budget.month,
+        year: budget.year,
+        budget: limit,
+        spent,
+        remaining: limit - spent,
+        percentage,
+        status,
+      };
+    });
+
+    res.status(200).json({
+      success: true,
+      year: selectedYear,
+      month: selectedMonth,
+      summary: { totalIncome, totalExpense, balance, savingsRate },
+      monthlyData,
+      categorySpending,
+      budgetData,
+      transactions: { incomes, expenses },
+    });
+  } catch (error) {
+    console.error('Full Report Error:', error);
     res.status(500).json({
       success: false,
       message: error.message,
@@ -793,6 +922,7 @@ module.exports = {
   getMonthlyReport,
   getCategoryAnalysis,
   getBudgetPerformance,
+  getFullReport,
   getCategories,
   getAvailablePeriods,
 };

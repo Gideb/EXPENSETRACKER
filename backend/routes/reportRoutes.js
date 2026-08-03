@@ -4,6 +4,7 @@ const {
   getMonthlyReport,
   getCategoryAnalysis,
   getBudgetPerformance,
+  getFullReport,
   exportPDF,
   exportCSV,
   sendEmailReport,
@@ -20,6 +21,7 @@ router.get('/financial', protect, getFinancialReport);
 router.get('/monthly', protect, getMonthlyReport);
 router.get('/category-analysis', protect, getCategoryAnalysis);
 router.get('/budget-performance', protect, getBudgetPerformance);
+router.get('/full', protect, getFullReport);
 // EXPORTS
 router.get('/export-pdf', protect, exportPDF);
 router.get('/export-csv', protect, exportCSV);
