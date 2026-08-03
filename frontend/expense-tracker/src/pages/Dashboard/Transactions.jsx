@@ -28,8 +28,8 @@ const TransactionPage = () => {
       const response = await axiosInstance.get(API_PATHS.TRANSACTIONS.GET_ALL);
 
       setTransactions(response.data);
-    } catch (error) {
-      toast.error(error.response?.data?.message || 'Failed loading transactions');
+    } catch {
+      toast.error('Failed loading transactions');
     } finally {
       setLoading(false);
     }
@@ -38,7 +38,6 @@ const TransactionPage = () => {
   useEffect(() => {
     fetchTransactions();
   }, [fetchTransactions]);
-
 
   //delete transaction
   const deleteTransaction = async (transaction) => {
@@ -53,67 +52,61 @@ const TransactionPage = () => {
       });
 
       fetchTransactions();
-    } catch (error) {
+    } catch {
       toast.error('Delete failed');
     }
   };
 
-
   //download excel
-const handleDownloadExcel = async () => {
-  try {
-    const response = await axiosInstance.get(API_PATHS.TRANSACTIONS.EXPORT_EXCEL, {
-      responseType: 'blob',
-    });
+  const handleDownloadExcel = async () => {
+    try {
+      const response = await axiosInstance.get(API_PATHS.TRANSACTIONS.EXPORT_EXCEL, {
+        responseType: 'blob',
+      });
 
-    const blob = new Blob([response.data], {
-      type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-    });
+      const blob = new Blob([response.data], {
+        type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      });
 
-    const url = window.URL.createObjectURL(blob);
+      const url = window.URL.createObjectURL(blob);
 
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = 'transactions.xlsx';
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = 'transactions.xlsx';
 
-    document.body.appendChild(link);
-    link.click();
-    link.remove();
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
 
-    window.URL.revokeObjectURL(url);
+      window.URL.revokeObjectURL(url);
 
-    toast.success('Excel downloaded successfully.');
-  } catch (error) {
-    toast.error(error.response?.data?.message || 'Failed to download Excel.');
-  }
-};
+      toast.success('Excel downloaded successfully.');
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'Failed to download Excel.');
+    }
+  };
 
- //handle export  in pdf
- const handleExportPDF = async () => {
-   try {
-     const response = await axiosInstance.get(API_PATHS.TRANSACTIONS.EXPORT_PDF, {
-       responseType: 'blob',
-     });
+  //handle export  in pdf
+  const handleExportPDF = async () => {
+    try {
+      const response = await axiosInstance.get(API_PATHS.TRANSACTIONS.EXPORT_PDF, {
+        responseType: 'blob',
+      });
 
-     const blob = new Blob([response.data], { type: 'application/pdf' });
-     const url = window.URL.createObjectURL(blob);
-     const link = document.createElement('a');
-     link.href = url;
-     link.download = 'transactions_report.pdf';
-     document.body.appendChild(link);
-     link.click();
-     document.body.removeChild(link);
-     window.URL.revokeObjectURL(url);
-     toast.success('PDF exported successfully.');
-   } catch (error) {
-     toast.error(
-       error.response?.data?.message || 'Failed to export transactions.'
-     );
-   }
- };
-
-  
-
+      const blob = new Blob([response.data], { type: 'application/pdf' });
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = 'transactions_report.pdf';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+      toast.success('PDF exported successfully.');
+    } catch {
+      toast.error('Failed to export transactions.');
+    }
+  };
 
   return (
     <Dashboardlayout activeMenu="Transactions">

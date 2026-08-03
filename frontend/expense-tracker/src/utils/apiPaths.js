@@ -55,7 +55,7 @@ export const API_PATHS = {
     EXPORT_PDF: '/api/v1/reports/export-pdf',
     EXPORT_CSV: '/api/v1/reports/export-csv',
     EMAIL_REPORT: '/api/v1/reports/email-report',
-    AVAILABLE_PERIODS: 'api/v1/reports/available-periods',
+    AVAILABLE_PERIODS: '/api/v1/reports/available-periods',
     CATEGORIES: '/api/v1/reports/categories',
   },
   SETTINGS: {},

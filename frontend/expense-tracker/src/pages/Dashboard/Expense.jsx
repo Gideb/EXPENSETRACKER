@@ -177,9 +177,7 @@ const Expense = () => {
 
   useEffect(() => {
     fetchExpenseDetails();
-
-    return () => {};
-  }, []);
+  }, [fetchExpenseDetails]);
 
   return (
     <Dashboardlayout activeMenu="Expenses">

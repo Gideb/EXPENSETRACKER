@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react';
-import axios from 'axios';
 import AddBudgetForm from '../../components/Budget/AddBudgetForm';
 import Dashboardlayout from '../../components/layouts/Dashboardlayout';
 import { useUserAuth } from '../../hooks/useUserAuth';
@@ -15,7 +14,6 @@ const Budget = () => {
   useUserAuth();
   const [budgets, setBudgets] = useState([]);
   const [openAddBudgetModal, setOpenAddBudgetModal] = useState(false);
-  const [openAddExpenseModal, setOpenAddExpenseModal] = useState(false);
   const [editingBudget, setEditingBudget] = useState(null);
   const [openDeleteAlert, setOpenDeleteAlert] = useState({
     show: false,
@@ -64,17 +62,17 @@ const Budget = () => {
     const { category, limitAmount, month, year, icon } = budget;
 
     if (!category?.trim()) {
-      setError('Please enter a budget category.');
+      toast.error('Please enter a budget category.');
       return;
     }
 
     if (!limitAmount || isNaN(limitAmount) || Number(limitAmount) <= 0) {
-      setError('Please enter a valid amount greater than 0.');
+      toast.error('Please enter a valid amount greater than 0.');
       return;
     }
 
     if (!month) {
-      setError('Please select a month.');
+      toast.error('Please select a month.');
       return;
     }
 
@@ -112,7 +110,7 @@ const Budget = () => {
     }
 
     try {
-      const response = await axiosInstance.put(API_PATHS.BUDGET.UPDATE_BUDGET(editingBudget._id), {
+      await axiosInstance.put(API_PATHS.BUDGET.UPDATE_BUDGET(editingBudget._id), {
         category: budget.category,
         limitAmount: Number(budget.limitAmount),
         month: budget.month,
@@ -156,18 +154,14 @@ const Budget = () => {
 
   useEffect(() => {
     fetchBudgets();
-  }, []);
+  }, [fetchBudgets]);
 
   return (
     <Dashboardlayout activeMenu="Budgets">
       <div className="budget-page ">
         <div className="flex justify-between items-center my-4"></div>
 
-        <BudgetSummary
-          setOpenAddBudgetModal={setOpenAddBudgetModal}
-          setOpenAddExpenseModal={setOpenAddExpenseModal}
-          refreshKey={refreshKey}
-        />
+        <BudgetSummary setOpenAddBudgetModal={setOpenAddBudgetModal} refreshKey={refreshKey} />
 
         <BudgetList
           budgets={budgets}

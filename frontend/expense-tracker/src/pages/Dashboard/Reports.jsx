@@ -1,11 +1,11 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Dashboardlayout from '../../components/layouts/Dashboardlayout';
 import { useUserAuth } from '../../hooks/useUserAuth';
 import axiosInstance from '../../utils/axiosInstance';
 import { API_PATHS } from '../../utils/apiPaths';
 import MonthlyBarChart from '../../components/Charts/MonthlyBarChart';
-import { addThousandsSeparator, getAvailableMonths, getAvailablePeriods } from '../../utils/helper';
+import { addThousandsSeparator } from '../../utils/helper';
 import { toast } from 'react-hot-toast';
 
 import {
@@ -31,48 +31,35 @@ import {
   Smartphone,
   Heart,
   Briefcase,
-  ArrowUpRight,
-  ArrowDownRight,
   AlertCircle,
   CheckCircle,
   Clock,
 } from 'lucide-react';
+import { GoArrowDownLeft, GoArrowUpRight } from 'react-icons/go';
 import RecentTransactions from '../../components/Dashboard/RecentTransactions';
-import ExpenseTransactions from '../../components/Dashboard/ExpenseTransactions';
 
 const Reports = () => {
   useUserAuth();
 
   const [activeTab, setActiveTab] = useState('summary');
-  const [selectedMonth, setSelectedMonth] = useState(
-    String(new Date().getMonth() + 1).padStart(2, '0')
-  );
+  const [selectedMonth] = useState(String(new Date().getMonth() + 1).padStart(2, '0'));
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
   const [selectedCategory, setSelectedCategory] = useState('all');
-  const [showDateRange, setShowDateRange] = useState(false);
-  const [dateRange, setDateRange] = useState({
-    start: new Date(new Date().getFullYear(), new Date().getMonth(), 1),
-    end: new Date(),
-  });
   const navigate = useNavigate();
-  const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
+  const [isGeneratingPDF] = useState(false);
   const [showFilterOptions, setShowFilterOptions] = useState(false);
-  const [financialData, setFinancialData] = useState(null);
+  const [financialData, setFinancialData] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [isSendingEmail, setIsSendingEmail] = useState(false);
 
   // Filter state
   const [minAmount, setMinAmount] = useState('');
   const [maxAmount, setMaxAmount] = useState('');
   const [transactionType, setTransactionType] = useState('all');
   const [categories, setCategories] = useState([]);
-  const [availablePeriods, setAvailablePeriods] = useState([]);
 
   useEffect(() => {
     const fetchPeriods = async () => {
-      const res = await axiosInstance.get(API_PATHS.REPORTS.AVAILABLE_PERIODS);
-
-      setAvailablePeriods(res.data);
+      await axiosInstance.get(API_PATHS.REPORTS.AVAILABLE_PERIODS);
     };
 
     fetchPeriods();
@@ -81,9 +68,9 @@ const Reports = () => {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-const response = await axiosInstance.get(API_PATHS.REPORTS.CATEGORIES);
+        const response = await axiosInstance.get(API_PATHS.REPORTS.CATEGORIES);
 
-      setCategories(response.data?.all || []);
+        setCategories(response.data?.all || []);
       } catch (error) {
         console.error(error);
       }
@@ -104,7 +91,6 @@ const response = await axiosInstance.get(API_PATHS.REPORTS.CATEGORIES);
           ),
         ]);
 
-       
         const budgetData = (budgetPerf.data?.performance || []).map((b) => ({
           id: b.id,
           icon: b.icon,
@@ -118,7 +104,7 @@ const response = await axiosInstance.get(API_PATHS.REPORTS.CATEGORIES);
           status: b.status,
         }));
 
-setFinancialData({
+        setFinancialData({
           ...financial.data,
           monthlyData: monthly.data,
           categorySpending: category.data?.expenses?.categories || [],
@@ -206,19 +192,15 @@ setFinancialData({
   //controller needs to be added
   const handleEmailReport = async () => {
     try {
-      setIsSendingEmail(true);
       await axiosInstance.post(API_PATHS.REPORTS.EMAIL_REPORT);
       toast.success('Report sent to your email successfully!');
-      alert('Report sent to your email successfully!');
     } catch (error) {
       console.log(error);
       toast.error(error.response?.data?.message || 'Failed to send email report.');
-    } finally {
-      setIsSendingEmail(false);
     }
   };
 
-// Compute filtered transactions
+  // Compute filtered transactions
   const getFilteredTransactions = () => {
     const transactionsData = financialData?.transactions || {};
     const incomes = Array.isArray(transactionsData.incomes) ? transactionsData.incomes : [];
@@ -257,12 +239,59 @@ setFinancialData({
   };
 
   // Helper function to render category icon
-  const renderCategoryIcon = (categoryName, className = 'w-5 h-5') => {
-    const IconComponent = getCategoryIcon(categoryName);
-    return <IconComponent className={className} />;
+
+  // Compute percentage change from previous month for income/expense
+  const getMonthChange = (type) => {
+    const monthly = financialData?.monthlyData || [];
+    const monthNames = [
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
+    ];
+    const monthIndex = Number(selectedMonth) - 1;
+    const prevMonthIndex = monthIndex - 1;
+
+    const current = monthly.find((m) => m.month === monthNames[monthIndex]);
+    const prev = monthly.find((m) => m.month === monthNames[prevMonthIndex]);
+
+    const currentVal = current ? (type === 'income' ? current.income : current.expenses) : 0;
+    const prevVal = prev ? (type === 'income' ? prev.income : prev.expenses) : 0;
+
+    if (!prevVal || prevVal <= 0) return null;
+
+    return ((currentVal - prevVal) / prevVal) * 100;
   };
 
-  // Tab content components
+  const renderMonthChange = (type) => {
+    const change = getMonthChange(type);
+
+    if (change === null) return <span>from last month</span>;
+
+    const isUp = change >= 0;
+    const isPositiveMetric = type === 'income';
+    // For income, increase is good (green); for expenses, increase is bad (red)
+    const good = isPositiveMetric ? isUp : !isUp;
+
+    return (
+      <span
+        className={`flex items-center gap-1 dark:text-gray-500 ${
+          good ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'
+        }`}
+      >
+        {isUp ? <GoArrowUpRight /> : <GoArrowDownLeft />}
+        {change.toFixed(1)}% from last month
+      </span>
+    );
+  };
 
   //SUMMARY
   const renderSummary = () => (
@@ -274,17 +303,14 @@ setFinancialData({
             <div>
               <p className="text-sm text-gray-500 dark:text-gray-400">Total Income</p>
               <p className="text-2xl font-bold text-green-600 dark:text-green-400">
-                {`GHS ${addThousandsSeparator(financialData?.summary?.totalIncome)}`}
+                {`GHS ${addThousandsSeparator(financialData?.summary?.totalIncome) || 0}`}
               </p>
             </div>
             <div className="p-3 bg-green-50 dark:bg-green-900/30 rounded-xl">
               <TrendingUp className="w-6 h-6 text-green-600 dark:text-green-400" />
             </div>
           </div>
-          <div className="mt-2 flex items-center gap-1 text-sm text-green-600 dark:text-green-400">
-            <ArrowUpRight className="w-4 h-4" />
-            <span>12.5% from last month</span>
-          </div>
+          <div className="mt-2 flex items-center gap-1 text-sm">{renderMonthChange('income')}</div>
         </div>
 
         <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-gray-700">
@@ -292,17 +318,14 @@ setFinancialData({
             <div>
               <p className="text-sm text-gray-500 dark:text-gray-400">Total Expenses</p>
               <p className="text-2xl font-bold text-red-600 dark:text-red-400">
-                {`GHS ${addThousandsSeparator(financialData?.summary?.totalExpenses)}`}
+                {`GHS ${addThousandsSeparator(financialData?.summary?.totalExpense) || 0}`}
               </p>
             </div>
             <div className="p-3 bg-red-50 dark:bg-red-900/30 rounded-xl">
               <TrendingDown className="w-6 h-6 text-red-600 dark:text-red-400" />
             </div>
           </div>
-          <div className="mt-2 flex items-center gap-1 text-sm text-red-600 dark:text-red-400">
-            <ArrowDownRight className="w-4 h-4" />
-            <span>8.2% from last month</span>
-          </div>
+          <div className="mt-2 flex items-center gap-1 text-sm">{renderMonthChange('expense')}</div>
         </div>
 
         <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-gray-700">
@@ -310,7 +333,7 @@ setFinancialData({
             <div>
               <p className="text-sm text-gray-500 dark:text-gray-400">Balance</p>
               <p className="text-2xl font-bold text-amber-600 dark:text-amber-400">
-                {`GHS ${addThousandsSeparator(financialData?.summary?.balance)}`}
+                {`GHS ${addThousandsSeparator(financialData?.summary?.balance) || 0}`}
               </p>
             </div>
             <div className="p-3 bg-amber-50 dark:bg-amber-900/30 rounded-xl">
@@ -324,7 +347,7 @@ setFinancialData({
             <div>
               <p className="text-sm text-gray-500 dark:text-gray-400">Savings Rate</p>
               <p className="text-2xl font-bold text-purple-600 dark:text-purple-400">
-                {`${financialData?.summary?.savingsRate}%`}
+                {`${financialData?.summary?.savingsRate || 0} %`}
               </p>
             </div>
             <div className="p-3 bg-purple-50 dark:bg-purple-900/30 rounded-xl">
@@ -357,30 +380,6 @@ setFinancialData({
   const renderMonthlyReports = () => {
     return (
       <div className="space-y-6">
-        {/* Month Selector */}
-        {/* <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-gray-700">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
-            <div className="flex items-center gap-3">
-              <Calendar className="w-5 h-5 text-gray-500 dark:text-gray-400" />
-             
-               <select
-                value={selectedYear}
-                onChange={(e) => setSelectedYear(Number(e.target.value))}
-                className="border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-amber-500"
-              >
-                {years.map((year) => (
-                  <option key={year} value={year}>
-                    {year}
-                  </option>
-                ))}
-              </select> 
-            </div>
-            
-          </div>
-
-        
-        </div> */}
-
         {/* Monthly Chart - Bar Chart Visualization */}
         <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-6">
           <h3 className="font-semibold text-gray-900 dark:text-white mb-4">Monthly Overview</h3>
@@ -917,17 +916,19 @@ setFinancialData({
               </select>
             )}
 
-            <button
-              onClick={() => setShowFilterOptions(!showFilterOptions)}
-              className="text-sm text-amber-600 dark:text-amber-400 hover:underline flex items-center gap-1"
-            >
-              More Filters
-              {showFilterOptions ? (
-                <ChevronUp className="w-4 h-4" />
-              ) : (
-                <ChevronDown className="w-4 h-4" />
-              )}
-            </button>
+            {activeTab === 'summary' && (
+              <button
+                onClick={() => setShowFilterOptions(!showFilterOptions)}
+                className="text-sm text-amber-600 dark:text-amber-400 hover:underline flex items-center gap-1"
+              >
+                More Filters
+                {showFilterOptions ? (
+                  <ChevronUp className="w-4 h-4" />
+                ) : (
+                  <ChevronDown className="w-4 h-4" />
+                )}
+              </button>
+            )}
           </div>
 
           {showFilterOptions && (

@@ -71,7 +71,7 @@ const Home = () => {
           {/* Left Column - Widgets */}
           <div className="flex-1 flex flex-col gap-6">
             <BudgetWidget />
-            <HealthScore dashboardData={dashboardData} />
+            {/* <HealthScore dashboardData={dashboardData} /> */}
           </div>
           {/* gilbert debrah - 2026 */}
 

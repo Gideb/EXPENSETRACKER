@@ -16,10 +16,6 @@ const BudgetWidget = () => {
 
   const firstName = user?.fullName?.split(' ')?.[0];
 
-  useEffect(() => {
-    fetchBudgetSummary();
-  }, []);
-
   const fetchBudgetSummary = async () => {
     try {
       const response = await axiosInstance.get(API_PATHS.BUDGET.GET_BUDGET_SUMMARY);
@@ -30,6 +26,10 @@ const BudgetWidget = () => {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchBudgetSummary();
+  }, []);
 
   if (loading) {
     return (

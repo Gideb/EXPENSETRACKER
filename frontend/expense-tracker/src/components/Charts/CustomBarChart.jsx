@@ -10,8 +10,7 @@ import {
 } from 'recharts';
 import { addThousandsSeparator } from '../../utils/helper';
 
-
-const CustomBarChart = ({ data, type, dataKeys=["amount"], }) => {
+const CustomBarChart = ({ data, type }) => {
   const xAxisKey = type === 'income' ? 'month' : 'category';
   const tooltipLabelKey = type === 'income' ? 'source' : 'category';
 

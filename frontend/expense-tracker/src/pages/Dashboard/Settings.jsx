@@ -99,7 +99,7 @@ const Settings = () => {
         try {
           const uploadResponse = await uploadImage(profilePic);
           profileImageUrl = uploadResponse.imageUrl;
-        } catch (uploadErr) {
+        } catch {
           setProfileError('Failed to upload profile image. Please try again.');
           setProfileLoading(false);
           return;

@@ -16,10 +16,6 @@ const BudgetSummary = ({ setOpenAddBudgetModal, refreshKey }) => {
   });
   const [loading, setLoading] = useState(true);
 
-useEffect(() => {
-    fetchBudgetSummary();
-  }, [refreshKey]);
-
   const fetchBudgetSummary = async () => {
     try {
       setLoading(true);
@@ -35,6 +31,10 @@ useEffect(() => {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchBudgetSummary();
+  }, [refreshKey]);
 
   const formatCurrency = (amount) => {
     return new Intl.NumberFormat('en-GH', {

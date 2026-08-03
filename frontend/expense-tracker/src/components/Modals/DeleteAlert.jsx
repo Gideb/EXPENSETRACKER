@@ -1,6 +1,4 @@
-import React from 'react';
-
-const DeleteAlert = ({ onDelete, content, onCancel }) => {
+const DeleteAlert = ({ onDelete, content }) => {
   return (
     <div className="">
       <p className="text-sm dark:text-white">{content}</p>

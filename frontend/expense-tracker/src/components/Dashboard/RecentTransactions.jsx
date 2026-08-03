@@ -13,6 +13,7 @@ const RecentTransactions = ({ transactions, onSeeMore }) => {
             View your recent conbined transaction history
           </p>
         </div>
+
         <button className="card-btn group" onClick={onSeeMore}>
           See All
           <LuArrowRight className="text-base dark:text-gray-100 group-hover:translate-x-1 duration-300 transition-all ease-in-out" />

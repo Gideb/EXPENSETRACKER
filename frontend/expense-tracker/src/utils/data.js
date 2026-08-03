@@ -1,14 +1,11 @@
-import { LiaExchangeAltSolid } from 'react-icons/lia';
 import {
   LuChartPie,
   LuFileChartColumnIncreasing,
-  LuHandCoins,
   LuLayoutDashboard,
   LuLogOut,
-  LuWalletMinimal,
 } from 'react-icons/lu';
 import { IoSettingsOutline } from 'react-icons/io5';
-import { GiBanknote, GiMoneyStack, GiPayMoney } from 'react-icons/gi';
+import { GiMoneyStack } from 'react-icons/gi';
 import { FaMoneyBillTransfer, FaRegCreditCard } from 'react-icons/fa6';
 
 export const SIDE_MENU_DATA = [

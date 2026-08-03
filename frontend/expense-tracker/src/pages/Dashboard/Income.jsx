@@ -23,8 +23,6 @@ const Income = () => {
   const [openAddIncomeModal, setOpenAddIncomeModal] = useState(false);
   const [editingIncome, setEditingIncome] = useState(null);
 
-  
-
   // get all Income Details
 
   const fetchIncomeDetails = async () => {
@@ -182,9 +180,7 @@ const Income = () => {
 
   useEffect(() => {
     fetchIncomeDetails();
-
-    return () => {};
-  }, []);
+  }, [fetchIncomeDetails]);
 
   return (
     <Dashboardlayout activeMenu="Incomes">
