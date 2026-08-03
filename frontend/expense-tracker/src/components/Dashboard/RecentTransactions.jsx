@@ -4,6 +4,13 @@ import moment from 'moment';
 import { addThousandsSeparator } from '../../utils/helper';
 
 const RecentTransactions = ({ transactions, onSeeMore }) => {
+  const sortedTransactions = [...(transactions || [])].sort((a, b) => {
+    const aTime = new Date(a?.date).getTime();
+    const bTime = new Date(b?.date).getTime();
+
+    return (Number.isNaN(bTime) ? 0 : bTime) - (Number.isNaN(aTime) ? 0 : aTime);
+  });
+
   return (
     <div className="card">
       <div className="flex items-center justify-between">
@@ -21,10 +28,10 @@ const RecentTransactions = ({ transactions, onSeeMore }) => {
       </div>
 
       <div className="mt-6">
-        {transactions?.slice(0, 5)?.map((item) => (
+        {sortedTransactions?.slice(0, 5)?.map((item) => (
           <TransactionInfoCard
             key={item._id}
-            title={item.type == 'expense' ? item.category : item.source}
+            title={item.type === 'expense' ? item.category : item.source}
             icon={item.icon}
             date={moment(item.date).format('DD MM YYYY')}
             amount={addThousandsSeparator(item.amount)}

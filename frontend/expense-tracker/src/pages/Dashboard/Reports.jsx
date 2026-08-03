@@ -200,6 +200,11 @@ const Reports = () => {
     }
   };
 
+  const getTransactionDateValue = (item) => {
+    const date = new Date(item?.date);
+    return Number.isNaN(date.getTime()) ? 0 : date.getTime();
+  };
+
   // Compute filtered transactions
   const getFilteredTransactions = () => {
     const transactionsData = financialData?.transactions || {};
@@ -211,34 +216,36 @@ const Reports = () => {
       ...expenses.map((item) => ({ ...item, type: 'expense' })),
     ];
 
-    return transactions.filter((t) => {
-      // Category filter
-      if (selectedCategory !== 'all') {
-        const catMatch =
-          t.category?.toLowerCase() === selectedCategory.toLowerCase() ||
-          t.source?.toLowerCase() === selectedCategory.toLowerCase();
-        if (!catMatch) return false;
-      }
+    return transactions
+      .filter((t) => {
+        // Category filter
+        if (selectedCategory !== 'all') {
+          const catMatch =
+            t.category?.toLowerCase() === selectedCategory.toLowerCase() ||
+            t.source?.toLowerCase() === selectedCategory.toLowerCase();
+          if (!catMatch) return false;
+        }
 
-      // Transaction type filter
-      if (transactionType !== 'all' && t.type !== transactionType) {
-        return false;
-      }
+        // Transaction type filter
+        if (transactionType !== 'all' && t.type !== transactionType) {
+          return false;
+        }
 
-      // Min amount filter
-      if (minAmount && t.amount < Number(minAmount)) {
-        return false;
-      }
-      // Max amount filter
-      if (maxAmount && t.amount > Number(maxAmount)) {
-        return false;
-      }
+        // Min amount filter
+        if (minAmount && t.amount < Number(minAmount)) {
+          return false;
+        }
+        // Max amount filter
+        if (maxAmount && t.amount > Number(maxAmount)) {
+          return false;
+        }
 
-      return true;
-    });
+        return true;
+      })
+      .sort((a, b) => getTransactionDateValue(b) - getTransactionDateValue(a));
   };
 
-  // Helper function to render category icon
+
 
   // Compute percentage change from previous month for income/expense
   const getMonthChange = (type) => {
@@ -839,7 +846,7 @@ const Reports = () => {
               Print
             </button>
 
-           {/*  <button
+            {/*  <button
               onClick={handleEmailReport}
               className="px-4 py-2 bg-gray-600 hover:bg-gray-700 dark:bg-gray-500 dark:hover:bg-gray-600 text-white text-sm font-medium rounded-xl cursor-pointer transition-all duration-200 flex items-center gap-2 shadow-sm hover:shadow-md"
             >
