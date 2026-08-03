@@ -6,6 +6,8 @@ import { useMemo } from 'react';
 const IncomeOverview = ({ transactions, onAddIncome }) => {
   const chartData = useMemo(() => prepareIncomeBarChartData(transactions), [transactions]);
   return (
+    <div>
+      <h5 className="text-2xl font-medium mb-4 pl-2 dark:text-gray-100">Income</h5>
     <div className="card">
       <div className="inline md:flex items-center justify-between  ">
         <div className="">
@@ -23,7 +25,8 @@ const IncomeOverview = ({ transactions, onAddIncome }) => {
       <div className="mt-10">
         <CustomBarChart type="income" data={chartData} />
       </div>
-    </div>
+      </div>
+      </div>
   );
 };
 

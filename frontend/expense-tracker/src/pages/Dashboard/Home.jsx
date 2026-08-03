@@ -165,6 +165,11 @@ const Home = () => {
             {/* list for Last 30 days expense  */}
             {hasAnyExpense && (
               <>
+                <ExpenseTransactions
+                  transactions={dashboardData?.last30DaysExpense?.transactions || []}
+                  onSeeMore={() => navigate('/expense')}
+                />
+
                 {hasExpenseInLast30Days ? (
                   <Last30DaysExpenses data={dashboardData?.last30DaysExpense?.transactions || []} />
                 ) : (
@@ -172,23 +177,13 @@ const Home = () => {
                     title="No expenses in the last 30 days"
                     description="You have expense records, but none were added during this period."
                   />
-                  )}
-                  
-                <ExpenseTransactions
-                  transactions={dashboardData?.last30DaysExpense?.transactions || []}
-                  onSeeMore={() => navigate('/expense')}
-                />
+                )}
               </>
             )}
 
             {/* pie chart for Last 60 days income */}
             {hasAnyIncome && (
               <>
-                <RecentIncome
-                  transactions={dashboardData?.last60DaysIncome?.transactions || []}
-                  onSeeMore={() => navigate('/income')}
-                  />
-                  
                 {hasIncomeInLast60Days ? (
                   <RecentIncomeWithChart
                     data={dashboardData?.last60DaysIncome?.transactions?.slice(0, 4) || []}
@@ -200,6 +195,10 @@ const Home = () => {
                     description="You have income records, but none were added during this period."
                   />
                 )}
+                <RecentIncome
+                  transactions={dashboardData?.last60DaysIncome?.transactions || []}
+                  onSeeMore={() => navigate('/income')}
+                />
               </>
             )}
           </div>

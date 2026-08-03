@@ -26,14 +26,13 @@ const SideMenu = ({ activeMenu }) => {
 
   const hasImage = user?.profileImageUrl && user.profileImageUrl !== '';
 
-  //  Convert relative URL to absolute URL for backend access
   const imageUrl =
     hasImage && user.profileImageUrl.startsWith('/')
       ? `${BASE_URL}${user.profileImageUrl}`
       : user.profileImageUrl;
 
   return (
-    <div className="w-64 h-[calc(100vh-61px)] bg-white border-r border-gray-200/50 dark:bg-gray-950 z-20 p-5 sticky top-15.25">
+    <div className="w-64 h-[calc(100vh-61px)] bg-white border-r border-gray-200/50 dark:bg-gray-950 z-20 p-5 sticky top-15.25 transition-all duration-500 ease-in-out">
       <div className="flex flex-col items-center justify-center gap-3 mt-3 mb-7">
         {hasImage ? (
           <img
@@ -68,14 +67,6 @@ const SideMenu = ({ activeMenu }) => {
           </button>
         );
       })}
-
-      {/* <button
-        onClick={() => navigate("/settings")}
-        className="w-full flex flex-col h-full items-center gap-4 cursor-pointer text-[15px] py-3 px-6 rounded-lg mb-3  text-gray-600 hover:text-primary"
-      >
-        <LuSettings className="text-xl" />
-        Settings
-      </button> */}
     </div>
   );
 };

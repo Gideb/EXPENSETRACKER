@@ -7,6 +7,8 @@ const ExpenseOverview = ({ transactions, onAddExpense }) => {
   const chartData = useMemo(() => prepareExpenseLineChartData(transactions), [transactions]);
 
   return (
+    <div>
+      <h5 className="text-2xl font-medium mb-4 pl-2 dark:text-gray-100">Expense</h5>
     <div className="card">
       <div className="inline md:flex items-center justify-between">
         <div className="">
@@ -24,6 +26,7 @@ const ExpenseOverview = ({ transactions, onAddExpense }) => {
       <div className="mt-10">
         <CustomLineChart type="expense" data={chartData} />
       </div>
+    </div>
     </div>
   );
 };

@@ -33,7 +33,7 @@ const BudgetWidget = () => {
 
   if (loading) {
     return (
-      <div className="animate-pulse bg-white dark:bg-slate-800 rounded-lg p-4">
+      <div className="animate-pulse bg-white dark:bg-slate-900 rounded-lg p-4">
         <div className="h-16 bg-gray-200 dark:bg-slate-700 rounded" />
       </div>
     );
@@ -41,7 +41,7 @@ const BudgetWidget = () => {
 
   if (!summary || summary.totalBudget === 0) {
     return (
-      <div className="bg-white dark:bg-slate-800 rounded-lg p-5 shadow-md border border-gray-600">
+      <div className="bg-white dark:bg-slate-900 rounded-lg p-5 shadow-md border border-gray-600">
         {/* Top Banner */}
         <div className="mb-4 overflow-hidden rounded-lg">
           <img src={banner2} alt="Budget Planning" className="w-full h-55 object-cover " />
@@ -69,7 +69,7 @@ const BudgetWidget = () => {
   };
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm border border-gray-200 dark:border-gray-700">
+    <div className="bg-white dark:bg-gray-900 rounded-lg p-4 shadow-sm border border-gray-200 dark:border-gray-700">
       {/* Top Banner */}
       <div className="mb-4 overflow-hidden rounded-lg">
         <img src={banner} alt="Budget Planning" className="w-full h-32 object-cover object-center" />
