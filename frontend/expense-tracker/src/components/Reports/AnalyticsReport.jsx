@@ -12,7 +12,7 @@ const generateInsights = (summary, categorySpending, budgetData) => {
     insights.push({
       type: 'income',
       title: 'Income Overview',
-      message: `You have earned GHS ${summary.totalIncome.toLocaleString()} in total income.`,
+      message: `You have earned GH₵ ${summary.totalIncome.toLocaleString()} in total income.`,
       icon: TrendingUp,
       color: 'amber',
     });
@@ -25,7 +25,7 @@ const generateInsights = (summary, categorySpending, budgetData) => {
     insights.push({
       type: 'expense',
       title: 'Top Spending Category',
-      message: `${highestCategory.category} is your highest spending category at GHS ${highestCategory.amount.toLocaleString()}.`,
+      message: `${highestCategory.category} is your highest spending category at GH₵ ${highestCategory.amount.toLocaleString()}.`,
       icon: AlertCircle,
       color: 'yellow',
     });
@@ -135,7 +135,7 @@ const AnalyticsReport = ({ financialData }) => {
 
                   <div className="flex items-center gap-4">
                     <span className="text-sm font-medium text-gray-900 dark:text-white">
-                      GHS {category.amount}
+                      GH₵ {category.amount}
                     </span>
 
                     <span className="text-sm text-gray-500 dark:text-gray-400 w-12 text-right">
@@ -179,7 +179,7 @@ const AnalyticsReport = ({ financialData }) => {
                     </span>
                   </div>
                   <span className="text-sm font-medium text-gray-900 dark:text-white">
-                    GHS {addThousandsSeparator(category.amount)}
+                    GH₵ {addThousandsSeparator(category.amount)}
                   </span>
                 </div>
               ))}

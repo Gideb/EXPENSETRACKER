@@ -44,7 +44,11 @@ const BudgetWidget = () => {
       <div className="bg-white dark:bg-slate-900 rounded-lg p-5 shadow-md border border-gray-600">
         {/* Top Banner */}
         <div className="mb-4 overflow-hidden rounded-lg">
-          <img src={banner2} alt="Budget Planning" className="w-full h-55 object-cover " />
+          <img
+            src={banner2}
+            alt="Budget Planning"
+            className="w-full h-59 object-cover object-bottom"
+          />
         </div>
 
         <p className="text-sm my-6 text-gray-500 dark:text-gray-400">
@@ -55,7 +59,7 @@ const BudgetWidget = () => {
           >
             Create your first budget
           </button>{' '}
-          to get started.
+          for the month.
         </p>
       </div>
     );
@@ -72,7 +76,11 @@ const BudgetWidget = () => {
     <div className="bg-white dark:bg-gray-900 rounded-lg p-4 shadow-sm border border-gray-200 dark:border-gray-700">
       {/* Top Banner */}
       <div className="mb-4 overflow-hidden rounded-lg">
-        <img src={banner} alt="Budget Planning" className="w-full h-32 object-cover object-center" />
+        <img
+          src={banner}
+          alt="Budget Planning"
+          className="w-full h-32 object-cover object-center"
+        />
       </div>
 
       {/* Header with greeting */}

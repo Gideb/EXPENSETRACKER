@@ -20,7 +20,7 @@ const ReportsFilterBar = ({
   return (
     <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-4 mb-6">
       <div className="flex flex-wrap items-center gap-4">
-        <div className="flex items-center gap-2">
+        <div className="sm:flex items-center gap-2 hidden">
           <Filter className="w-4 h-4 text-gray-500 dark:text-gray-400" />
           <span className="text-sm text-gray-600 dark:text-gray-300">Filters:</span>
         </div>
@@ -31,6 +31,8 @@ const ReportsFilterBar = ({
           onChange={(e) => onYearChange(Number(e.target.value))}
           className="border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-amber-500 cursor-pointer"
         >
+          <option value="">Years</option>
+
           {years.map((year) => (
             <option key={year} value={year}>
               {year}
@@ -116,4 +118,3 @@ const ReportsFilterBar = ({
 };
 
 export default ReportsFilterBar;
-

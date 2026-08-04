@@ -41,7 +41,7 @@ const Budget = () => {
     fetchCategories();
   }, []);
 
-// get all Budget Details
+  // get all Budget Details
   const fetchBudgets = useCallback(async () => {
     setLoading(true);
 

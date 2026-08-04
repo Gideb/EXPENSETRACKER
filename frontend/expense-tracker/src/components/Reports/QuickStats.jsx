@@ -1,4 +1,4 @@
-import { TrendingUp, TrendingDown, Wallet, PieChart } from 'lucide-react';
+import { TrendingUp, TrendingDown, Wallet, PiggyBank } from 'lucide-react';
 import { GoArrowDownLeft, GoArrowUpRight } from 'react-icons/go';
 import { addThousandsSeparator } from '../../utils/helper';
 
@@ -57,6 +57,8 @@ const QuickStats = ({ summary, monthlyData, selectedMonth }) => {
     );
   };
 
+  const balancePositive = summary?.balance >= 0;
+
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
       <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-gray-700">
@@ -64,7 +66,7 @@ const QuickStats = ({ summary, monthlyData, selectedMonth }) => {
           <div>
             <p className="text-sm text-gray-500 dark:text-gray-400">Total Income</p>
             <p className="text-2xl font-bold text-green-600 dark:text-green-400">
-              {`GHS ${addThousandsSeparator(summary?.totalIncome) || 0}`}
+              {`GH₵ ${addThousandsSeparator(summary?.totalIncome ?? 0)}`}
             </p>
           </div>
           <div className="p-3 bg-green-50 dark:bg-green-900/30 rounded-xl">
@@ -79,7 +81,7 @@ const QuickStats = ({ summary, monthlyData, selectedMonth }) => {
           <div>
             <p className="text-sm text-gray-500 dark:text-gray-400">Total Expenses</p>
             <p className="text-2xl font-bold text-red-600 dark:text-red-400">
-              {`GHS ${addThousandsSeparator(summary?.totalExpense) || 0}`}
+              {`GH₵ ${addThousandsSeparator(summary?.totalExpense) || 0}`}
             </p>
           </div>
           <div className="p-3 bg-red-50 dark:bg-red-900/30 rounded-xl">
@@ -93,8 +95,14 @@ const QuickStats = ({ summary, monthlyData, selectedMonth }) => {
         <div className="flex items-center justify-between">
           <div>
             <p className="text-sm text-gray-500 dark:text-gray-400">Balance</p>
-            <p className="text-2xl font-bold text-amber-600 dark:text-amber-400">
-              {`GHS ${addThousandsSeparator(summary?.balance) || 0}`}
+            <p
+              className={`text-2xl font-bold ${
+                balancePositive
+                  ? 'text-green-600 dark:text-green-400'
+                  : 'text-red-600 dark:text-red-400'
+              }`}
+            >
+              {`GH₵ ${addThousandsSeparator(summary?.balance) || 0}`}
             </p>
           </div>
           <div className="p-3 bg-amber-50 dark:bg-amber-900/30 rounded-xl">
@@ -108,18 +116,18 @@ const QuickStats = ({ summary, monthlyData, selectedMonth }) => {
           <div>
             <p className="text-sm text-gray-500 dark:text-gray-400">Savings Rate</p>
             <p className="text-2xl font-bold text-purple-600 dark:text-purple-400">
-              {`${summary?.savingsRate || 0} %`}
+              {`${Number(summary?.savingsRate || 0).toFixed(1)}%`}
             </p>
           </div>
           <div className="p-3 bg-purple-50 dark:bg-purple-900/30 rounded-xl">
-            <PieChart className="w-6 h-6 text-purple-600 dark:text-purple-400" />
+            <PiggyBank className="w-6 h-6 text-purple-600 dark:text-purple-400" />
           </div>
         </div>
         <div className="mt-2 w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
           <div
             className="bg-purple-600 dark:bg-purple-400 h-2 rounded-full transition-all duration-500"
             style={{
-              width: `${summary?.savingsRate || 0}%`,
+              width: `${Math.max(0, Math.min(summary?.savingsRate || 0, 100))}%`,
             }}
           />
         </div>
@@ -129,4 +137,3 @@ const QuickStats = ({ summary, monthlyData, selectedMonth }) => {
 };
 
 export default QuickStats;
-

@@ -16,7 +16,7 @@ const BudgetReport = ({ budgetData = [] }) => {
             <div>
               <p className="text-sm text-gray-500 dark:text-gray-400">Total Budget</p>
               <p className="text-2xl font-bold text-gray-900 dark:text-white">
-                GHS {addThousandsSeparator(totalBudget)}
+                GH₵ {addThousandsSeparator(totalBudget)}
               </p>
             </div>
             <div className="p-3 bg-indigo-50 dark:bg-indigo-900/30 rounded-xl">
@@ -30,7 +30,7 @@ const BudgetReport = ({ budgetData = [] }) => {
             <div>
               <p className="text-sm text-gray-500 dark:text-gray-400">Total Spent</p>
               <p className="text-2xl font-bold text-red-600 dark:text-red-400">
-                GHS {addThousandsSeparator(totalSpent)}
+                GH₵ {addThousandsSeparator(totalSpent)}
               </p>
             </div>
             <div className="p-3 bg-red-50 dark:bg-red-900/30 rounded-xl">
@@ -44,7 +44,7 @@ const BudgetReport = ({ budgetData = [] }) => {
             <div>
               <p className="text-sm text-gray-500 dark:text-gray-400">Remaining</p>
               <p className="text-2xl font-bold text-green-600 dark:text-green-400">
-                GHS {addThousandsSeparator(totalRemaining)}
+                GH₵ {addThousandsSeparator(totalRemaining)}
               </p>
             </div>
             <div className="p-3 bg-green-50 dark:bg-green-900/30 rounded-xl">
@@ -74,7 +74,7 @@ const BudgetReport = ({ budgetData = [] }) => {
                 <div>
                   <h4 className="font-medium text-gray-900 dark:text-white">{budget.category}</h4>
                   <p className="text-sm text-gray-500 dark:text-gray-400">
-                    GHS {addThousandsSeparator(budget.spent)} of GHS{' '}
+                    GH₵ {addThousandsSeparator(budget.spent)} of GHS{' '}
                     {addThousandsSeparator(budget.budget)} spent
                   </p>
                 </div>
@@ -108,7 +108,7 @@ const BudgetReport = ({ budgetData = [] }) => {
             </div>
 
             <div className="mt-2 flex justify-between text-xs text-gray-500 dark:text-gray-400">
-              <span>GHS {addThousandsSeparator(budget.remaining)} remaining</span>
+              <span>GH₵ {addThousandsSeparator(budget.remaining)} remaining</span>
               <span>{budget.category}</span>
             </div>
           </div>

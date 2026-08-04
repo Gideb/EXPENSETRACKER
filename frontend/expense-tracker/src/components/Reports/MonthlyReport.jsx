@@ -48,13 +48,13 @@ const MonthlyReport = ({ monthlyData = [] }) => {
                       {data.month}
                     </td>
                     <td className="px-6 py-4 text-sm text-green-600 dark:text-green-400">
-                      GHS {addThousandsSeparator(data.income)}
+                      GH₵ {addThousandsSeparator(data.income)}
                     </td>
                     <td className="px-6 py-4 text-sm text-red-600 dark:text-red-400">
-                      GHS {addThousandsSeparator(data.expenses)}
+                      GH₵ {addThousandsSeparator(data.expenses)}
                     </td>
                     <td className="px-6 py-4 text-sm text-amber-600 dark:text-amber-400">
-                      GHS {addThousandsSeparator(savings)}
+                      GH₵ {addThousandsSeparator(savings)}
                     </td>
                     <td className="px-6 py-4">
                       {savings > 0 ? (
@@ -112,7 +112,7 @@ const MonthlyReport = ({ monthlyData = [] }) => {
                       Income
                     </p>
                     <p className="mt-1 font-medium text-green-600 dark:text-green-400">
-                      GHS {addThousandsSeparator(data.income)}
+                      GH₵ {addThousandsSeparator(data.income)}
                     </p>
                   </div>
                   <div className="rounded-xl bg-white/80 dark:bg-gray-800/70 p-2">
@@ -120,7 +120,7 @@ const MonthlyReport = ({ monthlyData = [] }) => {
                       Expenses
                     </p>
                     <p className="mt-1 font-medium text-red-600 dark:text-red-400">
-                      GHS {addThousandsSeparator(data.expenses)}
+                      GH₵ {addThousandsSeparator(data.expenses)}
                     </p>
                   </div>
                 </div>
@@ -129,7 +129,7 @@ const MonthlyReport = ({ monthlyData = [] }) => {
                   <div className="flex items-center justify-between">
                     <span className="text-gray-500 dark:text-gray-400">Savings</span>
                     <span className="font-semibold text-amber-600 dark:text-amber-400">
-                      GHS {addThousandsSeparator(savings)}
+                      GH₵ {addThousandsSeparator(savings)}
                     </span>
                   </div>
                 </div>
