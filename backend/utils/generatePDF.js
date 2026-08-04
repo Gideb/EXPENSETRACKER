@@ -19,7 +19,7 @@ const COLORS = {
 
 //CURRENCY FORMATTER
 const formatCurrency = (amount) => {
-  return `GHS ${Number(amount || 0).toLocaleString('en-GH', {
+  return `GH₵ ${Number(amount || 0).toLocaleString('en-GH', {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   })}`;
