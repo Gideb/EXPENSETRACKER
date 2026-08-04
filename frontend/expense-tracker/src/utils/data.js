@@ -1,12 +1,14 @@
 import {
-  LuChartPie,
-  LuFileChartColumnIncreasing,
   LuLayoutDashboard,
+  LuWallet,
+  LuCreditCard,
+  LuArrowLeftRight,
+  LuChartPie,
+  LuTarget,
+  LuFileChartColumnIncreasing,
+  LuSettings,
   LuLogOut,
 } from 'react-icons/lu';
-import { IoSettingsOutline } from 'react-icons/io5';
-import { GiMoneyStack } from 'react-icons/gi';
-import { FaMoneyBillTransfer, FaRegCreditCard } from 'react-icons/fa6';
 
 export const SIDE_MENU_DATA = [
   {
@@ -17,21 +19,21 @@ export const SIDE_MENU_DATA = [
   },
   {
     id: '02',
-    label: 'Transactions',
-    icon: FaMoneyBillTransfer,
-    path: '/transactions',
-  },
-  {
-    id: '03',
-    label: 'Incomes',
-    icon: GiMoneyStack,
+    label: 'Income',
+    icon: LuWallet,
     path: '/income',
   },
   {
-    id: '04',
+    id: '03',
     label: 'Expenses',
-    icon: FaRegCreditCard,
+    icon: LuCreditCard,
     path: '/expense',
+  },
+  {
+    id: '04',
+    label: 'Transactions',
+    icon: LuArrowLeftRight,
+    path: '/transactions',
   },
   {
     id: '05',
@@ -41,20 +43,24 @@ export const SIDE_MENU_DATA = [
   },
   {
     id: '06',
+    label: 'Goals',
+    icon: LuTarget,
+    path: '/goals',
+  },
+  {
+    id: '07',
     label: 'Reports',
     icon: LuFileChartColumnIncreasing,
     path: '/reports',
   },
-
-  {
-    id: '07',
-    label: 'Settings',
-    icon: IoSettingsOutline,
-    path: '/settings',
-  },
-
   {
     id: '08',
+    label: 'Settings',
+    icon: LuSettings,
+    path: '/settings',
+  },
+  {
+    id: '09',
     label: 'Logout',
     icon: LuLogOut,
     path: '/logout',

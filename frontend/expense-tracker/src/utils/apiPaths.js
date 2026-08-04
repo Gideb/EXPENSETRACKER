@@ -47,7 +47,7 @@ export const API_PATHS = {
     EXPORT_EXCEL: '/api/v1/transactions/download-excel',
     EXPORT_PDF: '/api/v1/transactions/export-pdf',
   },
-REPORTS: {
+  REPORTS: {
     FINANCIAL: '/api/v1/reports/financial',
     MONTHLY: '/api/v1/reports/monthly',
     CATEGORY_ANALYSIS: '/api/v1/reports/category-analysis',
@@ -58,6 +58,15 @@ REPORTS: {
     EMAIL_REPORT: '/api/v1/reports/email-report',
     AVAILABLE_PERIODS: '/api/v1/reports/available-periods',
     CATEGORIES: '/api/v1/reports/categories',
+  },
+  GOALS: {
+    CREATE_GOAL: '/api/v1/goals/add',
+    GET_ALL_GOALS: '/api/v1/goals/get',
+    GET_GOAL: (goalId) => `/api/v1/goals/${goalId}`,
+    UPDATE_GOAL: (goalId) => `/api/v1/goals/${goalId}`,
+    DELETE_GOAL: (goalId) => `/api/v1/goals/${goalId}`,
+    UPDATE_SAVED_AMOUNT: (goalId) => `/api/v1/goals/${goalId}/savings`,
+    GET_GOAL_SUMMARY: '/api/v1/goals/summary',
   },
   SETTINGS: {},
   IMAGE: {

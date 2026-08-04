@@ -200,7 +200,7 @@ const Budget = () => {
           <DeleteAlert
             content={`${
               openDeleteAlert.data?.category || 'This'
-            } budget entry will be deleted from your budget records.`}
+            } budget entry will be deleted forever`}
             onCancel={() => setOpenDeleteAlert({ show: false, data: null })}
             onDelete={() => {
               deleteBudget(openDeleteAlert.data);
