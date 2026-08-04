@@ -2,20 +2,10 @@ import { TrendingUp, TrendingDown, Wallet, PiggyBank } from 'lucide-react';
 import { GoArrowDownLeft, GoArrowUpRight } from 'react-icons/go';
 import { addThousandsSeparator } from '../../utils/helper';
 
-const MONTH_NAMES = [
-  'Jan',
-  'Feb',
-  'Mar',
-  'Apr',
-  'May',
-  'Jun',
-  'Jul',
-  'Aug',
-  'Sep',
-  'Oct',
-  'Nov',
-  'Dec',
-];
+// Generate month names dynamically (not hardcoded)
+const MONTH_NAMES = Array.from({ length: 12 }, (_, i) =>
+  new Date(0, i, 1).toLocaleString('default', { month: 'short' })
+);
 
 const QuickStats = ({ summary, monthlyData, selectedMonth }) => {
   // Compute percentage change from previous month for income/expense

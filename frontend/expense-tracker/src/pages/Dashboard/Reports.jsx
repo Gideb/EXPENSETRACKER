@@ -19,9 +19,13 @@ const Reports = () => {
   useUserAuth();
 
   const [activeTab, setActiveTab] = useState('summary');
-  const [selectedMonth] = useState(String(new Date().getMonth() + 1).padStart(2, '0'));
+  const [selectedMonth, setSelectedMonth] = useState(
+    String(new Date().getMonth() + 1).padStart(2, '0')
+  );
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
   const [selectedCategory, setSelectedCategory] = useState('all');
+  const [availableYears, setAvailableYears] = useState([]);
+  const [availableMonths, setAvailableMonths] = useState([]);
   const navigate = useNavigate();
   const [isGeneratingPDF] = useState(false);
   const [showFilterOptions, setShowFilterOptions] = useState(false);
@@ -48,6 +52,44 @@ const Reports = () => {
     fetchCategories();
   }, []);
 
+  // Fetch available years and months dynamically from user data
+  useEffect(() => {
+    const fetchAvailablePeriods = async () => {
+      try {
+        const response = await axiosInstance.get(API_PATHS.REPORTS.AVAILABLE_PERIODS);
+
+        const years = response.data?.years || [];
+        const months = response.data?.months || [];
+
+        setAvailableYears(years);
+        setAvailableMonths(months);
+
+        // If the current selected year has no data, fall back to the most recent year
+        if (years.length && !years.includes(selectedYear)) {
+          setSelectedYear(years[0]);
+        }
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    fetchAvailablePeriods();
+  }, []);
+
+  // Ensure the selected month always exists for the selected year
+  useEffect(() => {
+    const monthsForYear = availableMonths.filter((m) => m.year === selectedYear);
+
+    if (
+      monthsForYear.length &&
+      !monthsForYear.some((m) => m.monthNumber === Number(selectedMonth) - 1)
+    ) {
+      // Default to the latest available month in that year
+      const latest = [...monthsForYear].sort((a, b) => b.monthNumber - a.monthNumber)[0];
+      setSelectedMonth(String(latest.monthNumber + 1).padStart(2, '0'));
+    }
+  }, [selectedYear, selectedMonth, availableMonths]);
+
   useEffect(() => {
     const loadReports = async () => {
       try {
@@ -68,9 +110,14 @@ const Reports = () => {
     loadReports();
   }, [selectedYear, selectedMonth]);
 
-  //years
+  //years (derived from user data, falling back to current year if none available)
   const currentYear = new Date().getFullYear();
-  const years = Array.from({ length: 6 }, (_, i) => currentYear - i);
+  const years = availableYears.length ? availableYears : [currentYear];
+
+  // months available for the selected year
+  const monthsForSelectedYear = availableMonths
+    .filter((m) => m.year === selectedYear)
+    .sort((a, b) => a.monthNumber - b.monthNumber);
 
   const handleExportPDF = async () => {
     try {
@@ -190,6 +237,9 @@ const Reports = () => {
           years={years}
           selectedYear={selectedYear}
           onYearChange={setSelectedYear}
+          months={monthsForSelectedYear}
+          selectedMonth={selectedMonth}
+          onMonthChange={setSelectedMonth}
           activeTab={activeTab}
           categories={categories}
           selectedCategory={selectedCategory}

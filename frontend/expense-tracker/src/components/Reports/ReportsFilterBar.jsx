@@ -4,6 +4,9 @@ const ReportsFilterBar = ({
   years,
   selectedYear,
   onYearChange,
+  months,
+  selectedMonth,
+  onMonthChange,
   activeTab,
   categories,
   selectedCategory,
@@ -39,6 +42,23 @@ const ReportsFilterBar = ({
             </option>
           ))}
         </select>
+
+        {/* month */}
+        {activeTab === 'summary' && (
+          <select
+            value={selectedMonth}
+            onChange={(e) => onMonthChange(e.target.value)}
+            className="border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-amber-500 cursor-pointer"
+          >
+            <option value="">Months</option>
+
+            {months.map((month) => (
+              <option key={`${month.year}-${month.monthNumber}`} value={String(month.monthNumber + 1).padStart(2, '0')}>
+                {month.month}
+              </option>
+            ))}
+          </select>
+        )}
 
         {activeTab === 'summary' && (
           <select

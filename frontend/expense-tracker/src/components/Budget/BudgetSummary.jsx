@@ -112,7 +112,7 @@ const BudgetSummary = ({ setOpenAddBudgetModal, refreshKey }) => {
         {/* Header Section */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
-            <h2 className="text-2xl font-medium tracking-tight text-gray-900 dark:text-white">
+            <h2 className="text-lg tracking-tight text-gray-900 dark:text-white">
               Budget Overview
             </h2>
             <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
@@ -165,7 +165,7 @@ const BudgetSummary = ({ setOpenAddBudgetModal, refreshKey }) => {
             return (
               <div
                 key={index}
-                className="group relative bg-white dark:bg-slate-800 rounded-xl overflow-hidden transition-all duration-300 hover:shadow-lg border border-gray-500 dark:border-gray-500 hover:border-amber-200"
+                className="group relative bg-white dark:bg-slate-800 rounded-xl overflow-hidden transition-all duration-300 hover:shadow-lg border border-gray-200 dark:border-gray-500 hover:border-amber-200"
               >
                 <div className="relative p-5">
                   {/* Icon */}
