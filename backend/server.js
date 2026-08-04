@@ -10,6 +10,7 @@ const dashboardRoutes = require('./routes/dashboardRoutes');
 const budgetRoutes = require('./routes/budgetRoutes');
 const reportRoutes = require('./routes/reportRoutes');
 const transactionRoutes = require('./routes/transactionRoutes');
+const goalRoutes = require('./routes/goalRoutes');
 
 const app = express();
 
@@ -35,8 +36,8 @@ app.use('/api/v1/dashboard', dashboardRoutes);
 app.use('/api/v1/budget', budgetRoutes);
 app.use('/api/v1/reports', reportRoutes);
 app.use('/api/v1/transactions', transactionRoutes);
+app.use('/api/v1/goals', goalRoutes);
 
-//serve uploads folder.
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 const PORT = process.env.PORT || 8000;
