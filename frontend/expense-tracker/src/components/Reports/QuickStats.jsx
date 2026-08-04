@@ -57,7 +57,7 @@ const QuickStats = ({ summary, monthlyData, selectedMonth }) => {
     );
   };
 
-  const balancePositive = summary?.balance >= 0;
+  //const balancePositive = summary?.balance >= 0;
 
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -95,13 +95,7 @@ const QuickStats = ({ summary, monthlyData, selectedMonth }) => {
         <div className="flex items-center justify-between">
           <div>
             <p className="text-sm text-gray-500 dark:text-gray-400">Balance</p>
-            <p
-              className={`text-2xl font-bold ${
-                balancePositive
-                  ? 'text-green-600 dark:text-green-400'
-                  : 'text-red-600 dark:text-red-400'
-              }`}
-            >
+            <p className={`text-2xl font-bold text-amber-600`}>
               {`GH₵ ${addThousandsSeparator(summary?.balance) || 0}`}
             </p>
           </div>
