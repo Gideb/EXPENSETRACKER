@@ -41,7 +41,7 @@ const BudgetWidget = () => {
 
   if (!summary || summary.totalBudget === 0) {
     return (
-      <div className="bg-white dark:bg-slate-900 rounded-lg p-5 shadow-md border border-gray-600">
+      <div className="bg-white dark:bg-slate-900 rounded-lg p-5 shadow-md border border-gray-100 dark:border-gray-700">
         {/* Top Banner */}
         <div className="mb-4 overflow-hidden rounded-lg">
           <img
@@ -142,7 +142,7 @@ const BudgetWidget = () => {
       {/* Quick link */}
       <button
         onClick={() => navigate('/budget')}
-        className="block text-center text-xs text-blue-500 hover:text-blue-600 mt-3 pt-2 border-t border-gray-100 dark:border-gray-700 "
+        className="block text-center text-xs text-amber-500 hover:text-amber-600 mt-3 pt-2 border-t border-gray-100 dark:border-gray-700 "
       >
         View all budgets →
       </button>

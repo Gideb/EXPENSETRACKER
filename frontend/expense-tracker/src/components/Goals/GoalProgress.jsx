@@ -1,4 +1,3 @@
-import React from 'react';
 import { TrendingUp, CheckCircle, Clock } from 'lucide-react';
 
 const GoalProgress = ({ goal }) => {
@@ -8,10 +7,10 @@ const GoalProgress = ({ goal }) => {
 
   const getProgressColor = () => {
     if (isCompleted) return 'bg-green-500';
-    if (progress >= 75) return 'bg-blue-600';
-    if (progress >= 50) return 'bg-blue-500';
-    if (progress >= 25) return 'bg-blue-400';
-    return 'bg-blue-300';
+    if (progress >= 75) return 'bg-amber-600';
+    if (progress >= 50) return 'bg-amber-500';
+    if (progress >= 25) return 'bg-amber-400';
+    return 'bg-amber-300';
   };
 
   const getStatusInfo = () => {
@@ -32,9 +31,9 @@ const GoalProgress = ({ goal }) => {
         };
       }
       return {
-        icon: <TrendingUp size={16} className="text-blue-600" />,
+        icon: <TrendingUp size={16} className="text-amber-600" />,
         text: `${daysLeft} days left`,
-        color: 'text-blue-600',
+        color: 'text-amber-600',
       };
     }
     return {

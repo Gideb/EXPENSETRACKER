@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Plus } from 'lucide-react';
 import GoalCard from '../../components/Goals/GoalCard';
 import AddGoalForm from '../../components/Goals/AddGoalForm';
@@ -13,7 +13,6 @@ import DeleteAlert from '../../components/Modals/DeleteAlert';
 const Goals = () => {
   const [goals, setGoals] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
   const [refreshKey, setRefreshKey] = useState(0);
   const [openAddGoalModal, setOpenAddGoalModal] = useState(false);
   const [editingGoal, setEditingGoal] = useState(null);
@@ -22,48 +21,127 @@ const Goals = () => {
     data: null,
   });
 
-  useEffect(() => {
-    fetchGoals();
-  }, [refreshKey]);
+  const fetchGoals = useCallback(async () => {
+    setLoading(true);
 
-  const fetchGoals = async () => {
     try {
-      setLoading(true);
       const response = await axiosInstance.get(API_PATHS.GOALS.GET_ALL_GOALS);
-      setGoals(response.data.goals || []);
-
-      toast.success('Goals loaded successfully');
-      setError(null);
+      const data = Array.isArray(response.data) ? response.data : response.data?.goals || [];
+      setGoals(data);
     } catch (err) {
-      toast.error('Failed to load goals. Please try again.');
+      toast.error(err.response?.data?.message || 'Failed to load goals. Please try again.');
       console.error('Error fetching goals:', err);
     } finally {
       setLoading(false);
     }
+  }, []);
+
+  useEffect(() => {
+    fetchGoals();
+  }, [fetchGoals, refreshKey]);
+
+  // handle Add Goal
+  const handleAddGoal = async (goal) => {
+    const { title, icon, targetAmount, targetDate, description } = goal;
+
+    if (!title?.trim()) {
+      toast.error('Please enter a goal title.');
+      return;
+    }
+
+    if (!targetAmount || isNaN(targetAmount) || Number(targetAmount) <= 0) {
+      toast.error('Please enter a valid target amount greater than 0.');
+      return;
+    }
+
+    if (!targetDate) {
+      toast.error('Please select a target date.');
+      return;
+    }
+
+    try {
+      await axiosInstance.post(API_PATHS.GOALS.CREATE_GOAL, {
+        title: title.trim(),
+        icon: icon || '',
+        targetAmount: Number(targetAmount),
+        targetDate,
+        description: description || '',
+      });
+
+      setOpenAddGoalModal(false);
+      toast.success('Goal Added Successfully');
+
+      await fetchGoals();
+      setRefreshKey((prev) => prev + 1);
+    } catch (error) {
+      console.error('Failed to add goal.', error.response?.data?.message || error.message);
+      toast.error(error.response?.data?.message || 'Failed to add goal');
+    }
   };
 
-  const handleGoalAdded = () => {
-    setRefreshKey((prev) => prev + 1);
-    setOpenAddGoalModal(false);
+  // handle edit goal
+  const handleEditGoal = (goal) => {
+    setEditingGoal(goal);
+    setOpenAddGoalModal(true);
   };
 
-  const handleGoalUpdated = () => {
-    setRefreshKey((prev) => prev + 1);
+  // handle update Goal
+  const handleUpdateGoal = async (goal) => {
+    if (!editingGoal?._id) {
+      toast.error('No goal selected for update');
+      return;
+    }
+
+    try {
+      await axiosInstance.put(API_PATHS.GOALS.UPDATE_GOAL(editingGoal._id), {
+        title: goal.title,
+        icon: goal.icon,
+        targetAmount: Number(goal.targetAmount),
+        targetDate: goal.targetDate,
+        description: goal.description,
+      });
+
+      toast.success('Goal updated successfully');
+
+      setEditingGoal(null);
+      setOpenAddGoalModal(false);
+
+      await fetchGoals();
+      setRefreshKey((prev) => prev + 1);
+    } catch (error) {
+      console.error('UPDATE ERROR:', error);
+      toast.error(error.response?.data?.message || 'Failed to update goal');
+    }
   };
 
-  const handleGoalDeleted = () => {
-    setRefreshKey((prev) => prev + 1);
-  };
+  // delete Goal
+  const deleteGoal = async (goalData) => {
+    if (!goalData?._id) {
+      toast.error('Invalid goal data');
+      return;
+    }
 
-  const handleGoalEditing = () => {
-    setRefreshKey((prev) => prev + 1);
+    try {
+      await axiosInstance.delete(API_PATHS.GOALS.DELETE_GOAL(goalData._id));
+
+      setOpenDeleteAlert({ show: false, data: null });
+      toast.success(`${goalData.title || 'Goal'} record deleted successfully!`);
+
+      await fetchGoals();
+      setRefreshKey((prev) => prev + 1);
+    } catch (error) {
+      console.error(error.response?.data?.message || 'Failed to delete goal entry.');
+      toast.error(error.response?.data?.message || 'Failed to delete goal');
+    }
   };
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-[60vh]">
-        <div className="text-gray-500">Loading goals...</div>
-      </div>
+      <Dashboardlayout activeMenu="Goals">
+        <div className="flex items-center justify-center min-h-[60vh]">
+          <div className="text-gray-500">Loading goals...</div>
+        </div>
+      </Dashboardlayout>
     );
   }
 
@@ -77,28 +155,31 @@ const Goals = () => {
             <p className="text-gray-600 mt-1">Track and manage your savings goals</p>
           </div>
           <button
-            onClick={() => setOpenAddGoalModal(true)}
-            className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            onClick={() => {
+              setEditingGoal(null);
+              setOpenAddGoalModal(true);
+            }}
+            className="add-btn add-btn-fill"
           >
             <Plus size={20} />
             New Goal
           </button>
         </div>
-        {error && (
-          <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700">
-            {error}
-          </div>
-        )}
+
         {/* Summary Section */}
-        <GoalSummary onUpdate={handleGoalUpdated} refreshKey={refreshKey} />
+        <GoalSummary refreshKey={refreshKey} />
+
         {/* Goals Grid */}
         {goals.length === 0 ? (
           <div className="text-center py-12 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
             <p className="text-gray-600 text-lg">No goals yet</p>
             <p className="text-gray-500 mt-2">Start by creating your first financial goal</p>
             <button
-              onClick={() => setOpenAddGoalModal(true)}
-              className="mt-4 px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+              onClick={() => {
+                setEditingGoal(null);
+                setOpenAddGoalModal(true);
+              }}
+              className="mt-4 add-btn add-btn-fill"
             >
               Create Your First Goal
             </button>
@@ -109,12 +190,14 @@ const Goals = () => {
               <GoalCard
                 key={goal._id}
                 goal={goal}
-                onUpdate={handleGoalUpdated}
-                onDelete={handleGoalDeleted}
+                onUpdate={fetchGoals}
+                onDelete={() => setOpenDeleteAlert({ show: true, data: goal })}
+                onEdit={() => handleEditGoal(goal)}
               />
             ))}
           </div>
         )}
+
         {/* Add Goal Modal */}
         <Modal
           isOpen={openAddGoalModal}
@@ -125,9 +208,9 @@ const Goals = () => {
           title={editingGoal ? 'Edit Goal' : 'Add Goal'}
         >
           <AddGoalForm
-            onGoalAdded={handleGoalAdded}
-            onGoalUpdated={handleGoalUpdated}
-            onGoalEdited={handleGoalEditing}
+            onGoalAdded={handleAddGoal}
+            onGoalUpdated={handleUpdateGoal}
+            editData={editingGoal}
           />
         </Modal>
 
@@ -138,10 +221,10 @@ const Goals = () => {
           title="Delete Goal"
         >
           <DeleteAlert
-            content={`${openDeleteAlert.data?.category || 'This'} goal will be deleted forever.`}
+            content={`${openDeleteAlert.data?.title || 'This'} goal will be deleted forever.`}
             onCancel={() => setOpenDeleteAlert({ show: false, data: null })}
             onDelete={() => {
-              handleGoalDeleted(openDeleteAlert.data);
+              deleteGoal(openDeleteAlert.data);
             }}
           />
         </Modal>

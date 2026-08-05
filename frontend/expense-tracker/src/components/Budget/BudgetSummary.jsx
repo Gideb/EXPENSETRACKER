@@ -57,7 +57,7 @@ const BudgetSummary = ({ setOpenAddBudgetModal, refreshKey }) => {
       currency: 'GHS',
       minimumFractionDigits: 0,
       maximumFractionDigits: 2,
-    }).format(amount);
+    }).format(amount); 
   };
 
   const summaryCards = [

@@ -1,11 +1,10 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { TrendingUp, Calendar, Target, Edit, Trash2, Plus, CheckCircle, Clock } from 'lucide-react';
 import axiosInstance from '../../utils/axiosInstance';
 import { API_PATHS } from '../../utils/apiPaths';
 import { toast } from 'react-hot-toast';
-//import { updateSavedAmount, deleteGoal } from '../../services/goalService';
 
-const GoalCard = ({ goal, onUpdate, onDelete }) => {
+const GoalCard = ({ goal, onUpdate, onDelete, onEdit }) => {
   const [isUpdating, setIsUpdating] = useState(false);
   const [showAmountInput, setShowAmountInput] = useState(false);
   const [amount, setAmount] = useState('');
@@ -30,8 +29,8 @@ const GoalCard = ({ goal, onUpdate, onDelete }) => {
         };
       default:
         return {
-          color: 'bg-blue-100 text-blue-800',
-          icon: <TrendingUp size={16} className="text-blue-600" />,
+          color: 'bg-amber-100 text-amber-800',
+          icon: <TrendingUp size={16} className="text-amber-600" />,
         };
     }
   };
@@ -60,24 +59,12 @@ const GoalCard = ({ goal, onUpdate, onDelete }) => {
       setAmount('');
       setShowAmountInput(false);
       setError(null);
-      onUpdate();
+      onUpdate?.();
     } catch (err) {
       toast.error('Failed to update savings. Please try again.');
       console.error('Error updating savings:', err);
     } finally {
       setIsUpdating(false);
-    }
-  };
-
-  const handleDelete = async () => {
-    if (window.confirm(`Are you sure you want to delete "${goal.title}"?`)) {
-      try {
-        await axiosInstance.delete(API_PATHS.GOALS.DELETE_GOAL(goal._id));
-        onDelete();
-      } catch (err) {
-        setError('Failed to delete goal. Please try again.');
-        console.error('Error deleting goal:', err);
-      }
     }
   };
 
@@ -104,13 +91,17 @@ const GoalCard = ({ goal, onUpdate, onDelete }) => {
               className="p-1.5 hover:bg-gray-100 rounded-lg transition-colors"
               title="Update savings"
             >
-              <Plus size={18} className="text-blue-600" />
+              <Plus size={18} className="text-amber-600" />
             </button>
-            <button className="p-1.5 hover:bg-gray-100 rounded-lg transition-colors" title="Edit">
+            <button
+              onClick={() => onEdit?.()}
+              className="p-1.5 hover:bg-gray-100 rounded-lg transition-colors"
+              title="Edit"
+            >
               <Edit size={18} className="text-gray-600" />
             </button>
             <button
-              onClick={handleDelete}
+              onClick={() => onDelete?.()}
               className="p-1.5 hover:bg-red-50 rounded-lg transition-colors"
               title="Delete"
             >
@@ -131,7 +122,7 @@ const GoalCard = ({ goal, onUpdate, onDelete }) => {
           <div className="w-full bg-gray-200 rounded-full h-2.5">
             <div
               className={`h-2.5 rounded-full transition-all duration-500 ${
-                isCompleted ? 'bg-green-600' : 'bg-blue-600'
+                isCompleted ? 'bg-green-600' : 'bg-amber-600'
               }`}
               style={{ width: `${progress}%` }}
             />
@@ -185,13 +176,13 @@ const GoalCard = ({ goal, onUpdate, onDelete }) => {
         {/* Update Savings Input */}
         {showAmountInput && (
           <div className="border-t border-gray-100 pt-4">
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 flex-wrap">
               <input
                 type="number"
                 value={amount}
                 onChange={(e) => setAmount(e.target.value)}
                 placeholder="Enter amount"
-                className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="flex-1 min-w-[120px] px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500"
                 disabled={isUpdating}
                 min="0"
                 step="0.01"
@@ -199,14 +190,14 @@ const GoalCard = ({ goal, onUpdate, onDelete }) => {
               />
               <button
                 onClick={() => handleUpdateSavings('add')}
-                className="px-3 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50"
+                className="add-btn add-btn-fill px-3 py-2"
                 disabled={isUpdating}
               >
                 Add
               </button>
               <button
                 onClick={() => handleUpdateSavings('remove')}
-                className="px-3 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50"
+                className="add-btn px-3 py-2 text-red-600 border-red-600 bg-red-50 hover:text-red-700 dark:text-red-400"
                 disabled={isUpdating || goal.savedAmount === 0}
               >
                 Remove
@@ -217,7 +208,7 @@ const GoalCard = ({ goal, onUpdate, onDelete }) => {
                   setAmount('');
                   setError(null);
                 }}
-                className="px-3 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors"
+                className="add-btn px-3 py-2"
                 disabled={isUpdating}
               >
                 Cancel

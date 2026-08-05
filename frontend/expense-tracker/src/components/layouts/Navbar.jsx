@@ -5,6 +5,8 @@ import { HiOutlineMenu, HiOutlineX } from 'react-icons/hi';
 const Navbar = ({ activeMenu }) => {
   const [openSideMenu, setOpenSideMenu] = useState(false);
 
+  const closeSideMenu = () => setOpenSideMenu(false);
+
   return (
     <div className="flex gap-5 bg-white dark:bg-gray-950 border-b-2 border-gray-200/50 backdrop-blur-[2px] py-4 px-7 sticky top-0 z-30 transition-all duration-300 ease-in-out">
       <button
@@ -12,6 +14,7 @@ const Navbar = ({ activeMenu }) => {
         onClick={() => {
           setOpenSideMenu(!openSideMenu);
         }}
+        aria-label="Toggle menu"
       >
         {openSideMenu ? (
           <HiOutlineX className="text-2xl " />
@@ -24,11 +27,21 @@ const Navbar = ({ activeMenu }) => {
         Expense Tracker
       </h2>
 
+      {/* Mobile Side Menu with backdrop */}
       {openSideMenu && (
-        <div className="fixed top-15.25 -ml-4 bg-white transition-all duration-500 ease-in-out">
-          <SideMenu activeMenu={activeMenu} />
-        </div>
+        <div
+          className="fixed inset-0 top-15.25 left-0 lg:hidden bg-black/40 z-40"
+          onClick={closeSideMenu}
+        />
       )}
+
+      <div
+        className={`lg:hidden fixed top-15.25 left-0 z-50 transition-transform duration-500 ease-in-out ${
+          openSideMenu ? 'translate-x-0' : '-translate-x-full'
+        }`}
+      >
+        <SideMenu activeMenu={activeMenu} />
+      </div>
     </div>
   );
 };

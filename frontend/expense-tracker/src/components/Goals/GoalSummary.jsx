@@ -1,19 +1,15 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { TrendingUp, Target, CheckCircle, DollarSign, PieChart } from 'lucide-react';
 import axiosInstance from '../../utils/axiosInstance';
 import { API_PATHS } from '../../utils/apiPaths';
-import {toast} from 'react-hot-toast';
+import { toast } from 'react-hot-toast';
 
-const GoalSummary = ({ onUpdate }) => {
+const GoalSummary = ({ refreshKey }) => {
   const [summary, setSummary] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  useEffect(() => {
-    fetchSummary();
-  }, [onUpdate]);
-
-  const fetchSummary = async () => {
+  const fetchSummary = useCallback(async () => {
     try {
       setLoading(true);
       const response = await axiosInstance.get(API_PATHS.GOALS.GET_GOAL_SUMMARY);
@@ -25,7 +21,11 @@ const GoalSummary = ({ onUpdate }) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    fetchSummary();
+  }, [fetchSummary, refreshKey]);
 
   if (loading) {
     return (
@@ -55,8 +55,8 @@ const GoalSummary = ({ onUpdate }) => {
     {
       title: 'Total Goals',
       value: summary.totalGoals,
-      icon: <Target size={20} className="text-blue-600" />,
-      color: 'bg-blue-50',
+      icon: <Target size={20} className="text-amber-600" />,
+      color: 'bg-amber-50',
     },
     {
       title: 'Active Goals',

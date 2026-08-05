@@ -1,8 +1,8 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Input from '../Inputs/Input';
 import EmojiPickerPopup from '../EmojiPickerPopup';
 
-const AddGoalModal = ({ onGoalAdded, onGoalUpdated, onGoalEdited }) => {
+const AddGoalForm = ({ onGoalAdded, onGoalUpdated, editData }) => {
   const [goal, setGoal] = useState({
     title: '',
     icon: '',
@@ -11,15 +11,31 @@ const AddGoalModal = ({ onGoalAdded, onGoalUpdated, onGoalEdited }) => {
     description: '',
   });
 
+  useEffect(() => {
+    if (!editData) return;
+
+    setGoal({
+      title: editData.title || '',
+      icon: editData.icon || '',
+      targetAmount: editData.targetAmount || '',
+      targetDate: editData.targetDate
+        ? new Date(editData.targetDate).toISOString().split('T')[0]
+        : '',
+      description: editData.description || '',
+    });
+  }, [editData]);
+
   const handleChange = (key, value) => setGoal({ ...goal, [key]: value });
 
   const handleSubmit = () => {
-    if (onGoalEdited) {
+    if (editData) {
       onGoalUpdated?.(goal);
     } else {
       onGoalAdded?.(goal);
     }
   };
+
+  const isFormValid = goal.title?.trim() && goal.targetAmount && goal.targetDate;
 
   return (
     <div>
@@ -68,15 +84,17 @@ const AddGoalModal = ({ onGoalAdded, onGoalUpdated, onGoalEdited }) => {
           type="button"
           className="add-btn add-btn-fill"
           onClick={handleSubmit}
+          disabled={!isFormValid}
           style={{
-            cursor: 'pointer',
+            opacity: isFormValid ? 1 : 0.6,
+            cursor: isFormValid ? 'pointer' : 'not-allowed',
           }}
         >
-          {onGoalEdited ? 'Update Goal' : 'Add Goal'}
+          {editData ? 'Update Goal' : 'Add Goal'}
         </button>
       </div>
     </div>
   );
 };
 
-export default AddGoalModal;
+export default AddGoalForm;

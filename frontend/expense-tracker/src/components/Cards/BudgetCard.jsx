@@ -71,7 +71,7 @@ const BudgetCard = ({ budget, icon, onEdit, onDelete }) => {
           <div className="flex items-center gap-0.5">
             <button
               onClick={() => onEdit?.(budget)}
-              className="p-1 text-gray-400 hover:text-blue-500 dark:hover:text-blue-400 transition-colors cursor-pointer"
+              className="p-1 text-gray-400 hover:text-amber-500 dark:hover:text-amber-400 transition-colors cursor-pointer"
               title="Edit"
             >
               <FiEdit2 size={14} />
