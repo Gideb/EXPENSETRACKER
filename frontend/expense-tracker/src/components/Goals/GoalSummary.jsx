@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { TrendingUp, Target, CheckCircle, DollarSign, PieChart } from 'lucide-react';
 import axiosInstance from '../../utils/axiosInstance';
 import { API_PATHS } from '../../utils/apiPaths';
+import {toast} from 'react-hot-toast';
 
 const GoalSummary = ({ onUpdate }) => {
   const [summary, setSummary] = useState(null);
@@ -19,7 +20,7 @@ const GoalSummary = ({ onUpdate }) => {
       setSummary(response.data.summary);
       setError(null);
     } catch (err) {
-      setError('Failed to load summary');
+      toast.error('Failed to load summary');
       console.error('Error fetching summary:', err);
     } finally {
       setLoading(false);
