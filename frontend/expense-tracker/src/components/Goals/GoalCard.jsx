@@ -74,7 +74,13 @@ const GoalCard = ({ goal, onUpdate, onDelete, onEdit }) => {
       <div className="p-6 border-b border-gray-100">
         <div className="flex items-start justify-between">
           <div className="flex items-center gap-3">
-            <div className="text-3xl">{goal.icon || '🎯'}</div>
+            <div className="w-12 h-12 flex items-center justify-center rounded-lg bg-amber-50 text-2xl">
+              {goal.icon ? (
+                <img src={goal.icon} alt={goal.title} className="w-8 h-8" />
+              ) : (
+                '🎯'
+              )}
+            </div>
             <div>
               <h3 className="text-lg font-semibold text-gray-900">{goal.title}</h3>
               <span
@@ -134,13 +140,13 @@ const GoalCard = ({ goal, onUpdate, onDelete, onEdit }) => {
           <div>
             <p className="text-sm text-gray-500">Saved</p>
             <p className="text-lg font-semibold text-gray-900">
-              ${goal.savedAmount.toLocaleString()}
+              GHS {goal.savedAmount.toLocaleString()}
             </p>
           </div>
           <div>
             <p className="text-sm text-gray-500">Target</p>
             <p className="text-lg font-semibold text-gray-900">
-              ${goal.targetAmount.toLocaleString()}
+              GHS {goal.targetAmount.toLocaleString()}
             </p>
           </div>
         </div>

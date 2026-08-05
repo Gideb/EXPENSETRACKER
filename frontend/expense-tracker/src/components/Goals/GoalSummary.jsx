@@ -72,7 +72,7 @@ const GoalSummary = ({ refreshKey }) => {
     },
     {
       title: 'Total Saved',
-      value: `$${summary.totalSaved.toLocaleString()}`,
+      value: `GHS ${summary.totalSaved.toLocaleString()}`,
       icon: <DollarSign size={20} className="text-yellow-600" />,
       color: 'bg-yellow-50',
     },
@@ -100,7 +100,7 @@ const GoalSummary = ({ refreshKey }) => {
             <PieChart size={18} className="text-gray-400" />
           </div>
           <div className="text-xl font-semibold text-gray-900 mt-1">
-            ${summary.totalTarget.toLocaleString()}
+            GHS {summary.totalTarget.toLocaleString()}
           </div>
         </div>
         <div className="bg-white rounded-xl p-4 border border-gray-200">
@@ -109,7 +109,7 @@ const GoalSummary = ({ refreshKey }) => {
             <DollarSign size={18} className="text-gray-400" />
           </div>
           <div className="text-xl font-semibold text-gray-900 mt-1">
-            ${summary.remaining.toLocaleString()}
+            GHS {summary.remaining.toLocaleString()}
           </div>
         </div>
         <div className="bg-white rounded-xl p-4 border border-gray-200">
