@@ -62,16 +62,14 @@ const getGoals = async (req, res) => {
 
     const normalizedGoals = goals.map((goal) => {
       const normalizedStatus = normalizeGoalStatus(goal);
-      if (goal.status !== normalizedStatus) {
-        goal.status = normalizedStatus;
-        if (normalizedStatus === 'active') {
-          goal.archivedAt = null;
-        }
-      }
-      return goal;
+
+      return {
+        ...goal.toObject(),
+        status: normalizedStatus,
+      };
     });
 
-    await Promise.all(normalizedGoals.map((goal) => goal.save()));
+    /* await Promise.all(normalizedGoals.map((goal) => goal.save())); */
 
     res.status(200).json({
       success: true,
@@ -241,7 +239,7 @@ const updateSavedAmount = async (req, res) => {
     const previousSaved = goal.savedAmount;
     const newSaved = previousSaved + updateAmount;
 
-    // Don't allow savings below zero
+ 
     goal.savedAmount = Math.max(newSaved, 0);
 
     const remaining = Math.max(goal.targetAmount - goal.savedAmount, 0);
