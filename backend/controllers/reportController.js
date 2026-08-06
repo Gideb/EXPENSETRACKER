@@ -123,9 +123,8 @@ const getCategories = async (req, res) => {
   }
 };
 
-/* ======================================================
-   FULL FINANCIAL REPORT
-====================================================== */
+
+// FULL FINANCIAL REPORT
 const exportPDF = async (req, res) => {
   try {
     const userId = req.user.id;
@@ -165,9 +164,8 @@ const exportPDF = async (req, res) => {
   }
 };
 
-/* ======================================================
-    FINANCIAL SUMMARY REPORT
-====================================================== */
+
+//  FINANCIAL SUMMARY REPORT
 const getFinancialReport = async (req, res) => {
   try {
     const userId = req.user.id;
@@ -286,9 +284,8 @@ const getFinancialReport = async (req, res) => {
   }
 };
 
-/* ======================================================
-    MONTHLY REPORT
-====================================================== */
+
+//  MONTHLY REPORT
 const getMonthlyReport = async (req, res) => {
   try {
     const userId = req.user.id;
@@ -371,9 +368,8 @@ const getMonthlyReport = async (req, res) => {
   }
 };
 
-/* ======================================================
-    CATEGORY ANALYSIS REPORT
-====================================================== */
+
+//  CATEGORY ANALYSIS REPORT
 const getCategoryAnalysis = async (req, res) => {
   try {
     const userId = req.user.id;
@@ -476,9 +472,8 @@ const getCategoryAnalysis = async (req, res) => {
   }
 };
 
-/* ======================================================
-   COMBINED FULL REPORT (single request for Reports page)
-====================================================== */
+
+// COMBINED FULL REPORT (single request for Reports page)
 const getFullReport = async (req, res) => {
   try {
     const userId = req.user.id;
@@ -605,9 +600,8 @@ const getFullReport = async (req, res) => {
   }
 };
 
-/* ======================================================
-   BUDGET PERFORMANCE REPORT
-====================================================== */
+
+// BUDGET PERFORMANCE REPORT
 const getBudgetPerformance = async (req, res) => {
   try {
     const userId = req.user.id;
@@ -682,9 +676,8 @@ const getBudgetPerformance = async (req, res) => {
   }
 };
 
-/* ======================================================
-   INCOME REPORT
-====================================================== */
+
+// INCOME REPORT
 const exportIncomePDF = async (req, res) => {
   try {
     const userId = req.user.id;
@@ -717,9 +710,8 @@ const exportIncomePDF = async (req, res) => {
   }
 };
 
-/* ======================================================
-   EXPENSE REPORT
-====================================================== */
+
+// EXPENSE REPORT
 const exportExpensePDF = async (req, res) => {
   try {
     const userId = req.user.id;
@@ -752,9 +744,8 @@ const exportExpensePDF = async (req, res) => {
   }
 };
 
-/* ======================================================
-   TRANSACTION REPORT
-====================================================== */
+
+// TRANSACTION REPORT
 const exportTransactionPDF = async (req, res) => {
   try {
     const userId = req.user.id;
@@ -811,9 +802,8 @@ const exportTransactionPDF = async (req, res) => {
   }
 };
 
-/* ======================================================
-   EXPORT CSV REPORT
-====================================================== */
+
+// EXPORT CSV REPORT
 const exportCSV = async (req, res) => {
   try {
     const userId = req.user.id;
@@ -849,10 +839,8 @@ const exportCSV = async (req, res) => {
   }
 };
 
-/* ======================================================
-   EMAIL REPORT
-====================================================== */
 
+// EMAIL REPORT
 const sendEmailReport = async (req, res) => {
   try {
     const userId = req.user.id;

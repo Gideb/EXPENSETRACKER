@@ -12,10 +12,8 @@ const normalizeGoalStatus = (goal) => {
   return 'active';
 };
 
-// ==============================
 // Create Goal
-// ==============================
-exports.createGoal = async (req, res) => {
+const createGoal = async (req, res) => {
   try {
     const userId = req.user.id;
 
@@ -53,10 +51,8 @@ exports.createGoal = async (req, res) => {
   }
 };
 
-// ==============================
 // Get All Goals
-// ==============================
-exports.getGoals = async (req, res) => {
+const getGoals = async (req, res) => {
   try {
     const userId = req.user.id;
 
@@ -92,10 +88,8 @@ exports.getGoals = async (req, res) => {
   }
 };
 
-// ==============================
 // Get Single Goal
-// ==============================
-exports.getGoal = async (req, res) => {
+const getGoal = async (req, res) => {
   try {
     const goal = await Goal.findOne({
       _id: req.params.id,
@@ -108,7 +102,7 @@ exports.getGoal = async (req, res) => {
       });
     }
 
-    const formattedGoals = goals.map((goal) => {
+    /*   const formattedGoals = goals.map((goal) => {
       const remaining = Math.max(goal.targetAmount - goal.savedAmount, 0);
       const excess = Math.max(goal.savedAmount - goal.targetAmount, 0);
 
@@ -127,11 +121,22 @@ exports.getGoal = async (req, res) => {
       success: true,
       count: formattedGoals.length,
       goals: formattedGoals,
-    });
+    }); */
+
+    const remaining = Math.max(goal.targetAmount - goal.savedAmount, 0);
+    const excess = Math.max(goal.savedAmount - goal.targetAmount, 0);
 
     res.status(200).json({
       success: true,
-      goal,
+      goal: {
+        ...goal.toObject(),
+        stats: {
+          remaining,
+          excess,
+          progress: Math.min((goal.savedAmount / goal.targetAmount) * 100, 100),
+          actualProgress: (goal.savedAmount / goal.targetAmount) * 100,
+        },
+      },
     });
   } catch (error) {
     console.error(error);
@@ -143,10 +148,8 @@ exports.getGoal = async (req, res) => {
   }
 };
 
-// ==============================
 // Update Goal
-// ==============================
-exports.updateGoal = async (req, res) => {
+const updateGoal = async (req, res) => {
   try {
     const goal = await Goal.findOne({
       _id: req.params.id,
@@ -180,8 +183,8 @@ exports.updateGoal = async (req, res) => {
       }
     }
 
-    goal.status = normalizeGoalStatus(goal);
     if (goal.status !== 'archived') {
+      goal.status = normalizeGoalStatus(goal);
       goal.archivedAt = null;
     }
 
@@ -202,10 +205,8 @@ exports.updateGoal = async (req, res) => {
   }
 };
 
-// ==============================
 // Update Saved Amount
-// ==============================
-exports.updateSavedAmount = async (req, res) => {
+const updateSavedAmount = async (req, res) => {
   try {
     const { amount } = req.body;
 
@@ -258,7 +259,7 @@ exports.updateSavedAmount = async (req, res) => {
     if (excess > 0) {
       message = `Goal completed! You exceeded your target by GH₵${excess.toFixed(2)}.`;
     } else if (remaining === 0) {
-      message = '🎉 Congratulations! Goal completed.';
+      message = 'Congratulations! Goal completed.';
     }
 
     res.status(200).json({
@@ -282,10 +283,9 @@ exports.updateSavedAmount = async (req, res) => {
   }
 };
 
-// ==============================
-// Archive Goal
-// ==============================
-exports.archiveGoal = async (req, res) => {
+// Archive / Restore Goal
+const archiveGoal = async (req, res) => {
+
   try {
     const goal = await Goal.findOne({
       _id: req.params.id,
@@ -300,36 +300,37 @@ exports.archiveGoal = async (req, res) => {
     }
 
     if (goal.status === 'archived') {
-      return res.status(200).json({
-        success: true,
-        message: 'Goal is already archived.',
-        goal,
-      });
-    }
+      goal.archivedAt = null;
 
-    goal.status = 'archived';
-    goal.archivedAt = goal.archivedAt || new Date();
+      if (goal.savedAmount >= goal.targetAmount) {
+        goal.status = 'completed';
+      } else {
+        goal.status = 'active';
+      }
+    } else {
+      goal.status = 'archived';
+      goal.archivedAt = new Date();
+    }
 
     await goal.save();
 
     res.status(200).json({
       success: true,
-      message: 'Goal archived successfully.',
+      message:
+        goal.status === 'archived' ? 'Goal archived successfully.' : 'Goal restored successfully.',
       goal,
     });
   } catch (error) {
     console.error(error);
     res.status(500).json({
       success: false,
-      message: 'Failed to archive goal.',
+      message: 'Failed to update goal.',
     });
   }
 };
 
-// ==============================
 // Delete Goal
-// ==============================
-exports.deleteGoal = async (req, res) => {
+const deleteGoal = async (req, res) => {
   try {
     const goal = await Goal.findOneAndDelete({
       _id: req.params.id,
@@ -356,10 +357,8 @@ exports.deleteGoal = async (req, res) => {
   }
 };
 
-// ==============================
 // Goal Summary
-// ==============================
-exports.getGoalSummary = async (req, res) => {
+const getGoalSummary = async (req, res) => {
   try {
     const userId = req.user.id;
 
@@ -403,4 +402,16 @@ exports.getGoalSummary = async (req, res) => {
       message: 'Failed to fetch goal summary.',
     });
   }
+};
+
+
+module.exports = {
+  createGoal,
+  getGoals,
+  getGoal,
+  updateGoal,
+  deleteGoal,
+  updateSavedAmount,
+  getGoalSummary,
+  archiveGoal,
 };
