@@ -14,6 +14,7 @@ const Goals = () => {
   const [goals, setGoals] = useState([]);
   const [loading, setLoading] = useState(true);
   const [refreshKey, setRefreshKey] = useState(0);
+  const [activeSavingsGoalId, setActiveSavingsGoalId] = useState(null);
   const [openAddGoalModal, setOpenAddGoalModal] = useState(false);
   const [editingGoal, setEditingGoal] = useState(null);
   const [openDeleteAlert, setOpenDeleteAlert] = useState({
@@ -39,6 +40,26 @@ const Goals = () => {
   useEffect(() => {
     fetchGoals();
   }, [fetchGoals, refreshKey]);
+
+  const handleToggleSavingsInput = useCallback((goalId) => {
+    setActiveSavingsGoalId((currentId) => (currentId === goalId ? null : goalId));
+  }, []);
+
+  const handleGoalUpdate = useCallback((updatedGoal) => {
+    if (!updatedGoal?._id) {
+      return;
+    }
+
+    setGoals((prevGoals) =>
+      prevGoals.map((goal) => (goal._id === updatedGoal._id ? { ...goal, ...updatedGoal } : goal))
+    );
+  }, []);
+
+  const groupedGoals = {
+    active: goals.filter((goal) => goal.status === 'active'),
+    completed: goals.filter((goal) => goal.status === 'completed'),
+    archived: goals.filter((goal) => goal.status === 'archived'),
+  };
 
   // handle Add Goal
   const handleAddGoal = async (goal) => {
@@ -151,8 +172,8 @@ const Goals = () => {
         {/* Header */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Financial Goals</h1>
-            <p className="text-gray-600 mt-1">Track and manage your savings goals</p>
+            <h1 className="text-2xl font-medium text-gray-900">Financial Goals</h1>
+            <p className="text-gray-600 text-sm mt-1">Track and manage your savings goals</p>
           </div>
           <button
             onClick={() => {
@@ -185,16 +206,37 @@ const Goals = () => {
             </button>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {goals.map((goal) => (
-              <GoalCard
-                key={goal._id}
-                goal={goal}
-                onUpdate={fetchGoals}
-                onDelete={() => setOpenDeleteAlert({ show: true, data: goal })}
-                onEdit={() => handleEditGoal(goal)}
-              />
-            ))}
+          <div className="space-y-8">
+            {['active', 'completed', 'archived'].map((section) => {
+              const sectionGoals = groupedGoals[section];
+              if (sectionGoals.length === 0) {
+                return null;
+              }
+
+              const sectionTitle =
+                section === 'active' ? 'Active' : section === 'completed' ? 'Completed' : 'Archived';
+
+              return (
+                <section key={section}>
+                  <div className="mb-4 border-b border-gray-200 pb-2">
+                    <h2 className="text-lg font-semibold text-gray-900">{sectionTitle}</h2>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {sectionGoals.map((goal) => (
+                      <GoalCard
+                        key={goal._id}
+                        goal={goal}
+                        onUpdate={handleGoalUpdate}
+                        onDelete={() => setOpenDeleteAlert({ show: true, data: goal })}
+                        onEdit={() => handleEditGoal(goal)}
+                        isSavingsOpen={activeSavingsGoalId === goal._id}
+                        onToggleSavingsInput={() => handleToggleSavingsInput(goal._id)}
+                      />
+                    ))}
+                  </div>
+                </section>
+              );
+            })}
           </div>
         )}
 

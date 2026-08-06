@@ -183,7 +183,7 @@ const Income = () => {
   }, [fetchIncomeDetails]);
 
   return (
-    <Dashboardlayout activeMenu="Incomes">
+    <Dashboardlayout activeMenu="Income">
       <div className="space-y-6 my-5 mx-auto">
         {error && <p className="text-sm text-red-500">{error}</p>}
 

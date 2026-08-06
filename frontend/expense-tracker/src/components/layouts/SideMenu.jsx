@@ -24,12 +24,11 @@ const SideMenu = ({ activeMenu }) => {
     navigate('/login');
   };
 
-  const hasImage = user?.profileImageUrl && user.profileImageUrl !== '';
+  const profileImageUrl = user?.profileImageUrl || '';
+  const hasImage = profileImageUrl !== '';
 
   const imageUrl =
-    hasImage && user.profileImageUrl.startsWith('/')
-      ? `${BASE_URL}${user.profileImageUrl}`
-      : user.profileImageUrl;
+    hasImage && profileImageUrl.startsWith('/') ? `${BASE_URL}${profileImageUrl}` : profileImageUrl;
 
   return (
     <div className="w-64 h-[calc(100vh-61px)] bg-white border-r border-gray-200/50 dark:bg-gray-950 z-20 p-5 sticky top-15.25 overflow-y-auto transition-all duration-500 ease-in-out ">

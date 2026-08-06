@@ -19,7 +19,6 @@ const Budget = () => {
     show: false,
     data: null,
   });
-  const [loading, setLoading] = useState(false);
   const [categories, setCategories] = useState([]);
   const [refreshKey, setRefreshKey] = useState(0);
 
@@ -43,8 +42,6 @@ const Budget = () => {
 
   // get all Budget Details
   const fetchBudgets = useCallback(async () => {
-    setLoading(true);
-
     try {
       const response = await axiosInstance.get(API_PATHS.BUDGET.GET_ALL_BUDGET);
 
@@ -57,8 +54,6 @@ const Budget = () => {
     } catch (error) {
       console.error('Failed to load budgets:', error);
       toast.error(error.response?.data?.message || 'Failed to load budgets');
-    } finally {
-      setLoading(false);
     }
   }, []);
 

@@ -1,14 +1,19 @@
-import { useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { TrendingUp, Calendar, Target, Edit, Trash2, Plus, CheckCircle, Clock } from 'lucide-react';
 import axiosInstance from '../../utils/axiosInstance';
 import { API_PATHS } from '../../utils/apiPaths';
 import { toast } from 'react-hot-toast';
+import Input from '../Inputs/Input';
+import { FiMoreVertical } from 'react-icons/fi';
+import { Archive } from 'lucide-react';
 
-const GoalCard = ({ goal, onUpdate, onDelete, onEdit }) => {
+const GoalCard = ({ goal, onUpdate, onDelete, onEdit, isSavingsOpen, onToggleSavingsInput }) => {
   const [isUpdating, setIsUpdating] = useState(false);
-  const [showAmountInput, setShowAmountInput] = useState(false);
   const [amount, setAmount] = useState('');
   const [error, setError] = useState(null);
+  const [feedback, setFeedback] = useState(null);
+  const [showActionMenu, setShowActionMenu] = useState(false);
+  const actionMenuRef = useRef(null);
 
   const progress = Math.min((goal.savedAmount / goal.targetAmount) * 100, 100);
   const daysLeft = Math.ceil((new Date(goal.targetDate) - new Date()) / (1000 * 60 * 60 * 24));
@@ -37,6 +42,61 @@ const GoalCard = ({ goal, onUpdate, onDelete, onEdit }) => {
 
   const statusBadge = getStatusBadge();
 
+  const remainingAmount = useMemo(
+    () => Math.max(goal.targetAmount - goal.savedAmount, 0),
+    [goal.savedAmount, goal.targetAmount]
+  );
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (actionMenuRef.current && !actionMenuRef.current.contains(event.target)) {
+        setShowActionMenu(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const overagePreview = useMemo(() => {
+    if (!amount) {
+      return null;
+    }
+
+    const numericAmount = Number(amount);
+    if (Number.isNaN(numericAmount) || numericAmount <= 0) {
+      return null;
+    }
+
+    const overage = Math.max(numericAmount - remainingAmount, 0);
+
+    if (overage > 0) {
+      return {
+        overage,
+        remaining: remainingAmount,
+        newProgress: Math.min(((goal.savedAmount + numericAmount) / goal.targetAmount) * 100, 100),
+      };
+    }
+
+    return null;
+  }, [amount, goal.savedAmount, goal.targetAmount, remainingAmount]);
+
+  const handleArchiveGoal = async () => {
+    try {
+      setIsUpdating(true);
+      const response = await axiosInstance.patch(API_PATHS.GOALS.ARCHIVE_GOAL(goal._id));
+      setShowActionMenu(false);
+      toast.success(response.data?.message || 'Goal archived successfully.');
+      onUpdate?.(response.data?.goal || null);
+    } catch (err) {
+      const message = err.response?.data?.message || 'Failed to archive goal.';
+      toast.error(message);
+      console.error('Error archiving goal:', err);
+    } finally {
+      setIsUpdating(false);
+    }
+  };
+
   const handleUpdateSavings = async (type) => {
     if (!amount) {
       setError('Please enter an amount');
@@ -53,15 +113,18 @@ const GoalCard = ({ goal, onUpdate, onDelete, onEdit }) => {
 
     try {
       setIsUpdating(true);
-      await axiosInstance.patch(API_PATHS.GOALS.UPDATE_SAVED_AMOUNT(goal._id), {
+      const response = await axiosInstance.patch(API_PATHS.GOALS.UPDATE_SAVED_AMOUNT(goal._id), {
         amount: updateAmount,
       });
       setAmount('');
-      setShowAmountInput(false);
       setError(null);
-      onUpdate?.();
+      setFeedback(response.data?.message || null);
+      onToggleSavingsInput?.();
+      onUpdate?.(response.data?.goal || null);
     } catch (err) {
-      toast.error('Failed to update savings. Please try again.');
+      const message = err.response?.data?.message || 'Failed to update savings. Please try again.';
+      setError(message);
+      toast.error(message);
       console.error('Error updating savings:', err);
     } finally {
       setIsUpdating(false);
@@ -69,17 +132,16 @@ const GoalCard = ({ goal, onUpdate, onDelete, onEdit }) => {
   };
 
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition-shadow">
+    <div
+      className="bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition-shadow"
+      onClick={(e) => e.stopPropagation()}
+    >
       {/* Header */}
       <div className="p-6 border-b border-gray-100">
         <div className="flex items-start justify-between">
           <div className="flex items-center gap-3">
             <div className="w-12 h-12 flex items-center justify-center rounded-lg bg-amber-50 text-2xl">
-              {goal.icon ? (
-                <img src={goal.icon} alt={goal.title} className="w-8 h-8" />
-              ) : (
-                '🎯'
-              )}
+              {goal.icon ? <img src={goal.icon} alt={goal.title} className="w-8 h-8" /> : '🎯'}
             </div>
             <div>
               <h3 className="text-lg font-semibold text-gray-900">{goal.title}</h3>
@@ -91,28 +153,123 @@ const GoalCard = ({ goal, onUpdate, onDelete, onEdit }) => {
               </span>
             </div>
           </div>
-          <div className="flex gap-2">
-            <button
-              onClick={() => setShowAmountInput(true)}
-              className="p-1.5 hover:bg-gray-100 rounded-lg transition-colors"
-              title="Update savings"
-            >
-              <Plus size={18} className="text-amber-600" />
-            </button>
-            <button
-              onClick={() => onEdit?.()}
-              className="p-1.5 hover:bg-gray-100 rounded-lg transition-colors"
-              title="Edit"
-            >
-              <Edit size={18} className="text-gray-600" />
-            </button>
-            <button
-              onClick={() => onDelete?.()}
-              className="p-1.5 hover:bg-red-50 rounded-lg transition-colors"
-              title="Delete"
-            >
-              <Trash2 size={18} className="text-red-600" />
-            </button>
+          <div className="flex items-center gap-2" ref={actionMenuRef}>
+            <div className="relative md:hidden">
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setShowActionMenu((prev) => !prev);
+                }}
+                className="p-1.5 hover:bg-gray-100 rounded-lg transition-colors"
+                title="More actions"
+              >
+                <FiMoreVertical size={18} className="text-gray-600" />
+              </button>
+
+              {showActionMenu && (
+                <div className="absolute right-0 top-10 z-20 w-44 rounded-lg border border-gray-200 bg-white shadow-lg">
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setShowActionMenu(false);
+                      setError(null);
+                      setFeedback(null);
+                      onToggleSavingsInput?.();
+                    }}
+                    className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-gray-700 hover:bg-gray-50"
+                  >
+                    <Plus size={16} className="text-amber-600" />
+                    Update savings
+                  </button>
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setShowActionMenu(false);
+                      onEdit?.();
+                    }}
+                    className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-gray-700 hover:bg-gray-50"
+                  >
+                    <Edit size={16} className="text-gray-600" />
+                    Edit Goal
+                  </button>
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setShowActionMenu(false);
+                      handleArchiveGoal();
+                    }}
+                    className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-gray-700 hover:bg-gray-50"
+                    disabled={isUpdating}
+                  >
+                    <Archive size={16} className="text-gray-600" />
+                    Archive
+                  </button>
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setShowActionMenu(false);
+                      onDelete?.();
+                    }}
+                    className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-red-600 hover:bg-red-50"
+                  >
+                    <Trash2 size={16} />
+                    Delete
+                  </button>
+                </div>
+              )}
+            </div>
+
+            <div className="hidden md:flex gap-2">
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setError(null);
+                  setFeedback(null);
+                  onToggleSavingsInput?.();
+                }}
+                className="p-1.5 hover:bg-gray-100 rounded-lg transition-colors"
+                title="Update savings"
+              >
+                <Plus size={18} className="text-amber-600" />
+              </button>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onEdit?.();
+                }}
+                className="p-1.5 hover:bg-gray-100 rounded-lg transition-colors"
+                title="Edit"
+              >
+                <Edit size={18} className="text-gray-600" />
+              </button>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleArchiveGoal();
+                }}
+                className="p-1.5 hover:bg-gray-100 rounded-lg transition-colors"
+                title="Archive"
+                disabled={isUpdating}
+              >
+                <Archive size={18} className="text-gray-600" />
+              </button>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onDelete?.();
+                }}
+                className="p-1.5 hover:bg-red-50 rounded-lg transition-colors"
+                title="Delete"
+              >
+                <Trash2 size={18} className="text-red-600" />
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -179,47 +336,81 @@ const GoalCard = ({ goal, onUpdate, onDelete, onEdit }) => {
         {/* Error Message */}
         {error && <div className="text-sm text-red-600 bg-red-50 p-2 rounded-lg">{error}</div>}
 
+        {feedback && (
+          <div className="text-sm text-green-700 bg-green-50 p-3 rounded-lg border border-green-200">
+            {feedback}
+          </div>
+        )}
+
         {/* Update Savings Input */}
-        {showAmountInput && (
+        {isSavingsOpen && (
           <div className="border-t border-gray-100 pt-4">
             <div className="flex items-center gap-2 flex-wrap">
-              <input
+              {/* <input
                 type="number"
                 value={amount}
                 onChange={(e) => setAmount(e.target.value)}
                 placeholder="Enter amount"
-                className="flex-1 min-w-[120px] px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500"
+                className="flex-1 min-w-30 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500"
+                disabled={isUpdating}
+                min="0"
+                step="0.01"
+                autoFocus
+              /> */}
+              <Input
+                type="number"
+                value={amount}
+                onChange={(e) => {
+                  setAmount(e.target.value);
+                  setError(null);
+                  setFeedback(null);
+                }}
+                placeholder="Enter amount"
                 disabled={isUpdating}
                 min="0"
                 step="0.01"
                 autoFocus
               />
+
               <button
                 onClick={() => handleUpdateSavings('add')}
-                className="add-btn add-btn-fill px-3 py-2"
+                className="add-btn add-btn-fill "
                 disabled={isUpdating}
               >
                 Add
               </button>
               <button
                 onClick={() => handleUpdateSavings('remove')}
-                className="add-btn px-3 py-2 text-red-600 border-red-600 bg-red-50 hover:text-red-700 dark:text-red-400"
+                className="add-btn "
                 disabled={isUpdating || goal.savedAmount === 0}
               >
                 Remove
               </button>
               <button
                 onClick={() => {
-                  setShowAmountInput(false);
+                  onToggleSavingsInput?.();
                   setAmount('');
                   setError(null);
+                  setFeedback(null);
                 }}
-                className="add-btn px-3 py-2"
+                className="add-btn "
                 disabled={isUpdating}
               >
                 Cancel
               </button>
             </div>
+
+            {overagePreview && (
+              <div className="mt-3 rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800">
+                <p className="font-medium">Remaining: GHS {remainingAmount.toFixed(2)}</p>
+                <p className="mt-1">
+                  ⚠️ You&apos;re adding GHS {overagePreview.overage.toFixed(2)} more than needed.
+                </p>
+                {/*  <p className="mt-1">
+                  Progress would become {overagePreview.newProgress.toFixed(0)}%.
+                </p> */}
+              </div>
+            )}
           </div>
         )}
       </div>
