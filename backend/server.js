@@ -22,7 +22,7 @@ app.use(
       'http://localhost:5174',
       'https://gideb-expensetracker.vercel.app',
     ],
-    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
   })
 );

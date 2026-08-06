@@ -1,5 +1,17 @@
 const Goal = require('../models/Goal');
 
+const normalizeGoalStatus = (goal) => {
+  if (goal.status === 'archived') {
+    return 'archived';
+  }
+
+  if (goal.savedAmount >= goal.targetAmount) {
+    return 'completed';
+  }
+
+  return 'active';
+};
+
 // ==============================
 // Create Goal
 // ==============================
@@ -22,6 +34,8 @@ exports.createGoal = async (req, res) => {
       targetAmount,
       targetDate,
       description,
+      status: 'active',
+      archivedAt: null,
     });
 
     res.status(201).json({
@@ -50,10 +64,23 @@ exports.getGoals = async (req, res) => {
       createdAt: -1,
     });
 
+    const normalizedGoals = goals.map((goal) => {
+      const normalizedStatus = normalizeGoalStatus(goal);
+      if (goal.status !== normalizedStatus) {
+        goal.status = normalizedStatus;
+        if (normalizedStatus === 'active') {
+          goal.archivedAt = null;
+        }
+      }
+      return goal;
+    });
+
+    await Promise.all(normalizedGoals.map((goal) => goal.save()));
+
     res.status(200).json({
       success: true,
-      count: goals.length,
-      goals,
+      count: normalizedGoals.length,
+      goals: normalizedGoals,
     });
   } catch (error) {
     console.error(error);
@@ -80,6 +107,27 @@ exports.getGoal = async (req, res) => {
         message: 'Goal not found.',
       });
     }
+
+    const formattedGoals = goals.map((goal) => {
+      const remaining = Math.max(goal.targetAmount - goal.savedAmount, 0);
+      const excess = Math.max(goal.savedAmount - goal.targetAmount, 0);
+
+      return {
+        ...goal.toObject(),
+        stats: {
+          remaining,
+          excess,
+          progress: Math.min((goal.savedAmount / goal.targetAmount) * 100, 100),
+          actualProgress: (goal.savedAmount / goal.targetAmount) * 100,
+        },
+      };
+    });
+
+    res.status(200).json({
+      success: true,
+      count: formattedGoals.length,
+      goals: formattedGoals,
+    });
 
     res.status(200).json({
       success: true,
@@ -118,11 +166,23 @@ exports.updateGoal = async (req, res) => {
     if (targetAmount !== undefined) goal.targetAmount = targetAmount;
     if (targetDate !== undefined) goal.targetDate = targetDate;
     if (description !== undefined) goal.description = description;
-    if (status !== undefined) goal.status = status;
 
-    // Automatically mark completed
-    if (goal.savedAmount >= goal.targetAmount) {
-      goal.status = 'completed';
+    if (status !== undefined) {
+      if (status === 'archived') {
+        goal.status = 'archived';
+        goal.archivedAt = goal.archivedAt || new Date();
+      } else if (status === 'active') {
+        goal.status = 'active';
+        goal.archivedAt = null;
+      } else if (status === 'completed') {
+        goal.status = 'completed';
+        goal.archivedAt = null;
+      }
+    }
+
+    goal.status = normalizeGoalStatus(goal);
+    if (goal.status !== 'archived') {
+      goal.archivedAt = null;
     }
 
     await goal.save();
@@ -151,6 +211,7 @@ exports.updateSavedAmount = async (req, res) => {
 
     if (amount === undefined) {
       return res.status(400).json({
+        success: false,
         message: 'Amount is required.',
       });
     }
@@ -162,27 +223,54 @@ exports.updateSavedAmount = async (req, res) => {
 
     if (!goal) {
       return res.status(404).json({
+        success: false,
         message: 'Goal not found.',
       });
     }
 
-    goal.savedAmount += Number(amount);
+    const updateAmount = Number(amount);
 
-    if (goal.savedAmount < 0) {
-      goal.savedAmount = 0;
+    if (isNaN(updateAmount)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid amount.',
+      });
     }
 
-    if (goal.savedAmount >= goal.targetAmount) {
-      goal.savedAmount = goal.targetAmount;
-      goal.status = 'completed';
+    const previousSaved = goal.savedAmount;
+    const newSaved = previousSaved + updateAmount;
+
+    // Don't allow savings below zero
+    goal.savedAmount = Math.max(newSaved, 0);
+
+    const remaining = Math.max(goal.targetAmount - goal.savedAmount, 0);
+    const excess = Math.max(goal.savedAmount - goal.targetAmount, 0);
+
+    goal.status = normalizeGoalStatus(goal);
+    if (goal.status !== 'archived') {
+      goal.archivedAt = null;
     }
 
     await goal.save();
 
+    let message = 'Savings updated successfully.';
+
+    if (excess > 0) {
+      message = `Goal completed! You exceeded your target by GH₵${excess.toFixed(2)}.`;
+    } else if (remaining === 0) {
+      message = '🎉 Congratulations! Goal completed.';
+    }
+
     res.status(200).json({
       success: true,
-      message: 'Savings updated successfully.',
+      message,
       goal,
+      stats: {
+        remaining,
+        excess,
+        progress: Math.min((goal.savedAmount / goal.targetAmount) * 100, 100),
+        actualProgress: (goal.savedAmount / goal.targetAmount) * 100,
+      },
     });
   } catch (error) {
     console.error(error);
@@ -190,6 +278,50 @@ exports.updateSavedAmount = async (req, res) => {
     res.status(500).json({
       success: false,
       message: 'Failed to update savings.',
+    });
+  }
+};
+
+// ==============================
+// Archive Goal
+// ==============================
+exports.archiveGoal = async (req, res) => {
+  try {
+    const goal = await Goal.findOne({
+      _id: req.params.id,
+      userId: req.user.id,
+    });
+
+    if (!goal) {
+      return res.status(404).json({
+        success: false,
+        message: 'Goal not found.',
+      });
+    }
+
+    if (goal.status === 'archived') {
+      return res.status(200).json({
+        success: true,
+        message: 'Goal is already archived.',
+        goal,
+      });
+    }
+
+    goal.status = 'archived';
+    goal.archivedAt = goal.archivedAt || new Date();
+
+    await goal.save();
+
+    res.status(200).json({
+      success: true,
+      message: 'Goal archived successfully.',
+      goal,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to archive goal.',
     });
   }
 };
@@ -243,7 +375,13 @@ exports.getGoalSummary = async (req, res) => {
 
     const totalSaved = goals.reduce((sum, g) => sum + g.savedAmount, 0);
 
-    const remaining = totalTarget - totalSaved;
+    const remaining = goals.reduce((sum, g) => {
+      return sum + Math.max(g.targetAmount - g.savedAmount, 0);
+    }, 0);
+
+    const totalExcess = goals.reduce((sum, g) => {
+      return sum + Math.max(g.savedAmount - g.targetAmount, 0);
+    }, 0);
 
     res.status(200).json({
       success: true,
@@ -254,6 +392,7 @@ exports.getGoalSummary = async (req, res) => {
         totalTarget,
         totalSaved,
         remaining,
+        totalExcess,
       },
     });
   } catch (error) {

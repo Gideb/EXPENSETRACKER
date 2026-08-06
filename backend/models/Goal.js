@@ -47,6 +47,11 @@ const GoalSchema = new mongoose.Schema(
       enum: ['active', 'completed', 'archived'],
       default: 'active',
     },
+
+    archivedAt: {
+      type: Date,
+      default: null,
+    },
   },
   { timestamps: true }
 );

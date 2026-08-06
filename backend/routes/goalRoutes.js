@@ -9,6 +9,7 @@ const {
   deleteGoal,
   updateSavedAmount,
   getGoalSummary,
+  archiveGoal,
 } = require('../controllers/goalController');
 
 const { protect } = require('../middleware/authMiddleware');
@@ -24,6 +25,8 @@ router.get('/:id', protect, getGoal);
 router.put('/:id', protect, updateGoal);
 
 router.patch('/:id/savings', protect, updateSavedAmount);
+
+router.patch('/:id/archive', protect, archiveGoal);
 
 router.delete('/:id', protect, deleteGoal);
 
