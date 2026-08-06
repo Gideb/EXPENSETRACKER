@@ -11,7 +11,7 @@ const GoalCard = ({ goal, onUpdate, onDelete, onEdit, isSavingsOpen, onToggleSav
   const [isUpdating, setIsUpdating] = useState(false);
   const [amount, setAmount] = useState('');
   const [error, setError] = useState(null);
-  const [feedback, setFeedback] = useState(null);
+
   const [showActionMenu, setShowActionMenu] = useState(false);
   const actionMenuRef = useRef(null);
 
@@ -81,7 +81,7 @@ const GoalCard = ({ goal, onUpdate, onDelete, onEdit, isSavingsOpen, onToggleSav
     return null;
   }, [amount, goal.savedAmount, goal.targetAmount, remainingAmount]);
 
-  const handleArchiveGoal = async () => {
+  /*   const handleArchiveGoal = async () => {
     try {
       setIsUpdating(true);
       const response = await axiosInstance.patch(API_PATHS.GOALS.ARCHIVE_GOAL(goal._id));
@@ -92,6 +92,26 @@ const GoalCard = ({ goal, onUpdate, onDelete, onEdit, isSavingsOpen, onToggleSav
       const message = err.response?.data?.message || 'Failed to archive goal.';
       toast.error(message);
       console.error('Error archiving goal:', err);
+    } finally {
+      setIsUpdating(false);
+    }
+  }; */
+
+  const isArchived = goal.status === 'archived';
+
+  const handleToggleArchive = async () => {
+    try {
+      setIsUpdating(true);
+      const response = await axiosInstance.patch(API_PATHS.GOALS.ARCHIVE_GOAL(goal._id));
+      setShowActionMenu(false);
+      toast.success(
+        response.data?.message ||
+          (isArchived ? 'Goal restored successfully.' : 'Goal archived successfully.')
+      );
+
+      onUpdate?.(response.data.goal);
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Failed to update goal.');
     } finally {
       setIsUpdating(false);
     }
@@ -118,7 +138,7 @@ const GoalCard = ({ goal, onUpdate, onDelete, onEdit, isSavingsOpen, onToggleSav
       });
       setAmount('');
       setError(null);
-      setFeedback(response.data?.message || null);
+      toast.success(response.data?.message || 'Savings updated successfully.');
       onToggleSavingsInput?.();
       onUpdate?.(response.data?.goal || null);
     } catch (err) {
@@ -168,17 +188,17 @@ const GoalCard = ({ goal, onUpdate, onDelete, onEdit, isSavingsOpen, onToggleSav
               </button>
 
               {showActionMenu && (
-                <div className="absolute right-0 top-10 z-20 w-44 rounded-lg border border-gray-200 bg-white shadow-lg">
+                <div className="absolute right-0 top-10 z-20 w-40 rounded-lg border border-gray-200 bg-white shadow-lg">
                   <button
                     type="button"
                     onClick={(e) => {
                       e.stopPropagation();
                       setShowActionMenu(false);
                       setError(null);
-                      setFeedback(null);
+
                       onToggleSavingsInput?.();
                     }}
-                    className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-gray-700 hover:bg-gray-50"
+                    className="flex w-full items-center gap-1 px-3 py-2 text-left text-sm text-gray-700 hover:bg-gray-50"
                   >
                     <Plus size={16} className="text-amber-600" />
                     Update savings
@@ -190,7 +210,7 @@ const GoalCard = ({ goal, onUpdate, onDelete, onEdit, isSavingsOpen, onToggleSav
                       setShowActionMenu(false);
                       onEdit?.();
                     }}
-                    className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-gray-700 hover:bg-gray-50"
+                    className="flex w-full items-center gap-1 px-3 py-2 text-left text-sm text-gray-700 hover:bg-gray-50"
                   >
                     <Edit size={16} className="text-gray-600" />
                     Edit Goal
@@ -200,13 +220,16 @@ const GoalCard = ({ goal, onUpdate, onDelete, onEdit, isSavingsOpen, onToggleSav
                     onClick={(e) => {
                       e.stopPropagation();
                       setShowActionMenu(false);
-                      handleArchiveGoal();
+                      handleToggleArchive();
                     }}
-                    className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-gray-700 hover:bg-gray-50"
+                    className="flex w-full items-center gap-1 px-3 py-2 text-left text-sm text-gray-700 hover:bg-gray-50"
                     disabled={isUpdating}
                   >
-                    <Archive size={16} className="text-gray-600" />
-                    Archive
+                    <Archive
+                      size={16}
+                      className={goal.status === 'archived' ? 'text-green-600' : 'text-gray-600'}
+                    />
+                    {goal.status === 'archived' ? 'Restore Goal' : 'Archive Goal'}
                   </button>
                   <button
                     type="button"
@@ -215,7 +238,7 @@ const GoalCard = ({ goal, onUpdate, onDelete, onEdit, isSavingsOpen, onToggleSav
                       setShowActionMenu(false);
                       onDelete?.();
                     }}
-                    className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-red-600 hover:bg-red-50"
+                    className="flex w-full items-center gap-1 px-3 py-2 text-left text-sm text-red-600 hover:bg-red-50"
                   >
                     <Trash2 size={16} />
                     Delete
@@ -224,16 +247,16 @@ const GoalCard = ({ goal, onUpdate, onDelete, onEdit, isSavingsOpen, onToggleSav
               )}
             </div>
 
-            <div className="hidden md:flex gap-2">
+            <div className="hidden md:flex gap-1">
               <button
                 type="button"
                 onClick={(e) => {
                   e.stopPropagation();
                   setError(null);
-                  setFeedback(null);
+
                   onToggleSavingsInput?.();
                 }}
-                className="p-1.5 hover:bg-gray-100 rounded-lg transition-colors"
+                className="p-1 hover:bg-gray-100 rounded-lg transition-colors"
                 title="Update savings"
               >
                 <Plus size={18} className="text-amber-600" />
@@ -243,7 +266,7 @@ const GoalCard = ({ goal, onUpdate, onDelete, onEdit, isSavingsOpen, onToggleSav
                   e.stopPropagation();
                   onEdit?.();
                 }}
-                className="p-1.5 hover:bg-gray-100 rounded-lg transition-colors"
+                className="p-1 hover:bg-gray-100 rounded-lg transition-colors"
                 title="Edit"
               >
                 <Edit size={18} className="text-gray-600" />
@@ -251,20 +274,23 @@ const GoalCard = ({ goal, onUpdate, onDelete, onEdit, isSavingsOpen, onToggleSav
               <button
                 onClick={(e) => {
                   e.stopPropagation();
-                  handleArchiveGoal();
+                  handleToggleArchive();
                 }}
-                className="p-1.5 hover:bg-gray-100 rounded-lg transition-colors"
-                title="Archive"
+                className="p-1 hover:bg-gray-100 rounded-lg transition-colors"
+                title={goal.status === 'archived' ? 'Restore Goal' : 'Archive Goal'}
                 disabled={isUpdating}
               >
-                <Archive size={18} className="text-gray-600" />
+                <Archive
+                  size={16}
+                  className={goal.status === 'archived' ? 'text-green-600' : 'text-gray-600'}
+                />
               </button>
               <button
                 onClick={(e) => {
                   e.stopPropagation();
                   onDelete?.();
                 }}
-                className="p-1.5 hover:bg-red-50 rounded-lg transition-colors"
+                className="p-1 hover:bg-red-50 rounded-lg transition-colors"
                 title="Delete"
               >
                 <Trash2 size={18} className="text-red-600" />
@@ -293,7 +319,7 @@ const GoalCard = ({ goal, onUpdate, onDelete, onEdit, isSavingsOpen, onToggleSav
         </div>
 
         {/* Amounts */}
-        <div className="grid grid-cols-2 gap-4">
+        <div className="flex gap-4 justify-between items-center">
           <div>
             <p className="text-sm text-gray-500">Saved</p>
             <p className="text-lg font-semibold text-gray-900">
@@ -309,7 +335,7 @@ const GoalCard = ({ goal, onUpdate, onDelete, onEdit, isSavingsOpen, onToggleSav
         </div>
 
         {/* Meta Info */}
-        <div className="flex items-center gap-4 text-sm text-gray-500">
+        <div className="flex items-center justify-between gap-4 text-sm text-gray-500">
           <div className="flex items-center gap-1">
             <Calendar size={16} />
             <span>{new Date(goal.targetDate).toLocaleDateString()}</span>
@@ -336,34 +362,16 @@ const GoalCard = ({ goal, onUpdate, onDelete, onEdit, isSavingsOpen, onToggleSav
         {/* Error Message */}
         {error && <div className="text-sm text-red-600 bg-red-50 p-2 rounded-lg">{error}</div>}
 
-        {feedback && (
-          <div className="text-sm text-green-700 bg-green-50 p-3 rounded-lg border border-green-200">
-            {feedback}
-          </div>
-        )}
-
         {/* Update Savings Input */}
         {isSavingsOpen && (
           <div className="border-t border-gray-100 pt-4">
             <div className="flex items-center gap-2 flex-wrap">
-              {/* <input
-                type="number"
-                value={amount}
-                onChange={(e) => setAmount(e.target.value)}
-                placeholder="Enter amount"
-                className="flex-1 min-w-30 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500"
-                disabled={isUpdating}
-                min="0"
-                step="0.01"
-                autoFocus
-              /> */}
               <Input
                 type="number"
                 value={amount}
                 onChange={(e) => {
                   setAmount(e.target.value);
                   setError(null);
-                  setFeedback(null);
                 }}
                 placeholder="Enter amount"
                 disabled={isUpdating}
@@ -391,7 +399,6 @@ const GoalCard = ({ goal, onUpdate, onDelete, onEdit, isSavingsOpen, onToggleSav
                   onToggleSavingsInput?.();
                   setAmount('');
                   setError(null);
-                  setFeedback(null);
                 }}
                 className="add-btn "
                 disabled={isUpdating}

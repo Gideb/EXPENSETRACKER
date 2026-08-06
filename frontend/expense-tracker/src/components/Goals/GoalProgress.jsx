@@ -17,7 +17,7 @@ const GoalProgress = ({ goal }) => {
     if (isCompleted) {
       return {
         icon: <CheckCircle size={16} className="text-green-600" />,
-        text: 'Completed! 🎉',
+        text: 'Completed!',
         color: 'text-green-600',
       };
     }

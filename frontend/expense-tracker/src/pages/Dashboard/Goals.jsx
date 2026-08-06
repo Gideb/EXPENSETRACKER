@@ -182,7 +182,7 @@ const Goals = () => {
             }}
             className="add-btn add-btn-fill"
           >
-            <Plus size={20} />
+            <Plus size={18} />
             New Goal
           </button>
         </div>
