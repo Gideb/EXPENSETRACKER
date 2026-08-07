@@ -239,7 +239,6 @@ const updateSavedAmount = async (req, res) => {
     const previousSaved = goal.savedAmount;
     const newSaved = previousSaved + updateAmount;
 
- 
     goal.savedAmount = Math.max(newSaved, 0);
 
     const remaining = Math.max(goal.targetAmount - goal.savedAmount, 0);
@@ -283,7 +282,6 @@ const updateSavedAmount = async (req, res) => {
 
 // Archive / Restore Goal
 const archiveGoal = async (req, res) => {
-
   try {
     const goal = await Goal.findOne({
       _id: req.params.id,
@@ -368,6 +366,8 @@ const getGoalSummary = async (req, res) => {
 
     const completedGoals = goals.filter((g) => g.status === 'completed').length;
 
+    const archivedGoals = goals.filter((g) => g.status === 'archived').length;
+
     const totalTarget = goals.reduce((sum, g) => sum + g.targetAmount, 0);
 
     const totalSaved = goals.reduce((sum, g) => sum + g.savedAmount, 0);
@@ -390,6 +390,7 @@ const getGoalSummary = async (req, res) => {
         totalSaved,
         remaining,
         totalExcess,
+        archivedGoals,
       },
     });
   } catch (error) {
@@ -401,7 +402,6 @@ const getGoalSummary = async (req, res) => {
     });
   }
 };
-
 
 module.exports = {
   createGoal,
