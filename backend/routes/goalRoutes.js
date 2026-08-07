@@ -10,6 +10,7 @@ const {
   updateSavedAmount,
   getGoalSummary,
   archiveGoal,
+  getDashboardInfo,
 } = require('../controllers/goalController');
 
 const { protect } = require('../middleware/authMiddleware');
@@ -29,5 +30,9 @@ router.patch('/:id/savings', protect, updateSavedAmount);
 router.patch('/:id/archive', protect, archiveGoal);
 
 router.delete('/:id', protect, deleteGoal);
+
+router.get('/dashboard', protect, getDashboardInfo);
+
+
 
 module.exports = router;

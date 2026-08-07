@@ -403,6 +403,132 @@ const getGoalSummary = async (req, res) => {
   }
 };
 
+//get dashboard info
+const getDashboardInfo = async (req, res) => {
+  try {
+    const userId = req.user.id;
+
+    const goals = await Goal.find({
+      userId,
+      status: { $ne: 'archived' },
+    }).sort({ targetDate: 1 });
+
+    const allGoals = await Goal.find({ userId });
+
+    const activeGoals = allGoals.filter((g) => g.status === 'active');
+    const completedGoals = allGoals.filter((g) => g.status === 'completed');
+    const archivedGoals = allGoals.filter((g) => g.status === 'archived');
+
+    const totalGoals = allGoals.length;
+
+    const completionRate =
+      totalGoals > 0 ? Math.round((completedGoals.length / totalGoals) * 100) : 0;
+
+    const today = new Date();
+
+    const featuredGoal = activeGoals.sort((a, b) => {
+      const progressA = a.savedAmount / a.targetAmount;
+      const progressB = b.savedAmount / b.targetAmount;
+
+      if (progressB !== progressA) {
+        return progressB - progressA;
+      }
+
+      return new Date(a.targetDate) - new Date(b.targetDate);
+    })[0];
+
+    let alert = {
+      type: 'empty',
+      icon: '🎯',
+      title: 'No Goals Yet',
+      message: 'Create your first savings goal.',
+      color: 'blue',
+    };
+
+    if (featuredGoal) {
+      const remaining = Math.max(featuredGoal.targetAmount - featuredGoal.savedAmount, 0);
+
+      const percentage = Math.round((featuredGoal.savedAmount / featuredGoal.targetAmount) * 100);
+
+      const daysRemaining = featuredGoal.targetDate
+        ? Math.ceil((new Date(featuredGoal.targetDate) - today) / (1000 * 60 * 60 * 24))
+        : null;
+
+      if (daysRemaining !== null && daysRemaining < 0) {
+        alert = {
+          type: 'overdue',
+          icon: '🚨',
+          title: 'Goal Overdue',
+          message: `"${featuredGoal.title}" is overdue.`,
+          color: 'red',
+        };
+      } else if (percentage >= 90) {
+        alert = {
+          type: 'almost-complete',
+          icon: '🏆',
+          title: 'Almost There',
+          message: `Only GH₵${remaining.toLocaleString()} left!`,
+          color: 'green',
+        };
+      } else if (daysRemaining !== null && daysRemaining <= 30) {
+        alert = {
+          type: 'due-soon',
+          icon: '⚠️',
+          title: 'Goal Due Soon',
+          message: `${daysRemaining} day${daysRemaining === 1 ? '' : 's'} remaining.`,
+          color: 'amber',
+        };
+      } else {
+        alert = {
+          type: 'on-track',
+          icon: '🎯',
+          title: 'Keep Going',
+          message: `${percentage}% completed.`,
+          color: 'blue',
+        };
+      }
+    }
+
+    res.json({
+      success: true,
+      dashboard: {
+        summary: {
+          totalGoals,
+          activeGoals: activeGoals.length,
+          completedGoals: completedGoals.length,
+          archivedGoals: archivedGoals.length,
+          completionRate,
+        },
+
+        featuredGoal: featuredGoal
+          ? {
+              _id: featuredGoal._id,
+              title: featuredGoal.title,
+              icon: featuredGoal.icon,
+              targetAmount: featuredGoal.targetAmount,
+              savedAmount: featuredGoal.savedAmount,
+              remaining: featuredGoal.targetAmount - featuredGoal.savedAmount,
+              percentage: Math.round((featuredGoal.savedAmount / featuredGoal.targetAmount) * 100),
+              targetDate: featuredGoal.targetDate,
+              daysRemaining: featuredGoal.targetDate
+                ? Math.ceil((new Date(featuredGoal.targetDate) - today) / (1000 * 60 * 60 * 24))
+                : null,
+            }
+          : null,
+
+        alert,
+      },
+    });
+  } catch (err) {
+    console.error(err);
+
+    res.status(500).json({
+      success: false,
+      message: 'Failed to load dashboard.',
+    });
+  }
+};
+
 module.exports = {
   createGoal,
   getGoals,
@@ -412,4 +538,5 @@ module.exports = {
   updateSavedAmount,
   getGoalSummary,
   archiveGoal,
+  getDashboardInfo,
 };
