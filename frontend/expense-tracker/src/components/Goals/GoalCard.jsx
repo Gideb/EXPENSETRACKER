@@ -81,22 +81,6 @@ const GoalCard = ({ goal, onUpdate, onDelete, onEdit, isSavingsOpen, onToggleSav
     return null;
   }, [amount, goal.savedAmount, goal.targetAmount, remainingAmount]);
 
-  /*   const handleArchiveGoal = async () => {
-    try {
-      setIsUpdating(true);
-      const response = await axiosInstance.patch(API_PATHS.GOALS.ARCHIVE_GOAL(goal._id));
-      setShowActionMenu(false);
-      toast.success(response.data?.message || 'Goal archived successfully.');
-      onUpdate?.(response.data?.goal || null);
-    } catch (err) {
-      const message = err.response?.data?.message || 'Failed to archive goal.';
-      toast.error(message);
-      console.error('Error archiving goal:', err);
-    } finally {
-      setIsUpdating(false);
-    }
-  }; */
-
   const isArchived = goal.status === 'archived';
 
   const handleToggleArchive = async () => {
@@ -153,18 +137,20 @@ const GoalCard = ({ goal, onUpdate, onDelete, onEdit, isSavingsOpen, onToggleSav
 
   return (
     <div
-      className="bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition-shadow"
+      className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-200 dark:border-gray-500 hover:shadow-md transition-shadow"
       onClick={(e) => e.stopPropagation()}
     >
       {/* Header */}
-      <div className="p-6 border-b border-gray-100">
+      <div className="p-6 border-b border-gray-100 dark:border-gray-600">
         <div className="flex items-start justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 flex items-center justify-center rounded-lg bg-amber-50 text-2xl">
+            <div className="w-12 h-12 flex items-center justify-center rounded-lg bg-amber-50 text-xl">
               {goal.icon ? <img src={goal.icon} alt={goal.title} className="w-8 h-8" /> : '🎯'}
             </div>
             <div>
-              <h3 className="text-lg font-semibold text-gray-900">{goal.title}</h3>
+              <h3 className="text-md md:text-lg font-medium text-gray-900 dark:text-gray-200">
+                {goal.title}
+              </h3>
               <span
                 className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${statusBadge.color} mt-1`}
               >
@@ -184,23 +170,22 @@ const GoalCard = ({ goal, onUpdate, onDelete, onEdit, isSavingsOpen, onToggleSav
                 className="p-1.5 hover:bg-gray-100 rounded-lg transition-colors"
                 title="More actions"
               >
-                <FiMoreVertical size={18} className="text-gray-600" />
+                <FiMoreVertical size={18} className="text-gray-600 dark:text-gray-200" />
               </button>
 
               {showActionMenu && (
-                <div className="absolute right-0 top-10 z-20 w-40 rounded-lg border border-gray-200 bg-white shadow-lg">
+                <div className="absolute right-0 top-8 z-20 w-35 rounded-lg border border-gray-200 dark:border-gray-500 bg-white dark:bg-slate-700 shadow-lg">
                   <button
                     type="button"
                     onClick={(e) => {
                       e.stopPropagation();
                       setShowActionMenu(false);
                       setError(null);
-
                       onToggleSavingsInput?.();
                     }}
-                    className="flex w-full items-center gap-1 px-3 py-2 text-left text-sm text-gray-700 hover:bg-gray-50"
+                    className="flex w-full items-center gap-1 px-3 py-1 text-left text-xs text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-slate-600"
                   >
-                    <Plus size={16} className="text-amber-600" />
+                    <Plus size={15} className="text-amber-600 " />
                     Update savings
                   </button>
                   <button
@@ -210,9 +195,9 @@ const GoalCard = ({ goal, onUpdate, onDelete, onEdit, isSavingsOpen, onToggleSav
                       setShowActionMenu(false);
                       onEdit?.();
                     }}
-                    className="flex w-full items-center gap-1 px-3 py-2 text-left text-sm text-gray-700 hover:bg-gray-50"
+                    className="flex w-full items-center gap-1 px-3 py-1 text-left text-xs text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-slate-600"
                   >
-                    <Edit size={16} className="text-gray-600" />
+                    <Edit size={13} className="text-gray-600 dark:text-gray-300" />
                     Edit Goal
                   </button>
                   <button
@@ -222,12 +207,16 @@ const GoalCard = ({ goal, onUpdate, onDelete, onEdit, isSavingsOpen, onToggleSav
                       setShowActionMenu(false);
                       handleToggleArchive();
                     }}
-                    className="flex w-full items-center gap-1 px-3 py-2 text-left text-sm text-gray-700 hover:bg-gray-50"
+                    className="flex w-full items-center gap-1 px-3 py-1 text-left text-xs text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-slate-600"
                     disabled={isUpdating}
                   >
                     <Archive
-                      size={16}
-                      className={goal.status === 'archived' ? 'text-green-600' : 'text-gray-600'}
+                      size={13}
+                      className={
+                        goal.status === 'archived'
+                          ? 'text-green-600'
+                          : 'text-gray-600 dark:text-gray-300'
+                      }
                     />
                     {goal.status === 'archived' ? 'Restore Goal' : 'Archive Goal'}
                   </button>
@@ -238,9 +227,9 @@ const GoalCard = ({ goal, onUpdate, onDelete, onEdit, isSavingsOpen, onToggleSav
                       setShowActionMenu(false);
                       onDelete?.();
                     }}
-                    className="flex w-full items-center gap-1 px-3 py-2 text-left text-sm text-red-600 hover:bg-red-50"
+                    className="flex w-full items-center gap-1 px-3 py-2 text-left text-xs text-red-600 dark:text-red-500 hover:bg-red-50"
                   >
-                    <Trash2 size={16} />
+                    <Trash2 size={13} />
                     Delete
                   </button>
                 </div>
@@ -256,7 +245,7 @@ const GoalCard = ({ goal, onUpdate, onDelete, onEdit, isSavingsOpen, onToggleSav
 
                   onToggleSavingsInput?.();
                 }}
-                className="p-1 hover:bg-gray-100 rounded-lg transition-colors"
+                className="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
                 title="Update savings"
               >
                 <Plus size={18} className="text-amber-600" />
@@ -266,23 +255,27 @@ const GoalCard = ({ goal, onUpdate, onDelete, onEdit, isSavingsOpen, onToggleSav
                   e.stopPropagation();
                   onEdit?.();
                 }}
-                className="p-1 hover:bg-gray-100 rounded-lg transition-colors"
+                className="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
                 title="Edit"
               >
-                <Edit size={18} className="text-gray-600" />
+                <Edit size={18} className="text-gray-600 dark:text-gray-300" />
               </button>
               <button
                 onClick={(e) => {
                   e.stopPropagation();
                   handleToggleArchive();
                 }}
-                className="p-1 hover:bg-gray-100 rounded-lg transition-colors"
+                className="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
                 title={goal.status === 'archived' ? 'Restore Goal' : 'Archive Goal'}
                 disabled={isUpdating}
               >
                 <Archive
                   size={16}
-                  className={goal.status === 'archived' ? 'text-green-600' : 'text-gray-600'}
+                  className={
+                    goal.status === 'archived'
+                      ? 'text-green-600'
+                      : 'text-gray-600 dark:text-gray-300'
+                  }
                 />
               </button>
               <button
@@ -305,7 +298,7 @@ const GoalCard = ({ goal, onUpdate, onDelete, onEdit, isSavingsOpen, onToggleSav
         {/* Progress */}
         <div>
           <div className="flex justify-between text-sm mb-1">
-            <span className="text-gray-600">Progress</span>
+            <span className="text-gray-600 dark:text-gray-300">Progress</span>
             <span className="font-medium text-gray-900">{progress.toFixed(0)}%</span>
           </div>
           <div className="w-full bg-gray-200 rounded-full h-2.5">
@@ -321,34 +314,34 @@ const GoalCard = ({ goal, onUpdate, onDelete, onEdit, isSavingsOpen, onToggleSav
         {/* Amounts */}
         <div className="flex gap-4 justify-between items-center">
           <div>
-            <p className="text-sm text-gray-500">Saved</p>
-            <p className="text-lg font-semibold text-gray-900">
+            <p className="text-xs text-gray-500  dark:text-gray-400">Saved</p>
+            <p className="text-sm font-semibold text-gray-900 dark:text-gray-300">
               GHS {goal.savedAmount.toLocaleString()}
             </p>
           </div>
           <div>
-            <p className="text-sm text-gray-500">Target</p>
-            <p className="text-lg font-semibold text-gray-900">
+            <p className="text-xs text-gray-500  dark:text-gray-400">Target</p>
+            <p className="text-sm font-semibold text-gray-900 dark:text-gray-300">
               GHS {goal.targetAmount.toLocaleString()}
             </p>
           </div>
         </div>
 
         {/* Meta Info */}
-        <div className="flex items-center justify-between gap-4 text-sm text-gray-500">
+        <div className="flex items-center justify-between gap-4 text-xs text-gray-500 dark:text-gray-400">
           <div className="flex items-center gap-1">
-            <Calendar size={16} />
+            <Calendar size={14} />
             <span>{new Date(goal.targetDate).toLocaleDateString()}</span>
           </div>
           {isActive && daysLeft > 0 && (
             <div className="flex items-center gap-1">
-              <Target size={16} />
+              <Target size={14} />
               <span>{daysLeft} days left</span>
             </div>
           )}
           {isActive && daysLeft <= 0 && (
             <div className="flex items-center gap-1 text-red-600">
-              <Target size={16} />
+              <Target size={14} />
               <span>Overdue</span>
             </div>
           )}
@@ -356,11 +349,13 @@ const GoalCard = ({ goal, onUpdate, onDelete, onEdit, isSavingsOpen, onToggleSav
 
         {/* Description */}
         {goal.description && (
-          <p className="text-sm text-gray-600 border-t border-gray-100 pt-4">{goal.description}</p>
+          <p className="text-xs text-gray-600 dark:text-gray-300 border-t border-gray-100 dark:border-gray-500 pt-4">
+            {goal.description}.
+          </p>
         )}
 
         {/* Error Message */}
-        {error && <div className="text-sm text-red-600 bg-red-50 p-2 rounded-lg">{error}</div>}
+        {error && <div className="text-xs text-red-600 bg-red-50 p-2 rounded-lg">{error}</div>}
 
         {/* Update Savings Input */}
         {isSavingsOpen && (
@@ -389,7 +384,7 @@ const GoalCard = ({ goal, onUpdate, onDelete, onEdit, isSavingsOpen, onToggleSav
               </button>
               <button
                 onClick={() => handleUpdateSavings('remove')}
-                className="add-btn "
+                className="add-btn add-btn-fill  "
                 disabled={isUpdating || goal.savedAmount === 0}
               >
                 Remove
@@ -400,7 +395,7 @@ const GoalCard = ({ goal, onUpdate, onDelete, onEdit, isSavingsOpen, onToggleSav
                   setAmount('');
                   setError(null);
                 }}
-                className="add-btn "
+                className="add-btn add-btn-fill "
                 disabled={isUpdating}
               >
                 Cancel
@@ -408,8 +403,8 @@ const GoalCard = ({ goal, onUpdate, onDelete, onEdit, isSavingsOpen, onToggleSav
             </div>
 
             {overagePreview && (
-              <div className="mt-3 rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800">
-                <p className="font-medium">Remaining: GHS {remainingAmount.toFixed(2)}</p>
+              <div className="mt-3 rounded-md border border-amber-200 bg-amber-50 p-2 text-xs text-amber-800">
+                <p className="">Remaining: GHS {remainingAmount.toFixed(2)}</p>
                 <p className="mt-1">
                   ⚠️ You&apos;re adding GHS {overagePreview.overage.toFixed(2)} more than needed.
                 </p>

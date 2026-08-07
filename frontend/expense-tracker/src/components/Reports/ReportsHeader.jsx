@@ -42,7 +42,7 @@ const ReportsHeader = ({ isGeneratingPDF, onExportPDF, onExportCSV, onPrint }) =
           {/* Dropdown Trigger */}
           <button
             onClick={toggleDropdown}
-            className="flex items-center gap-2 px-4 py-2 rounded bg-amber-50 dark:bg-amber-100 text-amber-800 dark:text-amber-900 shadow-sm"
+            className=" add-btn add-btn-fill"
           >
             Export
             {openDropdown ? <FaCaretUp className="text-sm" /> : <FaCaretDown className="text-sm" />}

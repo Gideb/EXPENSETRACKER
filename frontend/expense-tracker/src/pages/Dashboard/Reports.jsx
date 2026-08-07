@@ -52,7 +52,7 @@ const Reports = () => {
     fetchCategories();
   }, []);
 
-  // Fetch available years and months dynamically from user data
+ 
   useEffect(() => {
     const fetchAvailablePeriods = async () => {
       try {
@@ -64,7 +64,7 @@ const Reports = () => {
         setAvailableYears(years);
         setAvailableMonths(months);
 
-        // If the current selected year has no data, fall back to the most recent year
+        
         if (years.length && !years.includes(selectedYear)) {
           setSelectedYear(years[0]);
         }
@@ -76,7 +76,7 @@ const Reports = () => {
     fetchAvailablePeriods();
   }, []);
 
-  // Ensure the selected month always exists for the selected year
+ 
   useEffect(() => {
     const monthsForYear = availableMonths.filter((m) => m.year === selectedYear);
 
@@ -84,7 +84,7 @@ const Reports = () => {
       monthsForYear.length &&
       !monthsForYear.some((m) => m.monthNumber === Number(selectedMonth) - 1)
     ) {
-      // Default to the latest available month in that year
+    
       const latest = [...monthsForYear].sort((a, b) => b.monthNumber - a.monthNumber)[0];
       setSelectedMonth(String(latest.monthNumber + 1).padStart(2, '0'));
     }
@@ -110,11 +110,10 @@ const Reports = () => {
     loadReports();
   }, [selectedYear, selectedMonth]);
 
-  //years (derived from user data, falling back to current year if none available)
+
   const currentYear = new Date().getFullYear();
   const years = availableYears.length ? availableYears : [currentYear];
 
-  // months available for the selected year
   const monthsForSelectedYear = availableMonths
     .filter((m) => m.year === selectedYear)
     .sort((a, b) => a.monthNumber - b.monthNumber);

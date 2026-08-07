@@ -172,8 +172,12 @@ const Goals = () => {
         {/* Header */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
           <div>
-            <h1 className="text-2xl font-medium text-gray-900">Financial Goals</h1>
-            <p className="text-gray-600 text-sm mt-1">Track and manage your savings goals</p>
+            <h1 className="text-2xl font-medium text-gray-900 dark:text-gray-200">
+              Financial Goals
+            </h1>
+            <p className="text-gray-600 dark:text-gray-400 text-sm mt-1">
+              Track and manage your savings goals
+            </p>
           </div>
           <button
             onClick={() => {
@@ -193,8 +197,10 @@ const Goals = () => {
         {/* Goals Grid */}
         {goals.length === 0 ? (
           <div className="text-center py-12 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
-            <p className="text-gray-600 text-lg">No goals yet</p>
-            <p className="text-gray-500 mt-2">Start by creating your first financial goal</p>
+            <p className="text-gray-600 dark:text-gray-300 text-lg">No goals yet</p>
+            <p className="text-gray-500 dark:text-gray-400 mt-2">
+              Start by creating your first financial goal
+            </p>
             <button
               onClick={() => {
                 setEditingGoal(null);
@@ -214,12 +220,18 @@ const Goals = () => {
               }
 
               const sectionTitle =
-                section === 'active' ? 'Active' : section === 'completed' ? 'Completed' : 'Archived';
+                section === 'active'
+                  ? 'Active'
+                  : section === 'completed'
+                    ? 'Completed'
+                    : 'Archived';
 
               return (
                 <section key={section}>
-                  <div className="mb-4 border-b border-gray-200 pb-2">
-                    <h2 className="text-lg font-semibold text-gray-900">{sectionTitle}</h2>
+                  <div className="mb-4 border-b border-gray-200 dark:border-gray-400 pb-2">
+                    <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-300">
+                      {sectionTitle}
+                    </h2>
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {sectionGoals.map((goal) => (

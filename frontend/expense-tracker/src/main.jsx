@@ -18,7 +18,7 @@ createRoot(document.getElementById('root')).render(
         },
         success: {
           iconTheme: {
-            primary: '#1e2138',
+            primary: '#080d38',
             secondary: '#fff',
           },
         },
