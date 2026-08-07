@@ -33,70 +33,14 @@ const AppRoutes = () => {
           </Route>
 
           {/* Dashboard routes */}
-          <Route
-            path="/dashboard"
-            element={
-              <ProtectedRoute>
-                <Home />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/expense"
-            element={
-              <ProtectedRoute>
-                <Expense />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/income"
-            element={
-              <ProtectedRoute>
-                <Income />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/transactions"
-            element={
-              <ProtectedRoute>
-                <Transactions />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/budget"
-            element={
-              <ProtectedRoute>
-                <Budget />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/reports"
-            element={
-              <ProtectedRoute>
-                <Reports />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/goals"
-            element={
-              <ProtectedRoute>
-                <Goals />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/settings"
-            element={
-              <ProtectedRoute>
-                <Settings />
-              </ProtectedRoute>
-            }
-          />
+          <Route path="/dashboard" element={<Home />} />
+          <Route path="/expense" element={<Expense />} />
+          <Route path="/income" element={<Income />} />
+          <Route path="/transactions" element={<Transactions />} />
+          <Route path="/budget" element={<Budget />} />
+          <Route path="/reports" element={<Reports />} />
+          <Route path="/goals" element={<Goals />} />
+          <Route path="/settings" element={<Settings />} />
         </Routes>
       </Suspense>
     </Router>
@@ -105,16 +49,14 @@ const AppRoutes = () => {
 
 export default AppRoutes;
 
-const ProtectedRoute = ({ children }) => {
+/* const ProtectedRoute = ({ children }) => {
   const isAuthenticated = typeof window !== 'undefined' && !!localStorage.getItem('token');
 
   return isAuthenticated ? children : <Navigate to="/login" replace />;
-};
+}; */
 
 const Root = () => {
-  //check if token exists in localStorage
   const isAuthenticated = !!localStorage.getItem('token');
 
-  //redirect to dashboard if authenticated, otherwise to login
   return isAuthenticated ? <Navigate to="/dashboard" /> : <Navigate to="/login" />;
 };

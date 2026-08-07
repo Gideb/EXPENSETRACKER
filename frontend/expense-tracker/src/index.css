@@ -20,7 +20,7 @@ body {
 }
 
 .input-box {
-  @apply w-full flex justify-between gap-3 text-sm bg-slate-100 text-black rounded border border-slate-200 py-3 px-4 mb-4 mt-2 outline-none;
+  @apply w-full flex justify-between gap-3 text-sm bg-slate-100 text-black rounded border border-slate-200 py-3 px-4 mb-4 mt-1 outline-none;
 }
 
 .btn-primary {
@@ -71,3 +71,4 @@ body {
 .danger {
   border: 2px solid red;
 }
+

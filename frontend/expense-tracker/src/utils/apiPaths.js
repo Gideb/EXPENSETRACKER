@@ -68,6 +68,7 @@ export const API_PATHS = {
     UPDATE_SAVED_AMOUNT: (goalId) => `/api/v1/goals/${goalId}/savings`,
     ARCHIVE_GOAL: (goalId) => `/api/v1/goals/${goalId}/archive`,
     GET_GOAL_SUMMARY: '/api/v1/goals/summary',
+    DASHBOARD_INFO: '/api/v1/goals/dashboard',
   },
   SETTINGS: {},
   IMAGE: {

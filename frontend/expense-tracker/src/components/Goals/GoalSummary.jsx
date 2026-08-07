@@ -1,5 +1,13 @@
 import { useState, useEffect, useCallback } from 'react';
-import { TrendingUp, Target, CheckCircle, DollarSign, PieChart, Archive, Wallet } from 'lucide-react';
+import {
+  TrendingUp,
+  Target,
+  CheckCircle,
+  DollarSign,
+  PieChart,
+  Archive,
+  Wallet,
+} from 'lucide-react';
 import axiosInstance from '../../utils/axiosInstance';
 import { API_PATHS } from '../../utils/apiPaths';
 import { toast } from 'react-hot-toast';

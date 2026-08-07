@@ -16,10 +16,10 @@ import ExpenseTransactions from '../../components/Dashboard/ExpenseTransactions'
 import Last30DaysExpenses from '../../components/Dashboard/Last30DaysExpenses';
 import RecentIncomeWithChart from '../../components/Dashboard/RecentIncomeWithChart';
 import RecentIncome from '../../components/Dashboard/RecentIncome';
-/* import HealthScore from '../../components/Cards/HealthScore'; */
-
+import HealthScore from '../../components/Cards/HealthScore';
 import BudgetWidget from '../../components/Dashboard/BudgetWidget';
 import EmptyStateCard from '../../components/Common/EmptyStateCard';
+import GoalDashboard from '../../components/Dashboard/GoalDashboard';
 
 //SIGNED-GILBERT DEBRAH (gideb on github)
 
@@ -63,14 +63,13 @@ const Home = () => {
 
   return (
     <Dashboardlayout activeMenu="Dashboard">
-      <div className="space-y-6 my-5 mx-auto">
+      <div className="space-y-5 my-5 mx-auto">
         {loading && <p className="text-sm text-slate-500">Loading dashboard...</p>}
         {error && <p className="text-sm text-red-500">{error}</p>}
 
         <div className="flex flex-col lg:flex-row gap-6">
           <div className="flex-1 flex flex-col gap-6">
             <BudgetWidget />
-            {/* <HealthScore dashboardData={dashboardData} /> */}
           </div>
 
           <div className="flex-1">
@@ -115,6 +114,15 @@ const Home = () => {
           </div>
         </div>
 
+        <div className="flex flex-col lg:flex-row gap-6 w-full">
+          <div className="flex-1">
+            <HealthScore dashboardData={dashboardData} />
+          </div>
+          <div className="flex-1">
+            <GoalDashboard />
+          </div>
+        </div>
+
         {isNewUser ? (
           <div className="bg-white dark:bg-transparent  border border-gray-300   rounded-xl p-8 shadow-sm text-center">
             <h3 className="text-xl font-semibold text-slate-800 dark:text-slate-200">
@@ -139,7 +147,7 @@ const Home = () => {
             </div>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-1">
             {/* list for 5 most recent transactions */}
             {hasTransactions && (
               <RecentTransactions
