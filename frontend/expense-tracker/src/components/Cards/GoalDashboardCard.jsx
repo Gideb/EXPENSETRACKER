@@ -1,4 +1,4 @@
-import { Target, Calendar } from 'lucide-react';
+import { Target } from 'lucide-react';
 
 const COLORS = {
   blue: 'from-blue-500 to-indigo-600',
@@ -12,18 +12,18 @@ const GoalDashboardCard = ({ dashboard }) => {
 
   if (!featuredGoal) {
     return (
-      <div className="bg-white rounded-2xl border p-6 h-full">
-        <div className="flex items-center gap-3 mb-5">
-          <Target className="w-6 h-6 text-amber-500" />
+      <div className="bg-white rounded border p-6">
+        <div className="flex items-center gap-3 mb-2">
+          <Target className="w-3 h-3 text-amber-500" />
           <h3 className="font-semibold text-lg">Goals</h3>
         </div>
 
-        <div className="text-center py-8">
-          <div className="text-5xl mb-4">🎯</div>
+        <div className="text-center py-3">
+          <div className="text-sm mb-4">🎯</div>
 
-          <h4 className="font-semibold text-lg">No Goals Yet</h4>
+          <h4 className="font-medium text-xs">No Goals Yet</h4>
 
-          <p className="text-gray-500 mt-2">
+          <p className="text-gray-200 mt-1">
             Create your first savings goal and start tracking your progress.
           </p>
         </div>
@@ -32,47 +32,46 @@ const GoalDashboardCard = ({ dashboard }) => {
   }
 
   return (
-    <div className="bg-white rounded-2xl border overflow-hidden h-full">
-      <div className={`bg-linear-to-r ${COLORS[alert.color]} text-white p-5`}>
-        <div className="flex justify-between">
+    <div className="bg-white rounded-lg border overflow-hidden">
+      <div>
+        <div
+          className={`flex px-5 py-2 justify-around items-center gap-5 bg-linear-to-r ${COLORS[alert.color]}`}
+        >
           <div>
-            <p className="text-3xl">{alert.icon}</p>
+            <p className="text-sm">{alert.icon}</p>
 
-            <h3 className="font-semibold mt-2">{alert.title}</h3>
+            <h3 className="font-medium mt-1">{alert.title}</h3>
 
-            <p className="text-sm text-white/90">{alert.message}</p>
+            <p className="text-xs text-white/90">{alert.message}</p>
           </div>
 
-          <Target className="w-8 h-8 opacity-70" />
-        </div>
-      </div>
+          <div className="p-5">
+            <div className="flex justify-between">
+              <div>
+                <h4 className="font-medium text-sm">{featuredGoal.title}</h4>
 
-      <div className="p-5">
-        <div className="flex justify-between items-center">
-          <div>
-            <h4 className="font-semibold text-lg">{featuredGoal.title}</h4>
+                <p className="text-xs text-gray-200">
+                  GH₵{featuredGoal.savedAmount.toLocaleString()} of GH₵
+                  {featuredGoal.targetAmount.toLocaleString()}
+                </p>
+              </div>
 
-            <p className="text-sm text-gray-500">
-              GH₵{featuredGoal.savedAmount.toLocaleString()} of GH₵
-              {featuredGoal.targetAmount.toLocaleString()}
-            </p>
-          </div>
-
-          <div className="text-right">
-            <p className="text-2xl font-bold text-amber-600">{featuredGoal.percentage}%</p>
+              {/*  <div className="text-right">
+                <p className="text-xl font-bold text-amber-600">{featuredGoal.percentage}%</p>
+              </div> */}
+            </div>
           </div>
         </div>
 
-        <div className="mt-4 w-full h-3 bg-gray-200 rounded-full overflow-hidden">
+        {/* <div className="mt-2 w-full h-3 bg-gray-200 rounded-full overflow-hidden">
           <div
             className="h-full bg-linear-to-r from-amber-500 to-orange-500 rounded-full transition-all duration-700"
             style={{
               width: `${featuredGoal.percentage}%`,
             }}
           />
-        </div>
-
-        <div className="mt-5 grid grid-cols-2 gap-4">
+        </div> 
+         <div className="mt-5 grid grid-cols-2 gap-4">
           <div className="bg-gray-50 rounded-xl p-3">
             <p className="text-xs text-gray-500">Remaining</p>
 
@@ -93,9 +92,9 @@ const GoalDashboardCard = ({ dashboard }) => {
                 : 'No date'}
             </p>
           </div>
-        </div>
+        </div> */}
 
-        <div className="mt-6 flex justify-between text-sm">
+        <div className="mt-2 flex justify-between text-xs p-5">
           <span>
             Active: <strong>{summary.activeGoals}</strong>
           </span>

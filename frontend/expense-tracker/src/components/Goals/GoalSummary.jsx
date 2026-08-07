@@ -1,13 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
-import {
-  TrendingUp,
-  Target,
-  CheckCircle,
-  DollarSign,
-  PieChart,
-  Archive,
-  Wallet,
-} from 'lucide-react';
+import { TrendingUp, Target, CheckCircle, PieChart, Archive } from 'lucide-react';
+import { GiArcheryTarget } from 'react-icons/gi';
+import { BsCashCoin } from 'react-icons/bs';
 import axiosInstance from '../../utils/axiosInstance';
 import { API_PATHS } from '../../utils/apiPaths';
 import { toast } from 'react-hot-toast';
@@ -105,7 +99,7 @@ const GoalSummary = ({ refreshKey }) => {
         <div className="bg-white dark:bg-slate-900 rounded-xl p-4 border border-gray-200 dark:border-gray-500">
           <div className="flex items-center justify-between">
             <span className="text-sm text-gray-500 dark:text-gray-400">Total Target Amount</span>
-            <PieChart size={18} className="text-amber-700 dark:text-amber-200" />
+            <GiArcheryTarget size={18} className="text-amber-700 dark:text-amber-200" />
           </div>
           <div className="text-xl font-semibold text-gray-900 dark:text-gray-200 mt-1">
             GHS {summary.totalTarget.toLocaleString()}
@@ -114,7 +108,7 @@ const GoalSummary = ({ refreshKey }) => {
         <div className="bg-white dark:bg-slate-900 rounded-xl p-4 border border-gray-200 dark:border-gray-500">
           <div className="flex items-center justify-between">
             <span className="text-sm text-gray-500 dark:text-gray-400">Total Saved Amount</span>
-            <Wallet size={18} className="text-amber-700 dark:text-amber-200" />
+            <BsCashCoin size={18} className="text-amber-700 dark:text-amber-200" />
           </div>
           <div className="text-xl font-semibold text-gray-900 dark:text-gray-200 mt-1">
             GHS {summary.totalSaved.toLocaleString()}
@@ -123,7 +117,7 @@ const GoalSummary = ({ refreshKey }) => {
         <div className="bg-white dark:bg-slate-900 rounded-xl p-4 border border-gray-200 dark:border-gray-500">
           <div className="flex items-center justify-between">
             <span className="text-sm text-gray-500 dark:text-gray-400">Remaining to Save</span>
-            <DollarSign size={18} className="text-amber-700 dark:text-amber-200" />
+            <PieChart size={18} className="text-amber-700 dark:text-amber-200" />
           </div>
           <div className="text-xl font-semibold text-gray-900 dark:text-gray-200 mt-1">
             GHS {summary.remaining.toLocaleString()}
