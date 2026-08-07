@@ -21,6 +21,8 @@ router.get('/get', protect, getGoals);
 
 router.get('/summary', protect, getGoalSummary);
 
+router.get('/dashboard', protect, getDashboardInfo);
+
 router.get('/:id', protect, getGoal);
 
 router.put('/:id', protect, updateGoal);
@@ -30,9 +32,5 @@ router.patch('/:id/savings', protect, updateSavedAmount);
 router.patch('/:id/archive', protect, archiveGoal);
 
 router.delete('/:id', protect, deleteGoal);
-
-router.get('/dashboard', protect, getDashboardInfo);
-
-
 
 module.exports = router;
