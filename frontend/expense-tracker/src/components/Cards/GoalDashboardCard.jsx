@@ -35,7 +35,7 @@ const GoalDashboardCard = ({ dashboard }) => {
     <div className="bg-white rounded-lg border overflow-hidden">
       <div>
         <div
-          className={`flex px-5 py-2 justify-around items-center gap-5 bg-linear-to-r ${COLORS[alert.color]}`}
+          className={`flex px-6 py-2 justify-between items-center bg-linear-to-r ${COLORS[alert.color]}`}
         >
           <div>
             <p className="text-sm">{alert.icon}</p>
