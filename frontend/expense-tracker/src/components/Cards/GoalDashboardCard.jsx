@@ -12,7 +12,7 @@ const GoalDashboardCard = ({ dashboard }) => {
 
   if (!featuredGoal) {
     return (
-      <div className="bg-white rounded border p-6">
+      <div className="bg-white rounded border border-gray-200 p-6">
         <div className="flex items-center gap-3 mb-2">
           <Target className="w-3 h-3 text-amber-500" />
           <h3 className="font-semibold text-lg">Goals</h3>
