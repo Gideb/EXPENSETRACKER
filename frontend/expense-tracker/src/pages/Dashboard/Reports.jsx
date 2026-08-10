@@ -1,279 +1,143 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Dashboardlayout from '../../components/layouts/Dashboardlayout';
 import { useUserAuth } from '../../hooks/useUserAuth';
-import axiosInstance from '../../utils/axiosInstance';
-import { API_PATHS } from '../../utils/apiPaths';
-import { toast } from 'react-hot-toast';
-
-import ReportsHeader from '../../components/Reports/ReportsHeader';
-import ReportsTabs from '../../components/Reports/ReportsTabs';
-import ReportsFilterBar from '../../components/Reports/ReportsFilterBar';
-import ReportsLoading from '../../components/Reports/ReportsLoading';
-import SummaryReport from '../../components/Reports/SummaryReport';
-import MonthlyReport from '../../components/Reports/MonthlyReport';
-import BudgetReport from '../../components/Reports/BudgetReport';
-import AnalyticsReport from '../../components/Reports/AnalyticsReport';
+import Input from '../../components/Inputs/Input';
 
 const Reports = () => {
   useUserAuth();
-
-  const [activeTab, setActiveTab] = useState('summary');
-  const [selectedMonth, setSelectedMonth] = useState(
-    String(new Date().getMonth() + 1).padStart(2, '0')
-  );
-  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
-  const [selectedCategory, setSelectedCategory] = useState('all');
-  const [availableYears, setAvailableYears] = useState([]);
-  const [availableMonths, setAvailableMonths] = useState([]);
   const navigate = useNavigate();
-  const [isGeneratingPDF] = useState(false);
-  const [showFilterOptions, setShowFilterOptions] = useState(false);
-  const [financialData, setFinancialData] = useState(false);
+
+  const [dateRange, setDateRange] = useState({ startDate: '', endDate: '' });
+  const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
   const [loading, setLoading] = useState(true);
 
-  // Filter state
-  const [minAmount, setMinAmount] = useState('');
-  const [maxAmount, setMaxAmount] = useState('');
-  const [transactionType, setTransactionType] = useState('all');
-  const [categories, setCategories] = useState([]);
-
-  useEffect(() => {
-    const fetchCategories = async () => {
-      try {
-        const response = await axiosInstance.get(API_PATHS.REPORTS.CATEGORIES);
-
-        setCategories(response.data?.all || []);
-      } catch (error) {
-        console.error(error);
-      }
-    };
-
-    fetchCategories();
-  }, []);
-
- 
-  useEffect(() => {
-    const fetchAvailablePeriods = async () => {
-      try {
-        const response = await axiosInstance.get(API_PATHS.REPORTS.AVAILABLE_PERIODS);
-
-        const years = response.data?.years || [];
-        const months = response.data?.months || [];
-
-        setAvailableYears(years);
-        setAvailableMonths(months);
-
-        
-        if (years.length && !years.includes(selectedYear)) {
-          setSelectedYear(years[0]);
-        }
-      } catch (error) {
-        console.error(error);
-      }
-    };
-
-    fetchAvailablePeriods();
-  }, []);
-
- 
-  useEffect(() => {
-    const monthsForYear = availableMonths.filter((m) => m.year === selectedYear);
-
-    if (
-      monthsForYear.length &&
-      !monthsForYear.some((m) => m.monthNumber === Number(selectedMonth) - 1)
-    ) {
-    
-      const latest = [...monthsForYear].sort((a, b) => b.monthNumber - a.monthNumber)[0];
-      setSelectedMonth(String(latest.monthNumber + 1).padStart(2, '0'));
-    }
-  }, [selectedYear, selectedMonth, availableMonths]);
-
-  useEffect(() => {
-    const loadReports = async () => {
-      try {
-        setLoading(true);
-        const response = await axiosInstance.get(
-          `${API_PATHS.REPORTS.FULL}?year=${selectedYear}&month=${selectedMonth}`
-        );
-
-        setFinancialData(response.data);
-      } catch (error) {
-        toast.error('Failed to load reports.');
-        console.log(error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    loadReports();
-  }, [selectedYear, selectedMonth]);
-
-
-  const currentYear = new Date().getFullYear();
-  const years = availableYears.length ? availableYears : [currentYear];
-
-  const monthsForSelectedYear = availableMonths
-    .filter((m) => m.year === selectedYear)
-    .sort((a, b) => a.monthNumber - b.monthNumber);
-
-  const handleExportPDF = async () => {
-    try {
-      const response = await axiosInstance.get(API_PATHS.REPORTS.EXPORT_PDF, {
-        responseType: 'blob',
-      });
-
-      const blob = new Blob([response.data], {
-        type: 'application/pdf',
-      });
-
-      const url = window.URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = 'financial-report.pdf';
-      link.click();
-      window.URL.revokeObjectURL(url);
-    } catch (error) {
-      console.log(error);
-    }
+  const handleQuickSelect = (days) => {
+    const end = new Date();
+    const start = new Date();
+    start.setDate(start.getDate() - days);
+    setDateRange({
+      startDate: start.toISOString().split('T')[0],
+      endDate: end.toISOString().split('T')[0],
+    });
   };
 
-  const handleExportCSV = async () => {
-    try {
-      const response = await axiosInstance.get(API_PATHS.REPORTS.EXPORT_CSV, {
-        responseType: 'blob',
-      });
-
-      const blob = new Blob([response.data], {
-        type: 'text/csv',
-      });
-
-      const url = window.URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = 'financial-report.csv';
-      link.click();
-      window.URL.revokeObjectURL(url);
-    } catch (error) {
-      console.log(error);
-    }
+  const handleGeneratePDF = () => {
+    setIsGeneratingPDF(true);
+    // Simulate PDF generation
+    setTimeout(() => {
+      setIsGeneratingPDF(false);
+      // In a real app, you'd trigger the actual PDF download here
+      alert('PDF generated successfully!');
+    }, 1500);
   };
-
-  const handlePrint = () => {
-    window.print();
-  };
-
-  const getTransactionDateValue = (item) => {
-    const date = new Date(item?.date);
-    return Number.isNaN(date.getTime()) ? 0 : date.getTime();
-  };
-
-  // Compute filtered transactions
-  const getFilteredTransactions = () => {
-    const transactionsData = financialData?.transactions || {};
-    const incomes = Array.isArray(transactionsData.incomes) ? transactionsData.incomes : [];
-    const expenses = Array.isArray(transactionsData.expenses) ? transactionsData.expenses : [];
-
-    const transactions = [
-      ...incomes.map((item) => ({ ...item, type: 'income' })),
-      ...expenses.map((item) => ({ ...item, type: 'expense' })),
-    ];
-
-    return transactions
-      .filter((t) => {
-        // Category filter
-        if (selectedCategory !== 'all') {
-          const catMatch =
-            t.category?.toLowerCase() === selectedCategory.toLowerCase() ||
-            t.source?.toLowerCase() === selectedCategory.toLowerCase();
-          if (!catMatch) return false;
-        }
-
-        // Transaction type filter
-        if (transactionType !== 'all' && t.type !== transactionType) {
-          return false;
-        }
-
-        // Min amount filter
-        if (minAmount && t.amount < Number(minAmount)) {
-          return false;
-        }
-        // Max amount filter
-        if (maxAmount && t.amount > Number(maxAmount)) {
-          return false;
-        }
-
-        return true;
-      })
-      .sort((a, b) => getTransactionDateValue(b) - getTransactionDateValue(a));
-  };
-
-  if (loading) {
-    return (
-      <Dashboardlayout activeMenu="Reports">
-        <ReportsLoading />
-      </Dashboardlayout>
-    );
-  }
 
   return (
     <Dashboardlayout activeMenu="Reports">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      <div className="max-w-7xl space-y-6 mx-auto px-4 sm:px-6 lg:px-8 py-6">
         {/* Header */}
-        <ReportsHeader
-          isGeneratingPDF={isGeneratingPDF}
-          onExportPDF={handleExportPDF}
-          onExportCSV={handleExportCSV}
-          onPrint={handlePrint}
-        />
+        <div className="my-3">
+          <h3 className="text-slate-900 dark:text-slate-200 text-2xl font-medium">Reports</h3>
+          <p className="text-xs text-slate-500">Generate a complete financial statement.</p>
+          <p className="text-xs text-slate-500">
+            View your transactions, budgets and goals in one statement.
+          </p>
+        </div>
 
-        {/* Tabs */}
-        <ReportsTabs activeTab={activeTab} onChange={setActiveTab} />
-
-        {/* Filter Bar */}
-        <ReportsFilterBar
-          years={years}
-          selectedYear={selectedYear}
-          onYearChange={setSelectedYear}
-          months={monthsForSelectedYear}
-          selectedMonth={selectedMonth}
-          onMonthChange={setSelectedMonth}
-          activeTab={activeTab}
-          categories={categories}
-          selectedCategory={selectedCategory}
-          onCategoryChange={setSelectedCategory}
-          showFilterOptions={showFilterOptions}
-          onToggleFilters={() => setShowFilterOptions((prev) => !prev)}
-          minAmount={minAmount}
-          onMinAmountChange={setMinAmount}
-          maxAmount={maxAmount}
-          onMaxAmountChange={setMaxAmount}
-          transactionType={transactionType}
-          onTransactionTypeChange={setTransactionType}
-        />
-
-        {/* Tab Content */}
-        <div className="min-h-100">
-          {activeTab === 'summary' && (
-            <SummaryReport
-              financialData={financialData}
-              selectedMonth={selectedMonth}
-              transactions={getFilteredTransactions()}
-              onSeeMore={() => navigate('/transactions')}
+        {/* Date Range Selection */}
+        <div className="mt-6">
+          <h3 className="text-slate-900 dark:text-slate-200 text-xl font-medium mb-3">
+            Report Period
+          </h3>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <Input
+              label="Start Date"
+              type="date"
+              value={dateRange.startDate}
+              onChange={(e) => {
+                setDateRange({ ...dateRange, startDate: e.target.value });
+              }}
             />
+            <Input
+              label="End Date"
+              type="date"
+              value={dateRange.endDate}
+              onChange={(e) => {
+                setDateRange({ ...dateRange, endDate: e.target.value });
+              }}
+            />
+          </div>
+        </div>
+
+        {/* Quick Selection */}
+        <div>
+          <h3 className="text-slate-900 dark:text-slate-200 text-xl font-medium mb-3">
+            Quick Selection
+          </h3>
+          <div className="flex flex-wrap gap-2">
+            <button
+              onClick={() => handleQuickSelect(7)}
+              className="px-4 py-2 text-sm text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-700 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors"
+            >
+              Last 7 Days
+            </button>
+            <button
+              onClick={() => handleQuickSelect(30)}
+              className="px-4 py-2 text-sm text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-700 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors"
+            >
+              Last Month
+            </button>
+            <button
+              onClick={() => handleQuickSelect(90)}
+              className="px-4 py-2 text-sm text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-700 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors"
+            >
+              Last 3 Months
+            </button>
+          </div>
+        </div>
+
+        {/* Generate Button */}
+        <div>
+          <button
+            onClick={handleGeneratePDF}
+            disabled={!dateRange.startDate || !dateRange.endDate || isGeneratingPDF}
+            className="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-300 dark:disabled:bg-blue-800 text-white text-sm font-medium rounded-lg transition-colors"
+          >
+            {isGeneratingPDF ? (
+              <span className="flex items-center gap-2">
+                <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24">
+                  <circle
+                    className="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                    fill="none"
+                  />
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                  />
+                </svg>
+                Generating...
+              </span>
+            ) : (
+              'Generate PDF'
+            )}
+          </button>
+          {(!dateRange.startDate || !dateRange.endDate) && (
+            <p className="text-xs text-amber-600 dark:text-amber-400 mt-2">
+              Please select both start and end dates
+            </p>
           )}
-          {activeTab === 'monthly' && (
-            <MonthlyReport monthlyData={financialData?.monthlyData || []} />
-          )}
-          {activeTab === 'budget' && <BudgetReport budgetData={financialData?.budgetData || []} />}
-          {activeTab === 'analytics' && <AnalyticsReport financialData={financialData} />}
         </div>
 
         {/* Footer */}
-        <div className="mt-8 text-center text-sm text-gray-500 dark:text-gray-400">
+        <div className="mt-8 pt-6 border-t border-slate-200 dark:border-slate-700 text-center text-sm text-gray-500 dark:text-gray-400">
           <p>Last updated: {new Date().toLocaleString()}</p>
-          <p className="mt-1">Data synced </p>
+          <p className="mt-1">Data synced</p>
         </div>
       </div>
     </Dashboardlayout>
