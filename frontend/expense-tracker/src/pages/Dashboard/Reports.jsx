@@ -16,17 +16,34 @@ const Reports = () => {
 
   const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
 
-  const handleQuickSelect = (days) => {
-    const end = new Date();
-    const start = new Date();
+const handleQuickSelect = (period) => {
+  const today = new Date();
 
-    start.setDate(start.getDate() - (days - 1));
+  let start;
+  let end = new Date(today);
 
-    setDateRange({
-      startDate: start.toISOString().split('T')[0],
-      endDate: end.toISOString().split('T')[0],
-    });
-  };
+  if (period === '7days') {
+    start = new Date(today);
+    start.setDate(today.getDate() - 6);
+  }
+
+  if (period === 'month') {
+    start = new Date(today.getFullYear(), today.getMonth() - 1, 1);
+
+    end = new Date(today.getFullYear(), today.getMonth(), 0);
+  }
+
+  if (period === '3months') {
+    start = new Date(today.getFullYear(), today.getMonth() - 3, 1);
+
+    end = new Date(today.getFullYear(), today.getMonth(), 0);
+  }
+
+  setDateRange({
+    startDate: start.toISOString().split('T')[0],
+    endDate: end.toISOString().split('T')[0],
+  });
+};
 
   const handleGeneratePDF = async () => {
     if (!isDateRangeValid) return;
@@ -148,7 +165,7 @@ const Reports = () => {
               <div className="flex flex-wrap gap-3">
                 <button
                   type="button"
-                  onClick={() => handleQuickSelect(7)}
+                  onClick={() => handleQuickSelect('7days')}
                   className="px-4 py-2.5 text-sm font-medium text-slate-700 dark:text-slate-200 border border-slate-300 dark:border-slate-600 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
                 >
                   Last 7 Days
@@ -156,7 +173,7 @@ const Reports = () => {
 
                 <button
                   type="button"
-                  onClick={() => handleQuickSelect(30)}
+                  onClick={() => handleQuickSelect('month')}
                   className="px-4 py-2.5 text-sm font-medium text-slate-700 dark:text-slate-200 border border-slate-300 dark:border-slate-600 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
                 >
                   Last Month
@@ -164,7 +181,7 @@ const Reports = () => {
 
                 <button
                   type="button"
-                  onClick={() => handleQuickSelect(90)}
+                  onClick={() => handleQuickSelect('3months')}
                   className="px-4 py-2.5 text-sm font-medium text-slate-700 dark:text-slate-200 border border-slate-300 dark:border-slate-600 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
                 >
                   Last 3 Months
