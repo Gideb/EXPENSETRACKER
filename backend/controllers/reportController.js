@@ -1,6 +1,7 @@
 const Income = require('../models/Income');
 const Expense = require('../models/Expense');
 const Budget = require('../models/Budget');
+const Goal = require('../models/Goal');
 const User = require('../models/User');
 
 const { getYearDateRange } = require('../utils/dateRange');
@@ -123,43 +124,260 @@ const getCategories = async (req, res) => {
   }
 };
 
-
-// FULL FINANCIAL REPORT
+// FULL FINANCIAL STATEMENT PDF
 const exportPDF = async (req, res) => {
   try {
     const userId = req.user.id;
 
-    const incomes = await Income.find({ userId }).sort({ date: 1 });
+    const { startDate, endDate } = req.query;
 
-    const expenses = await Expense.find({ userId }).sort({ date: 1 });
+    // --------------------------------------------------
+    // Validate dates
+    // --------------------------------------------------
 
-    const totalIncome = incomes.reduce((sum, item) => sum + item.amount, 0);
+    if (!startDate || !endDate) {
+      return res.status(400).json({
+        success: false,
+        message: 'Start date and end date are required.',
+      });
+    }
 
-    const totalExpense = expenses.reduce((sum, item) => sum + item.amount, 0);
+    const reportStartDate = new Date(`${startDate}T00:00:00.000Z`);
+    const reportEndDate = new Date(`${endDate}T23:59:59.999Z`);
+
+    if (Number.isNaN(reportStartDate.getTime()) || Number.isNaN(reportEndDate.getTime())) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid report dates.',
+      });
+    }
+
+    if (reportStartDate > reportEndDate) {
+      return res.status(400).json({
+        success: false,
+        message: 'Start date cannot be later than end date.',
+      });
+    }
+
+    // --------------------------------------------------
+    // Get user
+    // --------------------------------------------------
+
+    const user = await User.findById(userId).select('fullName email').lean();
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found.',
+      });
+    }
+
+    // --------------------------------------------------
+    // Get transactions for selected period
+    // --------------------------------------------------
+
+    const [incomes, expenses] = await Promise.all([
+      Income.find({
+        userId,
+        date: {
+          $gte: reportStartDate,
+          $lte: reportEndDate,
+        },
+      })
+        .sort({ date: 1 })
+        .lean(),
+
+      Expense.find({
+        userId,
+        date: {
+          $gte: reportStartDate,
+          $lte: reportEndDate,
+        },
+      })
+        .sort({ date: 1 })
+        .lean(),
+    ]);
+
+    // --------------------------------------------------
+    // Summary
+    // --------------------------------------------------
+
+    const totalIncome = incomes.reduce((sum, item) => sum + Number(item.amount || 0), 0);
+
+    const totalExpense = expenses.reduce((sum, item) => sum + Number(item.amount || 0), 0);
 
     const balance = totalIncome - totalExpense;
 
-    const commonData = await getCommonReportData(userId, incomes, expenses);
+    const savingsRate = totalIncome > 0 ? Number(((balance / totalIncome) * 100).toFixed(2)) : 0;
+
+    // --------------------------------------------------
+    // Combine transactions
+    // --------------------------------------------------
+
+    const transactions = [
+      ...incomes.map((income) => ({
+        date: income.date,
+        type: 'Income',
+        description: income.source || 'Income',
+        category: income.source || 'Other',
+        amount: Number(income.amount || 0),
+      })),
+
+      ...expenses.map((expense) => ({
+        date: expense.date,
+        type: 'Expense',
+        description: expense.category || 'Expense',
+        category: expense.category || 'Other',
+        amount: Number(expense.amount || 0),
+      })),
+    ].sort((a, b) => new Date(a.date) - new Date(b.date));
+
+    // --------------------------------------------------
+    // Get budgets relevant to the report period
+    // --------------------------------------------------
+
+    const startMonth = reportStartDate.getUTCMonth() + 1;
+    const startYear = reportStartDate.getUTCFullYear();
+
+    const endMonth = reportEndDate.getUTCMonth() + 1;
+    const endYear = reportEndDate.getUTCFullYear();
+
+    const budgets = await Budget.find({
+      userId,
+      $or: [
+        {
+          year: {
+            $gt: startYear,
+            $lt: endYear,
+          },
+        },
+        {
+          year: startYear,
+          month: {
+            $gte: String(startMonth).padStart(2, '0'),
+          },
+        },
+        {
+          year: endYear,
+          month: {
+            $lte: String(endMonth).padStart(2, '0'),
+          },
+        },
+      ],
+    })
+      .sort({ year: 1, month: 1 })
+      .lean();
+
+    // --------------------------------------------------
+    // Calculate budget performance
+    // --------------------------------------------------
+
+    const expenseMap = {};
+
+    expenses.forEach((expense) => {
+      const category = expense.category || 'Other';
+
+      if (!expenseMap[category]) {
+        expenseMap[category] = 0;
+      }
+
+      expenseMap[category] += Number(expense.amount || 0);
+    });
+
+    const budgetData = budgets.map((budget) => {
+      const limit = Number(budget.limitAmount || 0);
+      const spent = expenseMap[budget.category] || 0;
+
+      const remaining = limit - spent;
+
+      const percentage = limit > 0 ? Number(((spent / limit) * 100).toFixed(2)) : 0;
+
+      let status = 'On Track';
+
+      if (percentage >= 100) {
+        status = 'Exceeded';
+      } else if (percentage >= 80) {
+        status = 'Near Limit';
+      }
+
+      return {
+        id: budget._id,
+        icon: budget.icon || '💰',
+        category: budget.category,
+        month: budget.month,
+        year: budget.year,
+        budget: limit,
+        spent,
+        remaining,
+        percentage,
+        status,
+      };
+    });
+
+    // --------------------------------------------------
+    // Get savings goals
+    // --------------------------------------------------
+
+    const goals = await Goal.find({ userId }).sort({ status: 1, targetDate: 1 }).lean();
+
+    const goalData = goals.map((goal) => {
+      const targetAmount = Number(goal.targetAmount || 0);
+      const savedAmount = Number(goal.savedAmount || 0);
+
+      const progress =
+        targetAmount > 0
+          ? Math.min(Number(((savedAmount / targetAmount) * 100).toFixed(2)), 100)
+          : 0;
+
+      return {
+        id: goal._id,
+        title: goal.title,
+        icon: goal.icon || '',
+        targetAmount,
+        savedAmount,
+        progress,
+        targetDate: goal.targetDate || null,
+        status: goal.status,
+      };
+    });
+
+    // --------------------------------------------------
+    // Generate PDF
+    // --------------------------------------------------
 
     await generatePDF(res, {
-      title: 'Financial Report',
+      reportType: 'financial',
+      title: 'Financial Statement',
 
-      ...commonData,
+      user: {
+        name: user.fullName || 'User',
+        email: user.email || '',
+      },
+
+      period: {
+        start: reportStartDate,
+        end: reportEndDate,
+      },
+
+      companyName: process.env.COMPANY_NAME || 'Expense Tracker',
 
       summary: {
         income: totalIncome,
         expense: totalExpense,
         balance,
+        savingsRate,
       },
 
-      incomes,
-      expenses,
+      transactions,
+      budgets: budgetData,
+      goals: goalData,
     });
   } catch (error) {
-    console.error(error);
+    console.error('Financial Statement PDF Error:', error);
 
     res.status(500).json({
-      message: 'Failed to generate financial report.',
+      success: false,
+      message: 'Failed to generate financial statement.',
     });
   }
 };
@@ -284,7 +502,6 @@ const getFinancialReport = async (req, res) => {
   }
 };
 
-
 //  MONTHLY REPORT
 const getMonthlyReport = async (req, res) => {
   try {
@@ -367,7 +584,6 @@ const getMonthlyReport = async (req, res) => {
     });
   }
 };
-
 
 //  CATEGORY ANALYSIS REPORT
 const getCategoryAnalysis = async (req, res) => {
@@ -471,7 +687,6 @@ const getCategoryAnalysis = async (req, res) => {
     });
   }
 };
-
 
 // COMBINED FULL REPORT (single request for Reports page)
 const getFullReport = async (req, res) => {
@@ -600,7 +815,6 @@ const getFullReport = async (req, res) => {
   }
 };
 
-
 // BUDGET PERFORMANCE REPORT
 const getBudgetPerformance = async (req, res) => {
   try {
@@ -676,7 +890,6 @@ const getBudgetPerformance = async (req, res) => {
   }
 };
 
-
 // INCOME REPORT
 const exportIncomePDF = async (req, res) => {
   try {
@@ -710,7 +923,6 @@ const exportIncomePDF = async (req, res) => {
   }
 };
 
-
 // EXPENSE REPORT
 const exportExpensePDF = async (req, res) => {
   try {
@@ -743,7 +955,6 @@ const exportExpensePDF = async (req, res) => {
     });
   }
 };
-
 
 // TRANSACTION REPORT
 const exportTransactionPDF = async (req, res) => {
@@ -802,7 +1013,6 @@ const exportTransactionPDF = async (req, res) => {
   }
 };
 
-
 // EXPORT CSV REPORT
 const exportCSV = async (req, res) => {
   try {
@@ -838,7 +1048,6 @@ const exportCSV = async (req, res) => {
     res.status(500).json({ message: 'Failed to export CSV report.' });
   }
 };
-
 
 // EMAIL REPORT
 const sendEmailReport = async (req, res) => {

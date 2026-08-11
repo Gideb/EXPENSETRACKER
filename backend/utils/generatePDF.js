@@ -19,7 +19,7 @@ const COLORS = {
 
 //CURRENCY FORMATTER
 const formatCurrency = (amount) => {
-  return `GH₵ ${Number(amount || 0).toLocaleString('en-GH', {
+  return `GHS ${Number(amount || 0).toLocaleString('en-GH', {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   })}`;
@@ -181,13 +181,11 @@ const drawUserInformation = (doc, user = {}, period = {}) => {
 // TABLE GENERATOR
 //////////////////////////////////////////////////////
 
-const createTable = async (doc, { title, headers, rows }) => {
-  // Reset position
+const createTable = async (doc, { title, headers, rows, columnsSize }) => {
   doc.x = doc.page.margins.left;
 
   drawSectionTitle(doc, title);
 
-  // Reset again because drawSectionTitle() changes the cursor
   doc.x = doc.page.margins.left;
 
   try {
@@ -197,7 +195,7 @@ const createTable = async (doc, { title, headers, rows }) => {
         x: doc.page.margins.left,
         width: doc.page.width - doc.page.margins.left - doc.page.margins.right,
 
-        columnsSize: [90, 90, 200, 100],
+        columnsSize,
 
         padding: 5,
         columnSpacing: 5,
@@ -267,6 +265,32 @@ const drawEmptyMessage = (doc, message) => {
 
   doc.moveDown();
 };
+
+
+// Budget table formatter
+const formatBudgetRows = (budgets = []) => {
+  return budgets.map((budget) => [
+    safeText(budget.category),
+    formatCurrency(budget.budget),
+    formatCurrency(budget.spent),
+    formatCurrency(budget.remaining),
+    `${budget.percentage}%`,
+    safeText(budget.status),
+  ]);
+};
+
+// Savings goal table formatter
+const formatGoalRows = (goals = []) => {
+  return goals.map((goal) => [
+    safeText(goal.title),
+    formatCurrency(goal.targetAmount),
+    formatCurrency(goal.savedAmount),
+    `${goal.progress}%`,
+    safeText(goal.status),
+    formatDate(goal.targetDate),
+  ]);
+};
+
 
 //////////////////////////////////////////////////////
 // MAIN PDF GENERATOR FUNCTION
@@ -394,26 +418,48 @@ const generatePDF = async (res, data = {}) => {
   }
 
   if (data.reportType === 'financial') {
-    if (data.incomes?.length) {
+    if (data.transactions?.length) {
       await createTable(doc, {
-        title: 'Income Records',
-        headers: ['Date', 'Type', 'Source', 'Amount'],
-        rows: formatIncomeRows(data.incomes),
+        title: 'Transaction History',
+        headers: ['Date', 'Type', 'Category / Source', 'Amount'],
+        rows: formatTransactionRows(data.transactions),
       });
+    } else {
+      drawEmptyMessage(doc, 'No transactions were recorded during this period.');
     }
+  }
 
-    if (data.expenses?.length) {
+  if (data.reportType === 'financial') {
+    if (data.budgets?.length) {
       await createTable(doc, {
-        title: 'Expense Records',
-        headers: ['Date', 'Type', 'Category', 'Amount'],
-        rows: formatExpenseRows(data.expenses),
+        title: 'Budget Performance',
+        headers: ['Category', 'Budget', 'Spent', 'Remaining', 'Used', 'Status'],
+        rows: formatBudgetRows(data.budgets),
+        columnsSize: [85, 85, 85, 85, 55, 75],
       });
+    } else {
+      drawEmptyMessage(doc, 'No budgets were recorded during this period.');
+    }
+  }
+
+
+
+  if (data.reportType === 'financial') {
+    if (data.goals?.length) {
+      await createTable(doc, {
+        title: 'Savings Goals',
+        headers: ['Goal', 'Target', 'Saved', 'Progress', 'Status', 'Target Date'],
+        rows: formatGoalRows(data.goals),
+        columnsSize: [110, 85, 85, 65, 70, 80],
+      });
+    } else {
+      drawEmptyMessage(doc, 'No savings goals were recorded.');
     }
   }
 
   //addFooter(doc);
 
   doc.end();
-};
+};;;
 
 module.exports = generatePDF;
