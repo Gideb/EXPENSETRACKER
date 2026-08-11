@@ -1,5 +1,5 @@
 import { FiEdit2, FiTrendingUp, FiTrendingDown } from 'react-icons/fi';
-import { LuTrash2, LuWallet, LuChartPie } from 'react-icons/lu';
+import { LuTrash2, LuWallet, LuCalendar } from 'react-icons/lu';
 
 const BudgetCard = ({ budget, icon, onEdit, onDelete }) => {
   const spent = budget.spentAmount || 0;
@@ -9,6 +9,18 @@ const BudgetCard = ({ budget, icon, onEdit, onDelete }) => {
   const remaining = Math.max(limit - spent, 0);
   const isExceeded = spent > limit;
   const isNearLimit = percent >= 80 && percent < 100;
+
+  //get budget month and year
+  const getMonthYear = () => {
+    if (!budget.month || !budget.year) return 'MM YY';
+
+    const date = new Date(Number(budget.year), Number(budget.month) - 1);
+
+    return date.toLocaleDateString('en-US', {
+      month: 'short',
+      year: 'numeric',
+    });
+  };
 
   // Get status text
   const getStatusText = () => {
@@ -130,8 +142,8 @@ const BudgetCard = ({ budget, icon, onEdit, onDelete }) => {
         {/* Footer - Status and Info */}
         <div className="flex items-center justify-between pt-2 border-t border-gray-50 dark:border-gray-700">
           <div className="flex items-center gap-1">
-            <LuChartPie size={10} className="text-gray-400" />
-            <span className="text-[10px] text-gray-500 dark:text-gray-400">Monthly</span>
+            <LuCalendar size={10} className="text-gray-400" />
+            <span className="text-[10px] text-gray-500 dark:text-gray-400">{getMonthYear()}</span>
           </div>
           <span
             className={`text-[10px] font-medium px-1.5 py-0.5 rounded-full ${
