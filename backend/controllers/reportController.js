@@ -305,7 +305,7 @@ const exportPDF = async (req, res) => {
 
       if (percentage > 100) {
         status = 'Exceeded';
-      } else if ((percentage = 100)) {
+      } else if (percentage = 100) {
         status = 'Completed';
       } else if (percentage >= 80) {
         status = 'Near Limit';
