@@ -126,6 +126,11 @@ const getCategories = async (req, res) => {
 
 // FULL FINANCIAL STATEMENT PDF
 const exportPDF = async (req, res) => {
+  const normalizeCategory = (value) => {
+    return String(value || 'Other')
+      .trim()
+      .toLowerCase();
+  };
   try {
     const userId = req.user.id;
 
@@ -242,51 +247,55 @@ const exportPDF = async (req, res) => {
     const endMonth = reportEndDate.getUTCMonth() + 1;
     const endYear = reportEndDate.getUTCFullYear();
 
-    const budgets = await Budget.find({
-      userId,
-      $or: [
-        {
-          year: {
-            $gt: startYear,
-            $lt: endYear,
-          },
-        },
-        {
-          year: startYear,
-          month: {
-            $gte: String(startMonth).padStart(2, '0'),
-          },
-        },
-        {
-          year: endYear,
-          month: {
-            $lte: String(endMonth).padStart(2, '0'),
-          },
-        },
-      ],
-    })
-      .sort({ year: 1, month: 1 })
-      .lean();
-
     // --------------------------------------------------
+    // Get budgets relevant to the report period
+    // --------------------------------------------------
+
+    const budgets = await Budget.find({ userId }).sort({ year: 1, month: 1 }).lean();
+
+    const filteredBudgets = budgets.filter((budget) => {
+      const budgetYear = Number(budget.year);
+      const budgetMonth = Number(budget.month);
+
+      const budgetPeriod = budgetYear * 12 + (budgetMonth - 1);
+
+      const startPeriod = reportStartDate.getUTCFullYear() * 12 + reportStartDate.getUTCMonth();
+
+      const endPeriod = reportEndDate.getUTCFullYear() * 12 + reportEndDate.getUTCMonth();
+
+      return budgetPeriod >= startPeriod && budgetPeriod <= endPeriod;
+    });
+
     // Calculate budget performance
-    // --------------------------------------------------
-
     const expenseMap = {};
 
     expenses.forEach((expense) => {
-      const category = expense.category || 'Other';
+      const category = normalizeCategory(expense.category);
 
-      if (!expenseMap[category]) {
-        expenseMap[category] = 0;
+      const expenseDate = new Date(expense.date);
+
+      const year = expenseDate.getUTCFullYear();
+      const month = expenseDate.getUTCMonth() + 1;
+
+      const key = `${year}-${String(month).padStart(2, '0')}-${category}`;
+
+      if (!expenseMap[key]) {
+        expenseMap[key] = 0;
       }
 
-      expenseMap[category] += Number(expense.amount || 0);
+      expenseMap[key] += Number(expense.amount || 0);
     });
 
-    const budgetData = budgets.map((budget) => {
+    const budgetData = filteredBudgets.map((budget) => {
       const limit = Number(budget.limitAmount || 0);
-      const spent = expenseMap[budget.category] || 0;
+
+      const category = normalizeCategory(budget.category);
+
+      const month = String(Number(budget.month)).padStart(2, '0');
+
+      const key = `${Number(budget.year)}-${month}-${category}`;
+
+      const spent = expenseMap[key] || 0;
 
       const remaining = limit - spent;
 
@@ -294,8 +303,10 @@ const exportPDF = async (req, res) => {
 
       let status = 'On Track';
 
-      if (percentage >= 100) {
+      if (percentage > 100) {
         status = 'Exceeded';
+      } else if ((percentage = 100)) {
+        status = 'Completed';
       } else if (percentage >= 80) {
         status = 'Near Limit';
       }
@@ -313,12 +324,19 @@ const exportPDF = async (req, res) => {
         status,
       };
     });
-
     // --------------------------------------------------
     // Get savings goals
     // --------------------------------------------------
 
-    const goals = await Goal.find({ userId }).sort({ status: 1, targetDate: 1 }).lean();
+    const goals = await Goal.find({
+      userId,
+      targetDate: {
+        $gte: reportStartDate,
+        $lte: reportEndDate,
+      },
+    })
+      .sort({ targetDate: 1 })
+      .lean();
 
     const goalData = goals.map((goal) => {
       const targetAmount = Number(goal.targetAmount || 0);
@@ -381,7 +399,6 @@ const exportPDF = async (req, res) => {
     });
   }
 };
-
 
 //  FINANCIAL SUMMARY REPORT
 const getFinancialReport = async (req, res) => {
@@ -779,7 +796,7 @@ const getFullReport = async (req, res) => {
       const limit = Number(budget.limitAmount || 0);
       const percentage = limit > 0 ? Number(((spent / limit) * 100).toFixed(2)) : 0;
       let status = 'Good';
-      if (percentage >= 100) status = 'Exceeded';
+      if (percentage > 100) status = 'Exceeded';
       else if (percentage >= 80) status = 'Warning';
 
       return {
@@ -856,7 +873,7 @@ const getBudgetPerformance = async (req, res) => {
       const limit = Number(budget.limitAmount);
       const percentage = limit > 0 ? Number(((spent / limit) * 100).toFixed(2)) : 0;
       let status = 'Good';
-      if (percentage >= 100) {
+      if (percentage > 100) {
         status = 'Exceeded';
       } else if (percentage >= 80) {
         status = 'Warning';
