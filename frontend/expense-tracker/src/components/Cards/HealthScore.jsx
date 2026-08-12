@@ -23,7 +23,7 @@ const HealthScore = ({ dashboardData }) => {
   return (
     <div>
       <div
-        className={`p-4 rounded-lg text-xs border ${
+        className={`p-7 rounded-lg text-xs border ${
           healthStatus === 'green'
             ? 'bg-green-50 border-green-200 text-green-700'
             : healthStatus === 'yellow'
