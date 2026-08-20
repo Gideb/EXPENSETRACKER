@@ -1,465 +1,1048 @@
-const PDFDocument = require('pdfkit-table');
-const path = require('path');
+const PDFDocument = require('pdfkit');
+
+const PAGE = {
+  width: 595.28,
+  height: 841.89,
+  left: 50,
+  right: 545,
+  top: 30,
+  bottom: 790,
+  contentWidth: 495,
+};
 
 const COLORS = {
-  primary: '#9c521e',
-  secondary: '#1E40AF',
+  text: '#1f2937',
+  muted: '#6b7280',
+  lightMuted: '#9ca3af',
+  border: '#e5e7eb',
 
-  success: '#16A34A',
-  danger: '#DC2626',
-  warning: '#F59E0B',
+  tableHeader: '#fffbeb',
+  tableHeaderText: '#92400e',
 
-  light: '#F3F4F6',
-  dark: '#202b52',
-  muted: '#6B7280',
+  alternateRow: '#f9fafb',
+  white: '#ffffff',
 
-  white: '#FFFFFF',
-  amber: '#cc5500',
+  green: '#16a34a',
+  greenLight: '#f0fdf4',
+
+  red: '#dc2626',
+  redLight: '#fef2f2',
+
+  blue: '#2563eb',
+  blueLight: '#eff6ff',
+
+  yellow: '#ca8a04',
+  yellowLight: '#fefce8',
+
+  amber: '#d97706',
+  amberLight: '#fffbeb',
+  amberBorder: '#fde68a',
+  amberDark: '#92400e',
+
+  brown: '#895129',
+  brownDark: '#3d251e',
 };
 
-//CURRENCY FORMATTER
-const formatCurrency = (amount) => {
-  return `GHS ${Number(amount || 0).toLocaleString('en-GH', {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  })}`;
-};
+const generatePDF = (res, data = {}) => {
+  return new Promise((resolve, reject) => {
+    let doc;
 
-//DATE FORMATTER
-const formatDate = (date) => {
-  if (!date) return '-';
-
-  return new Date(date).toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-  });
-};
-
-//Prevent undefined errors
-const safeText = (value) => {
-  if (value === undefined || value === null || value === '') {
-    return '-';
-  }
-
-  return String(value);
-};
-
-// Draw section title
-const drawSectionTitle = (doc, title) => {
-  doc.fontSize(15).fillColor(COLORS.primary).font('Helvetica-Bold').text(title);
-
-  doc
-    .moveTo(50, doc.y)
-    .lineTo(doc.page.width - 50, doc.y)
-    .strokeColor(COLORS.primary)
-    .lineWidth(1)
-    .stroke();
-
-  doc.moveDown();
-};
-
-//////////////////////////////////////////////////////
-// HEADER SECTION
-//////////////////////////////////////////////////////
-
-const drawHeader = (
-  doc,
-  { title = 'Expense Tracker Report', logo = null, companyName = '' } = {}
-) => {
-  const pageWidth = doc.page.width;
-
-  // Header background
-  doc.rect(0, 0, pageWidth, 90).fill(COLORS.primary);
-
-  //  logo
-  if (logo) {
     try {
-      doc.image(path.resolve(logo), 40, 20, {
-        width: 50,
-        height: 50,
+      doc = new PDFDocument({
+        size: 'A4',
+        margin: 50,
+        bufferPages: true,
+        autoFirstPage: true,
       });
-    } catch (error) {
-      console.log('Unable to load logo:', error.message);
-    }
-  }
 
-  // Company name
-  if (companyName) {
-    doc
-      .fillColor(COLORS.white)
-      .fontSize(12)
-      .font('Helvetica')
-      .text(companyName, logo ? 110 : 40, 20);
-  }
+      // ============================================================
+      // DATA
+      // ============================================================
 
-  // Report title
-  doc
-    .fillColor(COLORS.white)
-    .fontSize(22)
-    .font('Helvetica-Bold')
-    .text(title, logo ? 110 : 40, 42);
+      const reportType = data.reportType || 'financial';
 
-  // Reset cursor
-  doc.fillColor(COLORS.dark).moveDown(2);
-};
+      const incomes = Array.isArray(data.incomes) ? data.incomes : [];
+      const expenses = Array.isArray(data.expenses) ? data.expenses : [];
+      const transactions = Array.isArray(data.transactions) ? data.transactions : [];
 
-//////////////////////////////////////////////////////
-// FOOTER SECTION
-//////////////////////////////////////////////////////
+      const budgets = Array.isArray(data.budgets) ? data.budgets : [];
+      const goals = Array.isArray(data.goals) ? data.goals : [];
 
-/* const addFooter = (doc) => {
-  const range = doc.bufferedPageRange();
+      const summary = data.summary || {};
 
-  for (let i = range.start; i < range.start + range.count; i++) {
-    doc.switchToPage(i);
+      // User information
+      const user = data.user || {};
 
-    const oldX = doc.x;
-    const oldY = doc.y;
-    doc.save();
+      const userName = user.fullName || user.name || data.name || 'User';
 
-    doc.fontSize(9);
+      const userEmail = user.email || data.userEmail || data.email || '';
 
-    doc.fillColor('#666');
+      const startDate = data.startDate || data.period?.start || new Date();
 
-    doc.text(`Page ${i + 1} of ${range.count}`, 0, doc.page.height - 30, {
-      width: doc.page.width,
-      align: 'center',
-      lineBreak: false,
-    });
+      const endDate = data.endDate || data.period?.end || new Date();
 
-    doc.restore();
-  }
-};
- */
-//////////////////////////////////////////////////////
-// SUMMARY CARDS
-//////////////////////////////////////////////////////
+      const totalIncome =
+        data.totalIncome ??
+        summary.income ??
+        incomes.reduce((sum, item) => sum + Number(item.amount || 0), 0);
 
-const drawSummaryCard = (doc, { x, y, title, amount, color }) => {
-  const width = 160;
-  const height = 75;
+      const totalExpense =
+        data.totalExpense ??
+        summary.expense ??
+        expenses.reduce((sum, item) => sum + Number(item.amount || 0), 0);
 
-  // Card background
-  doc.roundedRect(x, y, width, height, 7).fill(color);
+      const balance = data.balance ?? summary.balance ?? totalIncome - totalExpense;
 
-  // Title
-  doc
-    .fillColor(COLORS.white)
-    .fontSize(10)
-    .font('Helvetica')
-    .text(title, x + 10, y + 10);
+      const savingsRate =
+        summary.savingsRate ??
+        (totalIncome > 0 ? Number(((balance / totalIncome) * 100).toFixed(2)) : 0);
 
-  // Amount
-  doc
-    .fontSize(15)
-    .font('Helvetica-Bold')
-    .text(amount, x + 12, y + 35);
-};
+      // ============================================================
+      // RESPONSE
+      // ============================================================
 
-//////////////////////////////////////////////////////
-// USER INFORMATION BLOCK
-//////////////////////////////////////////////////////
+      const fileDate = new Date().toISOString().split('T')[0];
 
-const drawUserInformation = (doc, user = {}, period = {}) => {
-  doc
-    .fontSize(11)
-    .fillColor(COLORS.dark)
+      let filename = 'Expense_Report';
 
-    .text(`Prepared For: ${safeText(user.name)}`)
+      if (reportType === 'financial') {
+        filename = 'Financial_Statement';
+      } else if (reportType === 'income') {
+        filename = 'Income_Report';
+      } else if (reportType === 'expense') {
+        filename = 'Expense_Report';
+      } else if (reportType === 'transaction') {
+        filename = 'Transaction_Report';
+      }
 
-    .text(`Email: ${safeText(user.email)}`)
+      res.setHeader('Content-Type', 'application/pdf');
 
-    .text(`Period: ${formatDate(period.start)} - ${formatDate(period.end)}`)
+      res.setHeader('Content-Disposition', `attachment; filename=${filename}_${fileDate}.pdf`);
 
-    .text(`Generated: ${formatDate(new Date())}`);
+      doc.pipe(res);
 
-  doc.moveDown(2);
-};
+      // ============================================================
+      // HELPERS
+      // ============================================================
 
-//////////////////////////////////////////////////////
-// TABLE GENERATOR
-//////////////////////////////////////////////////////
+      const formatAmount = (amount) => {
+        const value = Number(amount || 0);
 
-const createTable = async (doc, { title, headers, rows, columnsSize }) => {
-  doc.x = doc.page.margins.left;
+        return `GHS ${new Intl.NumberFormat('en-GH', {
+          minimumFractionDigits: 0,
+          maximumFractionDigits: 2,
+        }).format(value)}`;
+      };
 
-  drawSectionTitle(doc, title);
+      const formatDate = (date) => {
+        if (!date) return '-';
 
-  doc.x = doc.page.margins.left;
+        const parsed = new Date(date);
 
-  try {
-    await doc.table(
-      { headers, rows },
-      {
-        x: doc.page.margins.left,
-        width: doc.page.width - doc.page.margins.left - doc.page.margins.right,
+        if (Number.isNaN(parsed.getTime())) {
+          return '-';
+        }
 
-        columnsSize,
+        return parsed.toLocaleDateString('en-GB', {
+          day: '2-digit',
+          month: 'short',
+          year: 'numeric',
+        });
+      };
 
-        padding: 5,
-        columnSpacing: 5,
+      const formatPercent = (value) => {
+        return `${Number(value || 0).toFixed(2)}%`;
+      };
 
-        prepareHeader: () => {
-          doc.font('Helvetica-Bold').fontSize(10).fillColor(COLORS.amber);
-        },
+      const truncate = (value, maxLength = 35) => {
+        const text = String(value ?? '');
 
-        prepareRow: (row, indexColumn, indexRow) => {
+        if (text.length <= maxLength) {
+          return text;
+        }
+
+        return `${text.substring(0, maxLength - 3)}...`;
+      };
+
+      const getReportTitle = () => {
+        switch (reportType) {
+          case 'income':
+            return 'Income Report';
+
+          case 'expense':
+            return 'Expense Report';
+
+          case 'transaction':
+            return 'Transaction Report';
+
+          case 'financial':
+          default:
+            return 'Financial Statement';
+        }
+      };
+
+      const drawLine = (y = doc.y) => {
+        doc
+          .save()
+          .strokeColor(COLORS.border)
+          .lineWidth(1)
+          .moveTo(PAGE.left, y)
+          .lineTo(PAGE.right, y)
+          .stroke()
+          .restore();
+      };
+
+      const drawDivider = () => {
+        doc.moveDown(0.5);
+
+        drawLine();
+
+        doc.moveDown(0.7);
+      };
+
+      // ============================================================
+      // PAGE HEADER
+      // ============================================================
+
+      const drawPageHeader = () => {
+        const currentY = doc.y;
+
+        doc.save();
+
+        // ----------------------------------------------------------
+        // LEFT SIDE
+        // ----------------------------------------------------------
+
+        doc
+          .font('Helvetica-Bold')
+          .fontSize(10)
+          .fillColor(COLORS.text)
+          .text('Expense Tracker', PAGE.left, 30, {
+            width: 200,
+            lineBreak: false,
+          });
+
+        doc
+          .font('Helvetica')
+          .fontSize(8)
+          .fillColor(COLORS.muted)
+          .text(`Generated: ${formatDate(new Date())}`, PAGE.left, 45, {
+            width: 200,
+            lineBreak: false,
+          });
+
+        // ----------------------------------------------------------
+        // RIGHT SIDE - USER INFORMATION
+        // ----------------------------------------------------------
+
+        doc
+          .font('Helvetica-Bold')
+          .fontSize(9)
+          .fillColor(COLORS.text)
+          .text(userName, PAGE.right - 180, 30, {
+            width: 180,
+            align: 'right',
+            lineBreak: false,
+          });
+
+        if (userEmail) {
+          doc
+            .font('Helvetica')
+            .fontSize(8)
+            .fillColor(COLORS.muted)
+            .text(userEmail, PAGE.right - 180, 45, {
+              width: 180,
+              align: 'right',
+              lineBreak: false,
+            });
+        }
+
+        doc.restore();
+
+        // Header is positioned absolutely.
+        // Restore the document cursor.
+        doc.y = currentY;
+      };
+
+      // ============================================================
+      // PAGE FOOTER
+      // ============================================================
+
+      const drawPageFooter = () => {
+        const currentY = doc.y;
+
+        // Fixed footer position.
+        const footerY = 805;
+
+        doc.save();
+
+        doc
+          .strokeColor(COLORS.border)
+          .lineWidth(0.5)
+          .moveTo(PAGE.left, footerY)
+          .lineTo(PAGE.right, footerY)
+          .stroke();
+
+        doc
+          .font('Helvetica')
+          .fontSize(8)
+          .fillColor(COLORS.lightMuted)
+          .text('Generated by Expense Tracker', PAGE.left, footerY + 7, {
+            width: 200,
+            lineBreak: false,
+          });
+
+        doc
+          .font('Helvetica')
+          .fontSize(8)
+          .fillColor(COLORS.lightMuted)
+          .text('System-generated document', PAGE.right - 150, footerY + 7, {
+            width: 150,
+            align: 'right',
+            lineBreak: false,
+          });
+
+        doc.restore();
+
+        // Footer must never affect document flow.
+        doc.y = currentY;
+      };
+
+      // ============================================================
+      // PAGE MANAGEMENT
+      // ============================================================
+
+      const startNewPage = () => {
+        doc.addPage();
+
+        drawPageHeader();
+
+        // Content begins below the header.
+        doc.y = 80;
+      };
+
+      const ensureSpace = (height = 40) => {
+        if (doc.y + height > PAGE.bottom - 15) {
+          startNewPage();
+          return true;
+        }
+
+        return false;
+      };
+
+      const ensureSectionSpace = (height = 100) => {
+        if (doc.y + height > PAGE.bottom - 15) {
+          startNewPage();
+          return true;
+        }
+
+        return false;
+      };
+
+      // ============================================================
+      // SECTION TITLE
+      // ============================================================
+
+      const drawSectionTitle = (title, color = COLORS.text, requiredHeight = 75) => {
+        ensureSectionSpace(requiredHeight);
+
+        doc.font('Helvetica-Bold').fontSize(15).fillColor(color).text(title);
+
+        doc.moveDown(0.5);
+      };
+
+      // ============================================================
+      // TABLE HEADER
+      // ============================================================
+
+      const drawTableHeader = (columns, height = 25) => {
+        const y = doc.y;
+
+        doc
+          .save()
+          .fillColor(COLORS.tableHeader)
+          .rect(PAGE.left, y, PAGE.contentWidth, height)
+          .fill();
+
+        doc
+          .strokeColor(COLORS.amberBorder)
+          .lineWidth(1)
+          .rect(PAGE.left, y, PAGE.contentWidth, height)
+          .stroke();
+
+        columns.forEach((column) => {
+          doc
+            .font('Helvetica-Bold')
+            .fontSize(9)
+            .fillColor(COLORS.tableHeaderText)
+            .text(column.label, column.x, y + 7, {
+              width: column.width,
+              align: column.align || 'left',
+              lineBreak: false,
+            });
+        });
+
+        doc.restore();
+
+        doc.y = y + height + 4;
+      };
+
+      // ============================================================
+      // GENERIC TABLE ROW
+      // ============================================================
+
+      const drawTableRow = ({ values, columns, index, height = 22, fontSize = 9 }) => {
+        ensureSpace(height + 4);
+
+        const y = doc.y;
+
+        const background = index % 2 === 0 ? COLORS.white : COLORS.alternateRow;
+
+        doc.save().fillColor(background).rect(PAGE.left, y, PAGE.contentWidth, height).fill();
+
+        doc
+          .strokeColor('#f3f4f6')
+          .lineWidth(0.5)
+          .rect(PAGE.left, y, PAGE.contentWidth, height)
+          .stroke();
+
+        columns.forEach((column, columnIndex) => {
+          const value = values[columnIndex] ?? '';
+
+          doc
+            .font('Helvetica')
+            .fontSize(fontSize)
+            .fillColor(COLORS.text)
+            .text(String(value), column.x, y + 6, {
+              width: column.width,
+              align: column.align || 'left',
+              lineBreak: false,
+              ellipsis: true,
+            });
+        });
+
+        doc.restore();
+
+        doc.y = y + height;
+      };
+
+      // ============================================================
+      // TABLE WITH PAGE BREAKS
+      // ============================================================
+
+      const drawTable = ({
+        columns,
+        rows,
+        rowHeight = 22,
+        emptyMessage = 'No records found.',
+        rowMapper,
+      }) => {
+        const minimumTableHeight = 25 + rowHeight;
+
+        // ----------------------------------------------------------
+        // EMPTY TABLE
+        // ----------------------------------------------------------
+
+        if (rows.length === 0) {
+          ensureSpace(50);
+
+          drawTableHeader(columns);
+
           doc
             .font('Helvetica')
             .fontSize(9)
-            .fillColor(indexRow % 2 === 0 ? COLORS.dark : COLORS.muted);
-        },
+            .fillColor(COLORS.muted)
+            .text(emptyMessage, PAGE.left + 15, doc.y + 4, {
+              lineBreak: false,
+            });
 
-        divider: {
-          header: { disabled: false, width: 1 },
-          horizontal: { disabled: false, width: 0.4 },
-        },
+          doc.y += 28;
 
-        headerBackground: COLORS.amber,
+          return;
+        }
+
+        // ----------------------------------------------------------
+        // KEEP SECTION + HEADER + FIRST ROW TOGETHER
+        // ----------------------------------------------------------
+
+        if (doc.y + minimumTableHeight > PAGE.bottom - 15) {
+          startNewPage();
+        }
+
+        drawTableHeader(columns);
+
+        rows.forEach((row, index) => {
+          // --------------------------------------------------------
+          // PAGE BREAK
+          // --------------------------------------------------------
+
+          if (doc.y + rowHeight > PAGE.bottom - 15) {
+            startNewPage();
+
+            drawTableHeader(columns);
+          }
+
+          drawTableRow({
+            values: rowMapper(row, index),
+            columns,
+            index,
+            height: rowHeight,
+          });
+        });
+      };
+
+      // ============================================================
+      // SUMMARY CARDS
+      // ============================================================
+
+      const drawSummaryCards = () => {
+        ensureSectionSpace(90);
+
+        const y = doc.y;
+
+        const gap = 10;
+
+        const cardWidth = 155;
+
+        const cardHeight = 68;
+
+        const cards = [
+          {
+            x: PAGE.left,
+            label: 'Total Income',
+            value: formatAmount(totalIncome),
+            color: COLORS.green,
+          },
+          {
+            x: PAGE.left + cardWidth + gap,
+            label: 'Total Expenses',
+            value: formatAmount(totalExpense),
+            color: COLORS.red,
+          },
+          {
+            x: PAGE.left + (cardWidth + gap) * 2,
+            label: 'Balance',
+            value: formatAmount(balance),
+            color: balance >= 0 ? COLORS.blue : COLORS.red,
+          },
+        ];
+
+        cards.forEach((card) => {
+          doc
+            .save()
+            .fillColor(COLORS.white)
+            .roundedRect(card.x, y, cardWidth, cardHeight, 4)
+            .fill();
+
+          doc
+            .strokeColor(COLORS.border)
+            .lineWidth(1)
+            .roundedRect(card.x, y, cardWidth, cardHeight, 4)
+            .stroke();
+
+          doc
+            .font('Helvetica')
+            .fontSize(9)
+            .fillColor(COLORS.muted)
+            .text(card.label, card.x + 15, y + 14, {
+              lineBreak: false,
+            });
+
+          doc
+            .font('Helvetica-Bold')
+            .fontSize(14)
+            .fillColor(card.color)
+            .text(card.value, card.x + 15, y + 32, {
+              width: cardWidth - 30,
+              ellipsis: true,
+              lineBreak: false,
+            });
+
+          doc.restore();
+        });
+
+        doc.y = y + cardHeight + 20;
+      };
+
+      // ============================================================
+      // REPORT TITLE
+      // ============================================================
+
+      const drawReportTitle = () => {
+        ensureSectionSpace(90);
+
+        // Left-aligned main report title
+        doc
+          .font('Helvetica-Bold')
+          .fontSize(23)
+          .fillColor(COLORS.text)
+          .text(getReportTitle(), PAGE.left, doc.y, {
+            width: PAGE.contentWidth,
+            align: 'left',
+            lineBreak: false,
+          });
+
+        doc.moveDown(0.5);
+
+        doc
+          .font('Helvetica')
+          .fontSize(10)
+          .fillColor(COLORS.muted)
+          .text(`Report Period: ${formatDate(startDate)} - ${formatDate(endDate)}`, {
+            width: PAGE.contentWidth,
+            align: 'left',
+            lineBreak: false,
+          });
+
+        doc.moveDown(1.3);
+      };
+
+      // ============================================================
+      // INCOME TABLE
+      // ============================================================
+
+      const drawIncomeSection = () => {
+        drawSectionTitle('Income Transactions', COLORS.green, 75);
+
+        const columns = [
+          {
+            label: 'Date',
+            x: 65,
+            width: 105,
+          },
+          {
+            label: 'Description',
+            x: 180,
+            width: 220,
+          },
+          {
+            label: 'Amount',
+            x: 430,
+            width: 100,
+            align: 'right',
+          },
+        ];
+
+        drawTable({
+          columns,
+          rows: incomes,
+          rowHeight: 22,
+          emptyMessage: 'No income transactions for this period.',
+          rowMapper: (income) => [
+            formatDate(income.date),
+            truncate(income.source || income.description || 'Income', 42),
+            formatAmount(income.amount),
+          ],
+        });
+
+        drawTotalRow('Total Income', totalIncome, COLORS.green, COLORS.greenLight);
+      };
+
+      // ============================================================
+      // EXPENSE TABLE
+      // ============================================================
+
+      const drawExpenseSection = () => {
+        drawSectionTitle('Expense Transactions', COLORS.red, 75);
+
+        const columns = [
+          {
+            label: 'Date',
+            x: 65,
+            width: 105,
+          },
+          {
+            label: 'Category',
+            x: 180,
+            width: 220,
+          },
+          {
+            label: 'Amount',
+            x: 430,
+            width: 100,
+            align: 'right',
+          },
+        ];
+
+        drawTable({
+          columns,
+          rows: expenses,
+          rowHeight: 22,
+          emptyMessage: 'No expense transactions for this period.',
+          rowMapper: (expense) => [
+            formatDate(expense.date),
+            truncate(expense.category || expense.description || 'Expense', 42),
+            formatAmount(expense.amount),
+          ],
+        });
+
+        drawTotalRow('Total Expenses', totalExpense, COLORS.red, COLORS.redLight);
+      };
+
+      // ============================================================
+      // TOTAL ROW
+      // ============================================================
+
+      const drawTotalRow = (label, amount, color, background) => {
+        const height = 25;
+
+        if (doc.y + height > PAGE.bottom - 15) {
+          startNewPage();
+        }
+
+        const y = doc.y;
+
+        doc.save().fillColor(background).rect(PAGE.left, y, PAGE.contentWidth, height).fill();
+
+        doc
+          .strokeColor(COLORS.border)
+          .lineWidth(1)
+          .rect(PAGE.left, y, PAGE.contentWidth, height)
+          .stroke();
+
+        doc
+          .font('Helvetica-Bold')
+          .fontSize(9)
+          .fillColor(color)
+          .text(label, 180, y + 7, {
+            lineBreak: false,
+          });
+
+        doc
+          .font('Helvetica-Bold')
+          .fontSize(9)
+          .fillColor(color)
+          .text(formatAmount(amount), 430, y + 7, {
+            width: 100,
+            align: 'right',
+            lineBreak: false,
+          });
+
+        doc.restore();
+
+        doc.y = y + height + 18;
+      };
+
+      // ============================================================
+      // BUDGET PERFORMANCE
+      // ============================================================
+
+      const drawBudgetSection = () => {
+        drawSectionTitle('Budget Performance', COLORS.blue, 85);
+
+        const columns = [
+          {
+            label: 'Month',
+            x: 60,
+            width: 70,
+          },
+          {
+            label: 'Category',
+            x: 130,
+            width: 115,
+          },
+          {
+            label: 'Budget',
+            x: 245,
+            width: 80,
+            align: 'right',
+          },
+          {
+            label: 'Spent',
+            x: 325,
+            width: 75,
+            align: 'right',
+          },
+          {
+            label: 'Remaining',
+            x: 400,
+            width: 75,
+            align: 'right',
+          },
+          {
+            label: 'Status',
+            x: 475,
+            width: 65,
+            align: 'right',
+          },
+        ];
+
+        drawTable({
+          columns,
+          rows: budgets,
+          rowHeight: 24,
+          emptyMessage: 'No budgets found for this period.',
+          rowMapper: (budget) => {
+            const month = budget.month
+              ? `${String(budget.month).padStart(2, '0')}/${budget.year || ''}`
+              : '-';
+
+            return [
+              month,
+              truncate(budget.category || 'Other', 20),
+              formatAmount(budget.budget),
+              formatAmount(budget.spent),
+              formatAmount(budget.remaining),
+              truncate(budget.status || 'On Track', 12),
+            ];
+          },
+        });
+
+        doc.moveDown(0.5);
+      };
+
+      // ============================================================
+      // SAVINGS GOALS
+      // ============================================================
+
+      const drawGoalsSection = () => {
+        drawSectionTitle('Savings Goals', COLORS.brown, 85);
+
+        const columns = [
+          {
+            label: 'Goal',
+            x: 60,
+            width: 160,
+          },
+          {
+            label: 'Target',
+            x: 220,
+            width: 85,
+            align: 'right',
+          },
+          {
+            label: 'Saved',
+            x: 305,
+            width: 80,
+            align: 'right',
+          },
+          {
+            label: 'Progress',
+            x: 385,
+            width: 70,
+            align: 'right',
+          },
+          {
+            label: 'Target Date',
+            x: 455,
+            width: 85,
+            align: 'right',
+          },
+        ];
+
+        drawTable({
+          columns,
+          rows: goals,
+          rowHeight: 24,
+          emptyMessage: 'No savings goals found for this period.',
+          rowMapper: (goal) => [
+            truncate(goal.title || 'Savings Goal', 28),
+            formatAmount(goal.targetAmount),
+            formatAmount(goal.savedAmount),
+            formatPercent(goal.progress),
+            formatDate(goal.targetDate),
+          ],
+        });
+
+        doc.moveDown(0.5);
+      };
+
+      // ============================================================
+      // TRANSACTION TABLE
+      // ============================================================
+
+      const drawTransactionSection = () => {
+        drawSectionTitle('Transactions', COLORS.amber, 75);
+
+        const columns = [
+          {
+            label: 'Date',
+            x: 60,
+            width: 85,
+          },
+          {
+            label: 'Type',
+            x: 145,
+            width: 75,
+          },
+          {
+            label: 'Category / Description',
+            x: 220,
+            width: 190,
+          },
+          {
+            label: 'Amount',
+            x: 410,
+            width: 130,
+            align: 'right',
+          },
+        ];
+
+        drawTable({
+          columns,
+          rows: transactions,
+          rowHeight: 23,
+          emptyMessage: 'No transactions found.',
+          rowMapper: (transaction) => [
+            formatDate(transaction.date),
+            transaction.type || '-',
+            truncate(transaction.description || transaction.category || '-', 38),
+            formatAmount(transaction.amount),
+          ],
+        });
+
+        // ----------------------------------------------------------
+        // FINANCIAL TOTALS
+        // ----------------------------------------------------------
+
+        ensureSpace(65);
+
+        doc.moveDown(0.7);
+
+        const totalY = doc.y;
+
+        doc
+          .font('Helvetica-Bold')
+          .fontSize(10)
+          .fillColor(COLORS.green)
+          .text(`Total Income: ${formatAmount(totalIncome)}`, PAGE.left, totalY, {
+            lineBreak: false,
+          });
+
+        doc
+          .font('Helvetica-Bold')
+          .fontSize(10)
+          .fillColor(COLORS.red)
+          .text(`Total Expenses: ${formatAmount(totalExpense)}`, PAGE.left, totalY + 18, {
+            lineBreak: false,
+          });
+
+        doc
+          .font('Helvetica-Bold')
+          .fontSize(10)
+          .fillColor(balance >= 0 ? COLORS.blue : COLORS.red)
+          .text(`Net Balance: ${formatAmount(balance)}`, 330, totalY + 9, {
+            width: 210,
+            align: 'right',
+            lineBreak: false,
+          });
+
+        doc.y = totalY + 42;
+      };
+
+      // ============================================================
+      // INITIAL PAGE
+      // ============================================================
+
+      drawPageHeader();
+
+      // Start content below header.
+      doc.y = 80;
+
+      // ============================================================
+      // REPORT RENDERING
+      // ============================================================
+
+      if (reportType === 'financial') {
+        // ----------------------------------------------------------
+        // FINANCIAL STATEMENT
+        // ----------------------------------------------------------
+
+        drawReportTitle();
+
+        // Summary cards ONLY appear on the main report.
+        drawSummaryCards();
+
+        drawDivider();
+
+        drawIncomeSection();
+
+        drawDivider();
+
+        drawExpenseSection();
+
+        drawDivider();
+
+        drawBudgetSection();
+
+        drawDivider();
+
+        drawGoalsSection();
+      } else if (reportType === 'income') {
+        // ----------------------------------------------------------
+        // INCOME REPORT
+        // ----------------------------------------------------------
+
+        drawReportTitle();
+
+        // No summary cards on individual reports.
+        drawIncomeSection();
+      } else if (reportType === 'expense') {
+        // ----------------------------------------------------------
+        // EXPENSE REPORT
+        // ----------------------------------------------------------
+
+        drawReportTitle();
+
+        // No summary cards on individual reports.
+        drawExpenseSection();
+      } else if (reportType === 'transaction') {
+        // ----------------------------------------------------------
+        // TRANSACTION REPORT
+        // ----------------------------------------------------------
+
+        drawReportTitle();
+
+        // No summary cards.
+        drawTransactionSection();
+      } else {
+        // ----------------------------------------------------------
+        // FALLBACK
+        // ----------------------------------------------------------
+
+        drawReportTitle();
+
+        // Fallback behaves like the main financial report.
+        drawSummaryCards();
+
+        drawDivider();
+
+        drawIncomeSection();
+
+        drawDivider();
+
+        drawExpenseSection();
       }
-    );
-  } catch (err) {
-    console.error(err);
-  }
 
-  doc.moveDown();
-};
+      // ============================================================
+      // DRAW FOOTERS ON EXISTING PAGES
+      // ============================================================
 
-//////////////////////////////////////////////////////
-// TABLE FORMATTERS
-//////////////////////////////////////////////////////
+      const range = doc.bufferedPageRange();
 
-// Income table formatter
-const formatIncomeRows = (incomes = []) => {
-  return incomes.map((income) => [
-    formatDate(income.date),
-    safeText('Income'),
-    safeText(income.source),
-    formatCurrency(income.amount),
-  ]);
-};
+      for (let pageIndex = range.start; pageIndex < range.start + range.count; pageIndex++) {
+        doc.switchToPage(pageIndex);
 
-//Expense table formatter
-const formatExpenseRows = (expenses = []) => {
-  return expenses.map((expense) => [
-    formatDate(expense.date),
-    safeText('Expense'),
-    safeText(expense.category),
-    formatCurrency(expense.amount),
-  ]);
-};
+        drawPageFooter();
+      }
 
-// Transaction table formatter
-const formatTransactionRows = (transactions = []) => {
-  return transactions.map((transaction) => [
-    formatDate(transaction.date),
-    safeText(transaction.type),
-    safeText(transaction.category),
-    formatCurrency(transaction.amount),
-  ]);
-};
+      // ============================================================
+      // COMPLETE PDF
+      // ============================================================
 
-const drawEmptyMessage = (doc, message) => {
-  doc.fontSize(11).fillColor(COLORS.muted).font('Helvetica-Oblique').text(message);
+      doc.on('error', (error) => {
+        reject(error);
+      });
 
-  doc.moveDown();
-};
+      doc.on('end', () => {
+        resolve();
+      });
 
-
-// Budget table formatter
-const formatBudgetRows = (budgets = []) => {
-  return budgets.map((budget) => [
-    safeText(budget.category),
-    formatCurrency(budget.budget),
-    formatCurrency(budget.spent),
-    formatCurrency(budget.remaining),
-    `${budget.percentage}%`,
-    safeText(budget.status),
-  ]);
-};
-
-// Savings goal table formatter
-const formatGoalRows = (goals = []) => {
-  return goals.map((goal) => [
-    safeText(goal.title),
-    formatCurrency(goal.targetAmount),
-    formatCurrency(goal.savedAmount),
-    `${goal.progress}%`,
-    safeText(goal.status),
-    formatDate(goal.targetDate),
-  ]);
-};
-
-
-//////////////////////////////////////////////////////
-// MAIN PDF GENERATOR FUNCTION
-//////////////////////////////////////////////////////
-
-const generatePDF = async (res, data = {}) => {
-  const doc = new PDFDocument({
-    size: 'A4',
-    margin: 50,
-    bufferPages: true,
-    autoFirstPage: true,
+      doc.end();
+    } catch (error) {
+      reject(error);
+    }
   });
-
-  res.setHeader('Content-Type', 'application/pdf');
-  res.setHeader(
-    'Content-Disposition',
-    `attachment; filename=${data.title.replace(/\s+/g, '-').toLowerCase()}.pdf`
-  );
-
-  doc.pipe(res);
-
-  //////////////////////////////////////////////////////
-  // HEADER
-  //////////////////////////////////////////////////////
-
-  drawHeader(doc, {
-    title: data.title || 'Financial Report',
-    logo: data.profileImageUrl || null,
-    companyName: data.companyName || 'My Report',
-  });
-
-  // USER INFORMATION
-  drawUserInformation(doc, data.user || {}, data.period || {});
-
-  //////////////////////////////////////////////////////
-  // SUMMARY SECTION
-  //////////////////////////////////////////////////////
-
-  drawSectionTitle(doc, 'Report Summary');
-
-  const summary = data.summary || {};
-
-  const cards = [];
-
-  if (summary.income !== undefined) {
-    cards.push({
-      title: 'Total Income',
-      amount: formatCurrency(summary.income),
-      color: COLORS.dark,
-    });
-  }
-
-  if (summary.expense !== undefined) {
-    cards.push({
-      title: 'Total Expense',
-      amount: formatCurrency(summary.expense),
-      color: COLORS.dark,
-    });
-  }
-
-  if (summary.balance !== undefined) {
-    cards.push({
-      title: 'Balance',
-      amount: formatCurrency(summary.balance),
-      color: COLORS.dark,
-    });
-  }
-
-  let cardX = 50;
-  const cardY = doc.y;
-
-  cards.forEach((card) => {
-    drawSummaryCard(doc, {
-      x: cardX,
-      y: cardY,
-      title: card.title,
-      amount: card.amount,
-      color: card.color,
-    });
-
-    cardX += 170;
-  });
-
-  // Move cursor below cards
-  doc.y = cardY + 95;
-  doc.moveDown();
-
-  //////////////////////////////////////////////////////
-  // REPORT TABLES
-  //////////////////////////////////////////////////////
-
-  if (data.reportType === 'income') {
-    if (data.incomes?.length) {
-      await createTable(doc, {
-        title: 'Income Records',
-        headers: ['Date', 'Type', 'Source', 'Amount'],
-        rows: formatIncomeRows(data.incomes),
-      });
-    }
-  }
-
-  if (data.reportType === 'expense') {
-    if (data.expenses?.length) {
-      await createTable(doc, {
-        title: 'Expense Records',
-        headers: ['Date', 'Type', 'Category', 'Amount'],
-        rows: formatExpenseRows(data.expenses),
-      });
-    }
-  }
-
-  if (data.reportType === 'transaction') {
-    if (data.transactions?.length) {
-      await createTable(doc, {
-        title: 'Transaction History',
-        headers: ['Date', 'Type', 'Category/Source', 'Amount'],
-        rows: data.transactions.map((item) => [
-          formatDate(item.date),
-          safeText(item.type),
-          safeText(item.category),
-          formatCurrency(item.amount),
-        ]),
-      });
-    }
-  }
-
-  if (data.reportType === 'financial') {
-    if (data.transactions?.length) {
-      await createTable(doc, {
-        title: 'Transaction History',
-        headers: ['Date', 'Type', 'Category / Source', 'Amount'],
-        rows: formatTransactionRows(data.transactions),
-      });
-    } else {
-      drawEmptyMessage(doc, 'No transactions were recorded during this period.');
-    }
-  }
-
-  if (data.reportType === 'financial') {
-    if (data.budgets?.length) {
-      await createTable(doc, {
-        title: 'Budget Performance',
-        headers: ['Category', 'Budget', 'Spent', 'Remaining', 'Used', 'Status'],
-        rows: formatBudgetRows(data.budgets),
-        columnsSize: [85, 85, 85, 85, 55, 75],
-      });
-    } else {
-      drawEmptyMessage(doc, 'No budgets were recorded during this period.');
-    }
-  }
-
-
-
-  if (data.reportType === 'financial') {
-    if (data.goals?.length) {
-      await createTable(doc, {
-        title: 'Savings Goals',
-        headers: ['Goal', 'Target', 'Saved', 'Progress', 'Status', 'Target Date'],
-        rows: formatGoalRows(data.goals),
-        columnsSize: [110, 85, 85, 65, 70, 80],
-      });
-    } else {
-      drawEmptyMessage(doc, 'No savings goals were recorded.');
-    }
-  }
-
-  //addFooter(doc);
-
-  doc.end();
-};;;
+};
 
 module.exports = generatePDF;
