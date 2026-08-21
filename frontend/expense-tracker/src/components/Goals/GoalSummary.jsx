@@ -96,7 +96,7 @@ const GoalSummary = ({ refreshKey }) => {
 
       {/* Additional Stats */}
       <div className="mt-4 grid grid-cols md:grid-cols-4 gap-4">
-        <div className="bg-white dark:bg-slate-900 rounded-xl p-4 border border-gray-200 dark:border-gray-500">
+        <div className="bg-white dark:bg-black/15 rounded-md p-4 border border-gray-200 dark:border-gray-500">
           <div className="flex items-center justify-between pb-4">
             <span className="text-sm text-gray-500 dark:text-gray-400">Total Target Amount</span>
             <GiArcheryTarget size={18} className="text-amber-700 dark:text-amber-200" />
@@ -105,7 +105,7 @@ const GoalSummary = ({ refreshKey }) => {
             GHS {summary.totalTarget.toLocaleString()}
           </div>
         </div>
-        <div className="bg-white dark:bg-slate-900 rounded-xl p-4 border border-gray-200 dark:border-gray-500">
+        <div className="bg-white dark:bg-black/15 rounded-md p-4 border border-gray-200 dark:border-gray-500">
           <div className="flex items-center justify-between pb-4">
             <span className="text-sm text-gray-500 dark:text-gray-400">Total Saved Amount</span>
             <BsCashCoin size={18} className="text-amber-700 dark:text-amber-200" />
@@ -114,7 +114,7 @@ const GoalSummary = ({ refreshKey }) => {
             GHS {summary.totalSaved.toLocaleString()}
           </div>
         </div>
-        <div className="bg-white dark:bg-slate-900 rounded-xl p-4 border border-gray-200 dark:border-gray-500">
+        <div className="bg-white dark:bg-black/15 rounded-md p-4 border border-gray-200 dark:border-gray-500">
           <div className="flex items-center justify-between pb-4">
             <span className="text-sm text-gray-500 dark:text-gray-400">Remaining to Save</span>
             <PieChart size={18} className="text-amber-700 dark:text-amber-200" />
@@ -123,7 +123,7 @@ const GoalSummary = ({ refreshKey }) => {
             GHS {summary.remaining.toLocaleString()}
           </div>
         </div>
-        <div className="bg-white dark:bg-slate-900 rounded-xl p-4 border border-gray-200 dark:border-gray-500">
+        <div className="bg-white dark:bg-black/15 rounded-md p-4 border border-gray-200 dark:border-gray-500">
           <div className="flex items-center justify-between pb-4">
             <span className="text-sm text-gray-500 dark:text-gray-400">Completion Rate</span>
             <TrendingUp size={18} className="text-amber-700 dark:text-amber-200" />
