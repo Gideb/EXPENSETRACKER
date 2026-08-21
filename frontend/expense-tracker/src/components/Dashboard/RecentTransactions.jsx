@@ -14,9 +14,9 @@ const RecentTransactions = ({ transactions, onSeeMore }) => {
   return (
     <div className="card">
       <div className="flex items-center justify-between">
-        <div>
+        <div className="">
           <h5 className="text-lg dark:text-gray-100">Recent Transactions</h5>
-          <p className="text-xs text-gray-400 mt-1">
+          <p className="text-xs text-gray-400 mt-1 ">
             View your recent conbined transaction history
           </p>
         </div>

@@ -12,7 +12,7 @@ const BudgetList = ({ budgets, onDelete, handleEditBudget }) => {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
         {budgets?.map((budget) => (
           <BudgetCard
             key={budget._id}

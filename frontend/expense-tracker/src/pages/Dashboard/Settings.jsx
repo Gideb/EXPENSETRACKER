@@ -182,7 +182,7 @@ const Settings = () => {
 
   return (
     <Dashboardlayout activeMenu="Settings">
-      <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Settings</h1>
@@ -191,7 +191,6 @@ const Settings = () => {
           </p>
         </div>
 
-        {/* Profile Information */}
         <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden mb-6">
           <div className="px-6 py-4 border-b border-gray-100 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-800/50">
             <div className="flex items-center gap-3">
@@ -264,7 +263,7 @@ const Settings = () => {
             <button
               type="submit"
               disabled={profileLoading}
-              className="mt-6 w-full sm:w-auto bg-amber-600 hover:bg-amber-700 dark:bg-amber-500 dark:hover:bg-amber-600 text-white font-medium px-6 py-2.5 rounded-xl transition-all duration-200 flex items-center justify-center gap-2 shadow-sm cursor-pointer hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
+              className="mt-6 w-full sm:w-auto bg-amber-700 dark:hover:bg-amber-600 text-white font-medium px-6 py-2.5 rounded-xl transition-all duration-200 flex items-center justify-center gap-2 shadow-sm cursor-pointer hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <Save className="w-4 h-4" />
               {profileLoading ? 'Saving...' : 'Save Profile'}
@@ -273,6 +272,7 @@ const Settings = () => {
         </div>
 
         {/* Change Password */}
+
         <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden mb-6">
           <div className="px-6 py-4 border-b border-gray-100 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-800/50">
             <div className="flex items-center gap-3">
